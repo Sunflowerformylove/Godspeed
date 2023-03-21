@@ -11,3 +11,30 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+*{
+  font-family: 'Montserrat', serif;
+  user-select: none;
+}
+
+#root{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #000;
+  color: white;
+  width: 100vw;
+}
+
+::-webkit-scrollbar{
+  display: none;
+}
+
+html{
+  font-size: 10px;
+}
+
+.Toaster{
+  background-color: transparent;
+}

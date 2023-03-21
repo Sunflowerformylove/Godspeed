@@ -1,0 +1,102 @@
+.registerPage{
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+}
+
+input{
+    width: 50%;
+    height: 3rem;
+    font-size: 2rem;
+    border: none;
+    border-bottom: 4px solid #ccc;
+    background-color: transparent;
+    color: white;
+}
+
+input:focus{
+    border: none;
+    border-bottom: 2px solid #ccc;
+    outline: none;
+}
+
+label{
+    width: 50.3%;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.InputAndLabel{
+    display: flex;
+    width: 100%;
+    height: 5rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.InputAndLabel + .InputAndLabel{
+    margin-top: 5rem;
+}
+
+.resendOTP{
+    position: absolute;
+    font-size: 2rem;
+    font-weight: 500;
+    right: 25%;
+    bottom: 29%;
+    cursor: pointer;
+    background-color: transparent !important;
+}
+
+.modal{
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: rgba(50,50,50,.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* .g-recaptcha{
+    width: 20rem;
+    height: 5rem;
+} */
+
+.submitBtn{
+    width: 15rem;
+    height: 4rem;
+    font-size: 2rem;
+    font-weight: 600;
+    background-color: #fff;
+    color: black;
+    border: none;
+    outline: none;
+    position: absolute;
+    bottom: 3rem;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.submitBtn:hover{
+    background-color: #ccc;
+}
+
+.toaster{
+    border-radius: 20px !important;
+    width: 20rem !important;
+    height: 5rem !important;
+    background-color: transparent;
+    align-self: center;
+    font-size: 1.6rem;
+    position: fixed !important;
+    left: 50% !important;
+}
