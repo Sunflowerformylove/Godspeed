@@ -27,6 +27,10 @@ code {
   width: 100vw;
 }
 
+:root{
+  --toastify-font-family: 'Montserrat', serif;
+}
+
 ::-webkit-scrollbar{
   display: none;
 }

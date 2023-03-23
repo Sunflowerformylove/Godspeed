@@ -1,6 +1,7 @@
 import "../Style/Welcome.css";
 import anime from "animejs/lib/anime.es.js";
 import Register from "./Register";
+import Login from "./Login";
 import { useRef, useEffect, useState } from "react";
 
 export default function Welcome() {
@@ -24,15 +25,16 @@ export default function Welcome() {
   if(registerCall) {
     return (<Register/>);
   }
-
+  else if(loginCall){
+    return (<Login/>);
+  }
   return (
     <div className="welcomePage">
       <div className="welcomeMessage">
         Welcome to Godspeed
       </div>
       <div className="btn">
-        {registerCall ? <Register/> : null}
-        <span className="login">Login</span>
+        <span onClick={() => {setLoginCall(true)}} className="login">Login</span>
         <span onClick={() => {setRegisterCall(true)}} className="register">Sign up</span>
       </div>
     </div>

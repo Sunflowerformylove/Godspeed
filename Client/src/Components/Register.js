@@ -2,9 +2,15 @@ import InputAndLabel from "./Input";
 import "../Style/Register.css";
 import { useRef, useState } from "react";
 import anime from "animejs/lib/anime.es.js";
-import toast, { Toaster } from "react-hot-toast";
+import { toast } from "react-toastify";
+import { toastSuccess, toastError, toastPromise } from "./Toast";
+import ReCAPTCHA from "react-google-recaptcha";
+import Login from "./Login";
 export default function Register() {
-  const toasterRef = useRef(null);
+  const eyeRef = useRef(null);
+  const [loginCall, setLoginCall] = useState(false);
+  const [passwordProp, setPasswordProp] = useState("password");
+  const [passState, setPassState] = useState(true);
   const [form, setForm] = useState({
     email: "",
     username: "",
@@ -18,26 +24,28 @@ export default function Register() {
   function handleCallback(name, childData) {
     setForm({ ...form, [name]: childData });
   }
+
+
   function sendOTP() {
     let email = form.email;
     let formData = { email: email };
     if (email !== "" && email !== undefined) {
-      fetch("http://localhost:3000/OTP", {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      })
-        .then((response) => {
-          if (response.ok) {
-            console.log("OTP sent successfully");
-          } else {
-            throw new Error("Failed to send OTP");
-          }
-        })
-        .catch((err) => console.error(err));
+      toastPromise(
+        fetch("http://localhost:3000/OTP", {
+          method: "POST",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }),
+        "Sending OTP...",
+        "OTP sent successfully",
+        "Failed to send OTP"
+      );
+    }
+    else{
+      toastError("Email has not been set!");
     }
   }
 
@@ -51,36 +59,49 @@ export default function Register() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(formData),
-    }).then((response) => {
-      if (response.ok) {
-        toast.success("Success!", {
-          position: "top-center",
-          duration: 4000,
-          style: {
-            borderRadius: '10px',
-            background: '#333',
-            color: '#fff',
-            fontSize: '2rem',
-          },      
-        });
-      } else {
-        toast.error("Not good", {
-          position: "top-center",
-          duration: 3000,
-          style: {
-            borderRadius: "20px",
-            background: "transparent",
-            color: "#fff",
-            fontFamily: "Montserrat",
-          },
-        });
-      }
-    });
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        JSON.stringify(response);
+        if (response.errorCode === 1) {
+          toastError("Passwords mismatch!");
+        } else if (response.errorCode === 2) {
+          toastError("Cannot verify OTP!");
+        } else if (response.errorCode === 3) {
+          toastError("Field(s) required!");
+        } else if (response.errorCode === 4) {
+          toastError("Email and/or username exists!");
+        } else if (response.errorCode === 0) {
+          toastSuccess("Congrats!!!", () => {
+            setLoginCall(true);
+          });
+        }
+      });
+  }
+
+  function togglePassword() {
+    if (passState) {
+      eyeRef.current.textContent = "visibility";
+      setPasswordProp("text");
+      setPassState(false);
+    } else {
+      eyeRef.current.textContent = "visibility_off";
+      setPasswordProp("password");
+      setPassState(true);
+    }
+  }
+
+  function switchToLogin() {
+    toast.dismiss();
+    setLoginCall(true);
+  }
+
+  if (loginCall) {
+    return <Login />;
   }
 
   return (
     <>
-      <Toaster></Toaster>
       <div className="registerPage">
         <InputAndLabel
           parentCallback={handleCallback}
@@ -101,14 +122,14 @@ export default function Register() {
           className="InputAndLabel"
           inputName="password"
           labelName="Password"
-          type="password"
+          type={passwordProp}
         />
         <InputAndLabel
           parentCallback={handleCallback}
           className="InputAndLabel"
           inputName="verifyPassword"
           labelName="Verify Password"
-          type="password"
+          type={passwordProp}
         />
         <InputAndLabel
           parentCallback={handleCallback}
@@ -130,13 +151,20 @@ export default function Register() {
           onClick={sendOTP}
           className="fa-solid fa-rotate-right resendOTP"
         ></i>
-        <span className="loading"></span>
+        <div onClick = {switchToLogin} className="loginRedirect">
+          Already have an account?{" "}
+          <span className="signInKeyword">Sign in now!</span>
+        </div>
+        <span
+          ref={eyeRef}
+          onClick={togglePassword}
+          className="material-symbols-outlined eyeIcon"
+        >
+          visibility_off
+        </span>
         <button ref={submitRef} onClick={register} className="submitBtn">
           Get Started
         </button>
-        {/* <div className="modal">
-            <div className = "g-recaptcha" data-sitekey = "6LffXBYlAAAAAF2zYRsDf8kZvMn1zZP0Ky-fAeWB" data-theme="dark" data-size="compact">Captcha</div>
-        </div>  this will be for later, I still can't figure out why the box was blackout*/}
       </div>
     </>
   );

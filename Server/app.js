@@ -12,7 +12,7 @@ const port = 3000;
 const app = express();
 const cors = require("cors");
 const bcrypt = require("bcrypt");
-const secret = speakeasy.generateSecretASCII();
+const secret = speakeasy.generateSecretASCII(2048, false);
 const { v4: uuidv4 } = require("uuid");
 const saltRound = 15;
 const mailOption = {
@@ -21,7 +21,7 @@ const mailOption = {
   secure: true,
   auth: {
     user: "godspeednoreply@gmail.com",
-    pass: "angmuyflioxvscdj",
+    pass: "jepyfmcpixcbqnel",
   },
   tls: {
     rejectUnauthorized: false,
@@ -49,10 +49,10 @@ const emailMessage = (OTP, userEmail) => {
   return message;
 };
 
-function checkObject(object){
-  for(let prop of object){
-    if(object.hasOwnProperty(prop)){
-      if(object[prop] === undefined || object[prop] === ""){ 
+function checkObject(object) {
+  for (let prop in object) {
+    if (object.hasOwnProperty(prop)) {
+      if (object[prop] === undefined || object[prop] === "") {
         return false;
       }
     }
@@ -72,15 +72,18 @@ app.listen(port, (err) => {
 app.post("/OTP", (request, response) => {
   let userEmail = request.body.email;
   console.log(userEmail);
-  let hotp = speakeasy.hotp({
+  let totp = speakeasy.totp({
     secret: secret,
-    counter: Date.now() % 900000,
-    digits: 8,
-    encoding: "ascii",
+    time: Date.now(),
+    step: 900,
+    counter: Math.floor(Date.now() / 900 / 1000),
+    digits: 6,
+    encoding: "base32",
     algorithm: "sha512",
   });
+  console.log(totp);
   const transporter = nodemailer.createTransport(mailOption);
-  transporter.sendMail(emailMessage(hotp, userEmail), (err) => {
+  transporter.sendMail(emailMessage(totp, userEmail), (err) => {
     if (err) throw err;
     console.log("Mail sent successfully");
     response.end();
@@ -89,34 +92,76 @@ app.post("/OTP", (request, response) => {
 
 app.post("/register", (request, response) => {
   let user = request.body.user;
-  if(checkObject(user)){
-    let verify = speakeasy.hotp.verify({
+  if (checkObject(user)) {
+    let verify = speakeasy.totp.verify({
       secret: secret,
       token: user.otp,
-      counter: Date.now() % 900000,
-      digit: 8,
-      encoding: "ascii",
+      time: Date.now(),
+      counter: Math.floor(Date.now() / 900 / 1000),
+      step: 900,
+      digits: 6,
+      encoding: "base32",
       algorithm: "sha512",
     });
-    if (user.password !== user.verifyPassword) {
-      response.status(400).json({ errorCode: 1 });
-    } else if (!verify) {
-      response.status(400).json({ errorCode: 2 });
-    }
-    bcrypt.hash(user.password, saltRound, (err, hash) => {
-      database.query(
-        `INSERT INTO user.data(ID,user,password,email,phone) VALUES(${uuidv4()}, ${
-          user.username
-        }, ${hash}, ${user.email}, ${user.phone})`,
-        (err, result) => {
-          if(err) throw err;
-          response.status(200).send();
+    database.query(
+      `SELECT * FROM user.data WHERE user = '${user.username}' OR email = '${user.email}' limit 1`,
+      (err, result) => {
+        console.log(result);
+        result = JSON.parse(JSON.stringify(result));
+        if (Object.keys(result).length > 0) {
+          response.status(200).json({ errorCode: 4 });
+        } else {
+          if (user.password !== user.verifyPassword) {
+            response.status(200).json({ errorCode: 1 });
+          } else if (!verify) {
+            console.error("Hello");
+            response.status(200).json({ errorCode: 2 });
+          } else {
+            bcrypt.hash(user.password, saltRound, (err, hash) => {
+              database.query(
+                `INSERT INTO user.data(ID,user,pass,email,phone) VALUES('${uuidv4()}', '${
+                  user.username
+                }', '${hash}', '${user.email}', '${user.phone}')`,
+                (err, result) => {
+                  if (err) throw err;
+                  response.status(200).json({ errorCode: 0 });
+                }
+              );
+            });
+          }
         }
-      );
-    });
+      }
+    );
+  } else {
+    response.status(200).json({ errorCode: 3 });
   }
-  else{
-    response.status(400).json({ errorCode: 3});
+});
+
+app.post("/login", (request, response) => {
+  let user = request.body.user;
+  if (checkObject(user)) {
+    database.query(
+      `SELECT pass FROM user.data WHERE user = '${user.username}'`,
+      (err, result) => {
+        if (err) throw err;
+        result = JSON.parse(JSON.stringify(result));
+        if (Object.keys(result).length === 0) {
+          response.json({ errorCode: 1 });
+        } else {
+          bcrypt.compare(user.password, result[0].pass, (err, result) => {
+            if (err) throw err;
+            if(result){
+              response.json({ errorCode: 0, user: user.username });
+            }
+            else{
+              response.json({ errorCode: 1 });
+            }
+          });
+        }
+      }
+    );
+  } else {
+    response.json({ errorCode: 2 });
   }
 });
 

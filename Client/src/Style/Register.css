@@ -1,3 +1,12 @@
+@keyframes rotate{
+    from{
+        transform: rotate(0deg);
+    }
+    to{
+        transform: rotate(360deg);
+    }
+}
+
 .registerPage{
     width: 100vw;
     height: 100vh;
@@ -49,9 +58,13 @@ label{
     font-size: 2rem;
     font-weight: 500;
     right: 25%;
-    bottom: 29%;
+    bottom: 27.3%;
     cursor: pointer;
     background-color: transparent !important;
+}
+
+.resendOTP:hover{
+    animation: rotate 1s linear alternate;
 }
 
 .modal{
@@ -66,10 +79,13 @@ label{
     justify-content: center;
 }
 
-/* .g-recaptcha{
+.g-recaptcha{
     width: 20rem;
     height: 5rem;
-} */
+    background-color: white;
+    color: black;
+    position: fixed;
+}
 
 .submitBtn{
     width: 15rem;
@@ -99,4 +115,52 @@ label{
     font-size: 1.6rem;
     position: fixed !important;
     left: 50% !important;
+}
+
+.eyeIcon{
+    position: absolute;
+    right: 25.2%;
+    bottom: 54%;
+    cursor: pointer;
+}
+
+.loginRedirect{
+    position: absolute;
+    font-size: 2rem;
+    font-weight: 400;
+    top: 8%;
+    right: 25%;
+}
+
+.loginRedirect{
+    cursor: pointer;
+}
+
+.loginRedirect:hover > .signInKeyword{
+    font-weight: 600;
+}
+
+.loginRedirect:hover > .signInKeyword:after{
+    width: 98%;
+}
+
+.signInKeyword{
+    position: relative;
+    transition: all .1s ease-in-out;
+}
+
+.signInKeyword:after{
+    content: "";
+    position: absolute;
+    bottom: -.5rem;
+    width: 0%;
+    height: 2px;
+    background-color: white;
+    transition: all 0.4s ease-in-out;
+    left: 50%;
+    transform: translate(-50%, 0);
+}
+
+.signInKeyword:hover:after{
+    width: 98%;
 }
