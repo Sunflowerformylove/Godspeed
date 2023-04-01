@@ -1,0 +1,72 @@
+.roomNav{
+    position: absolute;
+    left: 0;
+    width: 25%;
+    height: 100%;
+    border-right: 2px solid white;
+}
+
+.navHeader{
+    width: 100%;
+    height: 10%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: column;
+}
+
+.textTitle{
+    margin-left: 1rem;
+    font-size: 3rem;
+    font-weight: 800;
+    color: white;
+}
+
+.searchBar{
+    width: 90%;
+    height: 40%;
+    font-size: 1.4rem;
+    align-self: center;
+    border: 1px solid white;
+    border-radius: 20px;
+    text-indent: 1rem;
+    background-color: #333;
+}
+
+.searchBar:focus{
+    border: 1px solid white !important;
+}
+
+.searchIcon{
+    position: absolute;
+    display: flex;
+    font-size: 2rem;
+    left: 2.5rem;
+    top: 4.5rem;
+}
+
+.roomContainer{
+    width: 90%;
+    height: 90%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding-left: 5%;
+    padding-right: 5%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+    flex-basis: 1;
+}
+
+.searchContainer{
+    width: 90%;
+    height: 90%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+    position: absolute;
+    top: 10%;
+    left: 5%;
+}

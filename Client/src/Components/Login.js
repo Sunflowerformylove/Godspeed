@@ -1,9 +1,10 @@
 import InputAndLabel from "./Input";
-import { useState, useRef } from "react";
-import {toast} from 'react-toastify'
-import { toastSuccess, toastError, toastPromise } from "./Toast";
+import { useState } from "react";
+import { toast } from "react-toastify";
+import axios from "axios";
 import Chat from "./Chat";
 import "../Style/Login.css";
+import Socket from "./Socket.js";
 
 export default function Login() {
   const [form, setForm] = useState({
@@ -11,59 +12,70 @@ export default function Login() {
     password: "",
   });
   const [chatCall, setChatCall] = useState(false);
+  const [toggleLogin, setToggleLogin] = useState(true);
 
   function handleCallback(name, childData) {
     setForm({ ...form, [name]: childData });
   }
 
   function login() {
-    // const loading = toast.loading("Signing in...");
+    setToggleLogin(false);
     let formData = { user: form };
-    toastPromise(
-    fetch("http://localhost:3000/login", {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
+    const loginPromise = new Promise((resolve, reject) => {
+      axios({
+        method: "POST",
+        url: "http://localhost:3000/login",
+        data: JSON.stringify(formData),
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      })
+        .then((response) => {
+          return response.data;
+        })
+        .then((data) => {
+          if (data.errorCode === 1) {
+            throw Error("Username or password exists!");
+          } else if (data.errorCode === 2) {
+            throw Error("Field(s) required!");
+          } else {
+            resolve(data.user);
+          }
+        })
+        .catch((error) => reject(error));
+    });
+    toast.promise(loginPromise, {
+      pending: "Signing in...",
+      success: {
+        render({ data }) {
+          Socket.auth = data;
+          return `Welcome ${data}`;
+        },
+        onClose: () => {
+          Socket.connect();
+          setToggleLogin(true);
+          setChatCall(true);
+        },
+        pauseOnFocusLoss: false,
+        autoClose: 2000,
       },
-      body: JSON.stringify(formData),
-    }).then(response => {
-      if(!response.ok){
-        throw new Error('Login failed!');
-      }
-        return response.json();
-      }).then(data => {
-        if(data.errorCode === 1){
-          throw new Error('Username/Password is incorrect!');
-        }
-        else if(data.errorCode === 2){
-          throw new Error('Field(s) required!');
-        }
-        return data;
-      }), "Signing in...",(data) => {return `Welcome ${data.username}`}, (error) => error.message
-    )
-    // .then(response=> {
-    //   return response.json();
-    // })
-    // .then(data => {
-    //   console.log(data);
-    //   if(data.errorCode === 1){
-    //     toast.update(loading,{render: "Username/Password is incorrect", type: "error", isLoading: false, autoClose: 2000});
-    //   }
-    //   else if(data.errorCode === 2){
-    //     toast.update(loading,{render: "Field(s)'s required!", type: "error", isLoading: false, autoClose: 2000});
-    //   }
-    //   else if(data.errorCode === 0){
-    //     toast.update(loading,{render: `Welcome ${data.user}`, type: "success", isLoading: false,autoClose: 2000, onClose: (() => {
-    //       setChatCall(true);
-    //     })});
-    //   }
-    // })
-    // )
+      error: {
+        render({ data }) {
+          return `${data.message}`;
+        },
+        onClose: ({ data }) => {
+          setToggleLogin(true);
+        },
+        pauseOnFocusLoss: false,
+        style: {
+          whiteSpace: "nowrap",
+        },
+        autoClose: 2000,
+      },
+    });
   }
 
-  if(chatCall){
-    return (<Chat/>);
+  if (chatCall) {
+    return <Chat />;
   }
 
   return (
@@ -82,7 +94,9 @@ export default function Login() {
         inputName="password"
         type={"password"}
       />
-      <button onClick = {login} className="loginSubmit">Sign In</button>
+      <button onClick={toggleLogin ? login : null} className="loginSubmit">
+        Sign In
+      </button>
       <div className="registerRedirect">
         Need an account? <span className="registerKeyword">Sign up now!</span>
       </div>

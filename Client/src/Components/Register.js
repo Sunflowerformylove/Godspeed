@@ -1,10 +1,8 @@
 import InputAndLabel from "./Input";
 import "../Style/Register.css";
 import { useRef, useState } from "react";
-import anime from "animejs/lib/anime.es.js";
 import { toast } from "react-toastify";
 import { toastSuccess, toastError, toastPromise } from "./Toast";
-import ReCAPTCHA from "react-google-recaptcha";
 import Login from "./Login";
 export default function Register() {
   const eyeRef = useRef(null);
