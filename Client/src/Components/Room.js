@@ -34,7 +34,7 @@ export const Room = forwardRef((props, ref) => {
       Socket.on("loadMessage", (data) => {
         if(data.length > 0){
           data = JSON.parse(data);
-          console.log(data);
+          props.setMessage(data);
         }
         else{
           props.setMessage([]);

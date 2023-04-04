@@ -101,7 +101,7 @@ function checkObject(object) {
 }
 
 function generateRoom(length, seed1, seed2) {
-  const rng = seedRandom(seed1 + seed2);
+  const rng = seedRandom((parseInt(seed1) + parseInt(seed2)).toString());
   const character =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let result = "";
@@ -158,7 +158,7 @@ io.on("connection", (socket) => {
         6,
         options.receiver,
         options.sender
-      )} ORDER BY timestamp DESC LIMIT 20`,
+      )} ORDER BY timestamp ASC LIMIT 20`,
       (err, result) => {
         if (err) throw err;
         result = JSON.stringify(result);

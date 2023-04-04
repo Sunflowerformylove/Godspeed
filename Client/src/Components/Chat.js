@@ -1,14 +1,15 @@
 /* eslint-disable jsx-a11y/alt-text */
 import "../Style/Chat.css";
-import Message, { MessageRecipient, MessageSender } from "./Message";
+import Message from "./Message";
 import { RoomNav } from "./RoomNav";
 import Socket from "./Socket";
 import Cookies from "js-cookie";
-import { useEffect, useRef, useState } from "react";
+import {useRef, useState } from "react";
 
 export default function Chat() {
   const inputRef = useRef(null);
   const chatContainerRef = useRef(null);
+  const chatBoxRef = useRef(null);
   const [message, setMessage] = useState([]);
   function adjustHeight() {
     const element = inputRef.current;
@@ -20,7 +21,6 @@ export default function Chat() {
   function sendMessage(event) {
     if (event.key === "Enter") {
       event.preventDefault();
-      console.log(Cookies.get("userID"));
       if (event.target.value !== "") {
         Socket.emit("message", {
           content: event.target.value,
@@ -33,6 +33,7 @@ export default function Chat() {
   }
   Socket.on("message", (data) => {
     setMessage([...message, data]);
+    chatBoxRef.current.scrollTo(0, chatBoxRef.current.scrollHeight);
   });
   return (
     <>
@@ -46,6 +47,7 @@ export default function Chat() {
         <div className="inputWidgets">
           <textarea
             ref={inputRef}
+            spellCheck="false"
             onKeyDown={(event) => {
               sendMessage(event);
             }}
@@ -55,7 +57,7 @@ export default function Chat() {
           />
           <i className="fa-solid fa-paper-plane sendButton"></i>
         </div>
-        <div className="chatBox">
+        <div ref = {chatBoxRef} className="chatBox">
           {message.map((message) => {
             return (
               <Message
