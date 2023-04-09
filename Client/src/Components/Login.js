@@ -1,8 +1,9 @@
 import InputAndLabel from "./Input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
 import Chat from "./Chat";
+import Connecting from "./Connecting";
 import "../Style/Login.css";
 import Socket from "./Socket.js";
 
@@ -11,12 +12,16 @@ export default function Login() {
     username: "",
     password: "",
   });
-  const [chatCall, setChatCall] = useState(false);
+  const [connectingCall, setConnectingCall] = useState(false);
   const [toggleLogin, setToggleLogin] = useState(true);
 
   function handleCallback(name, childData) {
     setForm({ ...form, [name]: childData });
   }
+
+  useEffect(() => {
+    Socket.connect();
+  },[connectingCall])
 
   function login() {
     setToggleLogin(false);
@@ -51,9 +56,8 @@ export default function Login() {
           return `Welcome ${data}`;
         },
         onClose: () => {
-          Socket.connect();
           setToggleLogin(true);
-          setChatCall(true);
+          setConnectingCall(true);
         },
         pauseOnFocusLoss: false,
         autoClose: 2000,
@@ -74,8 +78,8 @@ export default function Login() {
     });
   }
 
-  if (chatCall) {
-    return <Chat />;
+  if (connectingCall) {
+    return <Connecting />;
   }
 
   return (
