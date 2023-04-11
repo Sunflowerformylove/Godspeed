@@ -20,11 +20,11 @@ const { Server } = require("socket.io");
 const seedRandom = require("seedrandom");
 const { type } = require("os");
 const secret = speakeasy.generateSecretASCII(2048, false);
-const saltRound = 15;
+const saltRound = 25;
 
 const database = mysql.createConnection({
   host: "localhost",
-  user: "admin",
+  user: "root",
   password: "Haido29904@",
   port: 3306,
 });
