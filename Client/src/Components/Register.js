@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { toastSuccess, toastError, toastPromise } from "./Toast";
 import Login from "./Login";
+import axios from "axios";
 export default function Register() {
   const eyeRef = useRef(null);
   const [loginCall, setLoginCall] = useState(false);
@@ -29,13 +30,12 @@ export default function Register() {
     let formData = { email: email };
     if (email !== "" && email !== undefined) {
       toastPromise(
-        fetch("http://localhost:3000/OTP", {
+        axios("http://localhost:3000/OTP", {
           method: "POST",
-          mode: "cors",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(formData),
+          data: JSON.stringify(formData),
         }),
         "Sending OTP...",
         "OTP sent successfully",
@@ -50,16 +50,16 @@ export default function Register() {
   function register() {
     let user = form;
     let formData = { user: user };
-    fetch("http://localhost:3000/register", {
+    axios("http://localhost:3000/register", {
       method: "POST",
-      mode: "cors",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(formData),
+      data: JSON.stringify(formData),
     })
       .then((response) => response.json())
       .then((response) => {
+        console.log(response);
         JSON.stringify(response);
         if (response.errorCode === 1) {
           toastError("Passwords mismatch!");

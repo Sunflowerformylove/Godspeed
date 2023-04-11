@@ -322,7 +322,7 @@ app.post("/OTP", (request, response) => {
 });
 
 app.post("/register", (request, response) => {
-  let user = request.body.user;
+  console.log(user);
   if (checkObject(user)) {
     let verify = speakeasy.totp.verify({
       secret: secret,
