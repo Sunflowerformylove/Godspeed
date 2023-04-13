@@ -1,4 +1,4 @@
-import Socket, {connectToSocket} from "./Socket";
+import Socket from "./Socket";
 import Chat from "./Chat";
 // import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
@@ -10,7 +10,7 @@ export default function Connecting() {
     if (Socket.connected) {
       setTimeout(() => {
         setChatCall(true);
-      },8000);
+      },1000);
     }
   },[])
   if(chatCall) {

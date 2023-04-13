@@ -2,7 +2,6 @@ import InputAndLabel from "./Input";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
-import Chat from "./Chat";
 import Connecting from "./Connecting";
 import "../Style/Login.css";
 import Socket from "./Socket.js";

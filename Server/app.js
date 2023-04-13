@@ -20,7 +20,7 @@ const { Server } = require("socket.io");
 const seedRandom = require("seedrandom");
 const { type } = require("os");
 const secret = speakeasy.generateSecretASCII(2048, false);
-const saltRound = 25;
+const saltRound = 15;
 
 const database = mysql.createConnection({
   host: "localhost",
@@ -31,10 +31,11 @@ const database = mysql.createConnection({
 
 const databaseOption = {
   host: "localhost",
-  user: "admin",
+  user: "root",
   password: "Haido29904@",
   port: 3306,
   database: "user",
+  createDatabaseTable: true,
   clearExpired: true,
   checkExpirationInterval: 60 * 60 * 1000, //check for expired session every hour,
   expiration: 30 * 24 * 60 * 60 * 1000, //expire after 30 days, in milliseconds
@@ -193,7 +194,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("message", (message) => {
-    console.log(message);
     database.query(
       `INSERT INTO message.${
         message.room
@@ -220,9 +220,7 @@ io.on("connection", (socket) => {
         message.senderID
       } (roomID, roomName, lastMessage, timestamp, sender, senderName, recipient, recipientName) VALUES ('${
         message.room
-      }', (SELECT * FROM (SELECT roomName FROM convos.${
-        message.senderID
-      } WHERE roomID = '${message.room}') AS T),${database.escape(
+      }', (SELECT * FROM (SELECT user FROM user.data WHERE ID = '${message.receiverID}') AS T),${database.escape(
         message.content
       )}, ${Date.now()}, '${
         message.senderID
@@ -239,9 +237,7 @@ io.on("connection", (socket) => {
         message.receiverID
       } (roomID, roomName, lastMessage, timestamp, sender, senderName, recipient, recipientName) VALUES ('${
         message.room
-      }', (SELECT * FROM (SELECT roomName FROM convos.${
-        message.senderID
-      } WHERE roomID = '${message.room}') AS T),${database.escape(
+      }', (SELECT * FROM (SELECT user FROM user.data WHERE ID = '${message.receiverID}') AS T),${database.escape(
         message.content
       )}, ${Date.now()}, '${
         message.senderID
@@ -252,21 +248,20 @@ io.on("connection", (socket) => {
     );
   });
 
-  socket.on("setLastMessage", (data) => {
+  socket.on("setLatestMessage", (data) => {
     database.query(`SELECT user FROM user.data WHERE ID = '${data.sender}'`, (err, result) => {
       if(err) throw err;
       result = JSON.parse(JSON.stringify(result));
-      console.log(result[0]);
-      io.to(`${data.room}`).emit("getLastMessage", {
+      io.to(`${data.room}`).emit("getLatestMessage", {
         room: data.room,
         sender: result[0].user,
         content: data.content,
+        timestamp: data.timestamp,
       });
     });
   });
 
   socket.on("getRoom", (data) => {
-    console.log("Hello");
     database.query(
       `SELECT * FROM convos.${data} ORDER BY timestamp DESC LIMIT 20`,
       (err, result) => {
@@ -322,7 +317,7 @@ app.post("/OTP", (request, response) => {
 });
 
 app.post("/register", (request, response) => {
-  console.log(user);
+  let user = request.body.user;
   if (checkObject(user)) {
     let verify = speakeasy.totp.verify({
       secret: secret,
@@ -351,9 +346,9 @@ app.post("/register", (request, response) => {
               database.query(
                 `INSERT INTO user.data(user,pass,email,phone) VALUES(${database.escape(
                   user.username
-                )}, '${database.escape(hash)}', '${database.escape(user.email)}', '${
+                )}, ${database.escape(hash)}, ${database.escape(user.email)}, ${
                   user.phone
-                }')`,
+                })`,
                 (err, result) => {
                   if (err) throw err;
                   response.status(200).json({ errorCode: 0 });
@@ -452,6 +447,15 @@ app.post("/search", (request, response) => {
     }
   );
 });
+
+app.post('/api/user', (request, response) => {
+  const ID = request.body.receiverID;
+  database.query(`SELECT user FROM user.data WHERE ID = ${database.escape(ID)} LIMIT 1`, (err, result) => {
+    if (err) throw err;
+    let data = JSON.parse(JSON.stringify(result));
+    response.json(data);
+  });
+})
 
 server.listen(port, (err) => {
   if (err) throw err;

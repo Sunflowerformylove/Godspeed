@@ -15,7 +15,6 @@ export const RoomNav = forwardRef((props, ref) => {
       setRoom(data);
     });
   }, []);
-  useEffect(() => {});
   function searchUser(event) {
     if (event.target.value.trim() !== "") {
       axios({
@@ -33,6 +32,15 @@ export const RoomNav = forwardRef((props, ref) => {
     }
   }
 
+  function checkContain(arr, obj) {
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i].roomID === obj.roomID) {
+        return true;
+      }
+    }
+    return false;
+  }   
+
   useEffect(() => {
     for (let i = 0; i < room.length; i++) {
       if (
@@ -42,11 +50,17 @@ export const RoomNav = forwardRef((props, ref) => {
         props.newRoom.roomName = room[i].roomName;
         props.newRoom.recipientName = room[i].recipientName;
         props.newRoom.senderName = room[i].senderName;
+        props.newRoom.lastMessage = room[i].lastMessage;
         let temp = room;
         temp.splice(i, 1);
         temp.unshift(props.newRoom);
         setRoom(temp);
         return;
+      }
+    }
+    if (!checkContain(room, props.newRoom)) {
+      if (props.newRoom.roomID !== undefined) {
+        setRoom([props.newRoom, ...room]);
       }
     }
   }, [props, room]);
@@ -89,13 +103,9 @@ export const RoomNav = forwardRef((props, ref) => {
                 setMessage={props.setMessage}
                 ref={ref}
                 name={room.roomName}
-                lastMessage={
-                  !props.currentMessage[room.roomID]
-                    ? room.lastMessage
-                    : props.currentMessage[room.roomID].content
-                }
+                latestMessage = {!props.latestMessage[`${room.roomID}`] ? room.lastMessage : props.latestMessage[`${room.roomID}`].content}
+                sender = {!props.latestMessage[`${room.roomID}`] ? room.senderName : props.latestMessage[`${room.roomID}`].sender}
                 timestamp={room.timestamp}
-                sender={props.currentMessage.sender}
               />
             );
           })}

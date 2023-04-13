@@ -2,7 +2,7 @@ import "../Style/Room.css";
 import { useRef, forwardRef } from "react";
 import Socket from "./Socket";
 import Cookies from "js-cookie";
-import { useState } from "react";
+// import { useState } from "react";
 export const Room = forwardRef((props, ref) => {
   const chosenRef = useRef(null);
   const className = "room";
@@ -94,7 +94,6 @@ export const RoomExist = forwardRef((props, ref) => {
     Socket.on("roomID", (roomID) => {
       Cookies.set("currentRoom", roomID);
     });
-    console.log(props.lastMessage);
     Cookies.set("receiver", props.ID, {
       sameSite: "strict",
       secure: true,
@@ -127,7 +126,7 @@ export const RoomExist = forwardRef((props, ref) => {
           <div className="recipientName">{props.name}</div>
           <div className="messagesDetail">
             <div className="lastMessage">
-              {props.sender}: {props.lastMessage}
+              {props.sender}: {props.latestMessage}
             </div>
             <div className="lastSent"></div>
           </div>

@@ -57,19 +57,18 @@ export default function Register() {
       },
       data: JSON.stringify(formData),
     })
-      .then((response) => response.json())
       .then((response) => {
-        console.log(response);
         JSON.stringify(response);
-        if (response.errorCode === 1) {
+        console.log(response.data);
+        if (response.data.errorCode === 1) {
           toastError("Passwords mismatch!");
-        } else if (response.errorCode === 2) {
+        } else if (response.data.errorCode === 2) {
           toastError("Cannot verify OTP!");
-        } else if (response.errorCode === 3) {
+        } else if (response.data.errorCode === 3) {
           toastError("Field(s) required!");
-        } else if (response.errorCode === 4) {
+        } else if (response.data.errorCode === 4) {
           toastError("Email and/or username exists!");
-        } else if (response.errorCode === 0) {
+        } else if (response.data.errorCode === 0) {
           toastSuccess("Congrats!!!", () => {
             setLoginCall(true);
           });

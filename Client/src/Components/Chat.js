@@ -1,4 +1,5 @@
 /* eslint-disable jsx-a11y/alt-text */
+import axios from "axios";
 import "../Style/Chat.css";
 import Message from "./Message";
 import { RoomNav } from "./RoomNav";
@@ -12,8 +13,8 @@ export default function Chat() {
   const chatBoxRef = useRef(null);
   const [message, setMessage] = useState([]);
   const [allowScroll, setAllowScroll] = useState(true);
-  const [currentMessage, setCurrentMessage] = useState(null);
   const [newRoom, setNewRoom] = useState({});
+  const [latestMessage, setLatestMessage] = useState({});
   function adjustHeight() {
     const element = inputRef.current;
     element.style.bottom = "1rem";
@@ -21,7 +22,7 @@ export default function Chat() {
     element.style.height =
       parseInt(element.style.height) + parseInt(element.scrollHeight) + "px";
   }
-  function sendMessage(event) {
+  async function sendMessage(event) {
     if (event.key === "Enter") {
       event.preventDefault();
       if (event.target.value.trim() !== "") {
@@ -31,37 +32,44 @@ export default function Chat() {
           receiverID: Cookies.get("receiver"),
           room: Cookies.get("currentRoom"),
         });
+
+        const receiver = await axios("http://localhost:3000/api/user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          data: { receiverID: Cookies.get("receiver") },
+        }).then((response) => response.data[0].user);
         setNewRoom({
           roomID: Cookies.get("currentRoom"),
-          roomName: Cookies.get("receiver"),
+          roomName: receiver,
           sender: Cookies.get("userID"),
           recipient: Cookies.get("receiver"),
           lastMessage: event.target.value.trim(),
           timestamp: Date.now(),
         });
-        Socket.emit("setLastMessage", {
-          sender: Cookies.get("userID"),
+        Socket.emit("setLatestMessage", {
           room: Cookies.get("currentRoom"),
           content: event.target.value.trim(),
+          timestamp: Date.now(),
+          sender: Cookies.get("userID"),
+          message: "This is set Latest MeSSAGE",
         });
       }
       event.target.value = "";
       event.target.style.height = "2.5rem";
-      Socket.on("getLastMessage", (data) => {
-        setCurrentMessage({data: data});
-      });
-      console.log(currentMessage?.data);
     }
   }
+
+  Socket.on("getLatestMessage", (data) => {
+    setLatestMessage({[data.room]: data});
+  });
+
   useEffect(() => {
     if (chatBoxRef && chatBoxRef.current && allowScroll) {
       chatBoxRef.current.scrollTo(0, chatBoxRef.current.scrollHeight);
     }
   }, [message, allowScroll]);
-  useEffect(() => {
-    let latestMessage = message[message.length - 1];
-    setCurrentMessage({ [Cookies.get("currentRoom")]: latestMessage?.content });
-  }, [message]);
   Socket.on("message", (data) => {
     setAllowScroll(true);
     setMessage([...message, data]);
@@ -71,8 +79,8 @@ export default function Chat() {
       <RoomNav
         message={message}
         setMessage={setMessage}
+        latestMessage={latestMessage}
         ref={chatContainerRef}
-        currentMessage={currentMessage}
         newRoom={newRoom}
       ></RoomNav>
       <div ref={chatContainerRef} className="chatContainer">
