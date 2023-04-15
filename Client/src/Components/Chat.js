@@ -9,12 +9,57 @@ import { useEffect, useRef, useState } from "react";
 
 export default function Chat() {
   const inputRef = useRef(null);
+  const previewFileRef = useRef(null);
+  const iconRef = useRef([]);
   const chatContainerRef = useRef(null);
   const chatBoxRef = useRef(null);
+  const inputWidgetRef = useRef(null);
+  const sendFilesRef = useRef(null);
   const [message, setMessage] = useState([]);
   const [allowScroll, setAllowScroll] = useState(true);
   const [newRoom, setNewRoom] = useState({});
   const [latestMessage, setLatestMessage] = useState({});
+  const [files, setFiles] = useState([]);
+  const imageExtension = [
+    "jpg",
+    "jpeg",
+    "png",
+    "gif",
+    "bmp",
+    "svg",
+    "webp",
+    "tiff",
+    "heif",
+    "eps",
+  ];
+
+  function openFileInput() {
+    sendFilesRef.current.click();
+  }
+
+  function previewFile() {
+    const element = previewFileRef.current;
+    element.files.forEach((file) => {
+      const containImageExtension = imageExtension.some((extension) => {
+        return file.filename.includes(extension);
+      });
+      if (containImageExtension) {
+        setFiles([
+          ...files,
+          {
+            url: URL.createObjectURL(file),
+            type: "image",
+            filename: file.filename,
+            size: file.size,
+          },
+        ]);
+      }
+      else{
+        setFiles([...files, { url: URL.createObjectURL(file), type: "file", filename: file.filename, size: file.size }]);
+      }
+    });
+  }
+
   function adjustHeight() {
     const element = inputRef.current;
     element.style.bottom = "1rem";
@@ -61,8 +106,24 @@ export default function Chat() {
     }
   }
 
+  function expandInputText(event) {
+    if (event.target.value.length !== 0) {
+      Object.values(iconRef.current).forEach((icon) => {
+        icon.style.transform = "scale(0)";
+      });
+      inputRef.current.style.width = "128%";
+      previewFileRef.current.style.width = "128%";
+    } else {
+      Object.values(iconRef.current).forEach((icon) => {
+        icon.style.transform = "scale(1)";
+      });
+      inputRef.current.style.width = "100%";
+      previewFileRef.current.style.width = "100%";
+    }
+  }
+
   Socket.on("getLatestMessage", (data) => {
-    setLatestMessage({[data.room]: data});
+    setLatestMessage({ [data.room]: data });
   });
 
   useEffect(() => {
@@ -89,17 +150,42 @@ export default function Chat() {
           <span className="recipientName"></span>
           <span className="recipientStatus"></span>
         </div>
-        <div className="inputWidgets">
-          <textarea
-            ref={inputRef}
-            spellCheck="false"
-            onKeyDown={(event) => {
-              sendMessage(event);
-            }}
-            onChange={adjustHeight}
-            name="chatText"
-            id="textInput"
-          />
+        <div ref={inputWidgetRef} className="inputWidgets">
+          <div className="miscWidget">
+            <i
+              ref={(el) => (iconRef.current[0] = el)}
+              className="fa-solid fa-microphone widgetIcon"
+            ></i>
+            <i
+              ref={(el) => (iconRef.current[1] = el)}
+              onClick={openFileInput}
+              className="fa-solid fa-image widgetIcon sendFiles"
+            ></i>
+            <input
+              ref={sendFilesRef}
+              type="file"
+              name="fileMess"
+              id=""
+              className="sendFilesInput"
+              style={{ display: "none" }}
+            />
+          </div>
+          <div className="previewContainer">
+            <div ref={previewFileRef} className="previewFile"></div>
+            <textarea
+              ref={inputRef}
+              spellCheck="false"
+              onKeyDown={(event) => {
+                sendMessage(event);
+              }}
+              onChange={(event) => {
+                expandInputText(event);
+                adjustHeight();
+              }}
+              name="chatText"
+              id="textInput"
+            ></textarea>
+          </div>
           <i className="fa-solid fa-paper-plane sendButton"></i>
         </div>
         <div ref={chatBoxRef} className="chatBox">

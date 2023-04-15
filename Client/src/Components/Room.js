@@ -98,6 +98,7 @@ export const RoomExist = forwardRef((props, ref) => {
       sameSite: "strict",
       secure: true,
     });
+    console.log(props.ID);
     if (ref && ref.current) {
       ref.current.style.display = "flex";
       Socket.on("loadMessage", (data) => {
