@@ -6,6 +6,7 @@ import { RoomNav } from "./RoomNav";
 import Socket from "./Socket";
 import Cookies from "js-cookie";
 import { useEffect, useRef, useState } from "react";
+import { ImagePreview } from "./Preview";
 
 export default function Chat() {
   const inputRef = useRef(null);
@@ -38,27 +39,39 @@ export default function Chat() {
   }
 
   function previewFile() {
-    const element = previewFileRef.current;
-    element.files.forEach((file) => {
-      const containImageExtension = imageExtension.some((extension) => {
-        return file.filename.includes(extension);
-      });
-      if (containImageExtension) {
-        setFiles([
-          ...files,
-          {
-            url: URL.createObjectURL(file),
-            type: "image",
-            filename: file.filename,
-            size: file.size,
-          },
-        ]);
-      }
-      else{
-        setFiles([...files, { url: URL.createObjectURL(file), type: "file", filename: file.filename, size: file.size }]);
+    const element = sendFilesRef.current;
+    const fileArr = Array.from(element.files);
+    const tempArr = [];
+    fileArr.forEach((file) => {
+      const isImage = imageExtension.some((ext) => file.name.endsWith(ext));
+      if (isImage) {
+        tempArr.push({
+          url: URL.createObjectURL(file),
+          type: "image",
+          name: file.name,
+          timestamp: Date.now(),
+          size: file.size,
+        });
+      } else {
+        tempArr.push({
+          url: URL.createObjectURL(file),
+          type: "file",
+          name: file.name,
+          timestamp: Date.now(),
+          size: file.size,
+        });
       }
     });
+    setFiles([...files, ...tempArr]);
   }
+
+  useEffect(() => {
+    if (files.length !== 0) {
+      previewFileRef.current.style.display = "flex";
+    } else {
+      previewFileRef.current.style.display = "none";
+    }
+  }, [files]);
 
   function adjustHeight() {
     const element = inputRef.current;
@@ -98,11 +111,31 @@ export default function Chat() {
           content: event.target.value.trim(),
           timestamp: Date.now(),
           sender: Cookies.get("userID"),
-          message: "This is set Latest MeSSAGE",
         });
       }
       event.target.value = "";
       event.target.style.height = "2.5rem";
+    }
+  }
+
+  function sendFiles(event) {
+    if (event.key === "Enter") {
+      const element = sendFilesRef.current;
+      const fileArr = Array.from(element.files);
+      const formData = new FormData();
+      fileArr.forEach((file) => {
+        formData.append("file", file);
+      });
+      formData.append("sender", Cookies.get("userID"));
+      formData.append("receiver", Cookies.get("receiver"));
+      axios.post("http://localhost:3000/api/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      Socket.emit("fileMetadata", files);
+      setFiles([]);
+      element.value = "";
     }
   }
 
@@ -165,18 +198,29 @@ export default function Chat() {
               ref={sendFilesRef}
               type="file"
               name="fileMess"
-              id=""
+              onChange={previewFile}
               className="sendFilesInput"
               style={{ display: "none" }}
+              multiple
             />
           </div>
           <div className="previewContainer">
-            <div ref={previewFileRef} className="previewFile"></div>
+            <div ref={previewFileRef} className="previewFile">
+              <div className="addFile" onClick={openFileInput}>
+                <i className="fa-solid fa-plus"></i>
+              </div>
+              {files.map((file) => {
+                return file.type === "image" ? (
+                  <ImagePreview key={Math.random(Date.now())} url={file.url} />
+                ) : null;
+              })}
+            </div>
             <textarea
               ref={inputRef}
               spellCheck="false"
               onKeyDown={(event) => {
                 sendMessage(event);
+                sendFiles(event);
               }}
               onChange={(event) => {
                 expandInputText(event);

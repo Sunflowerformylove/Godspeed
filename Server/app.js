@@ -6,7 +6,6 @@ const MySQLSession = require("express-mysql-session")(session);
 const bodyParser = require("body-parser");
 const multer = require("multer");
 const speakeasy = require("speakeasy");
-const qrcode = require("qrcode");
 const nodemailer = require("nodemailer");
 const morgan = require("morgan");
 const port = 3000;
@@ -18,7 +17,8 @@ const cookieParser = require("cookie-parser");
 const Fuse = require("fuse.js");
 const { Server } = require("socket.io");
 const seedRandom = require("seedrandom");
-const { type } = require("os");
+const path = require("path");
+const multerS3 = require("multer-s3");
 const secret = speakeasy.generateSecretASCII(2048, false);
 const saltRound = 15;
 
@@ -48,6 +48,18 @@ const databaseOption = {
     },
   },
 };
+
+const multerConfig = multer.diskStorage({
+  destination: function (req, file, next) {
+    next(null, "C:/Users/Hunter/Desktop/Godspeed/Server/Upload");
+  },
+  filename: function (req, file, next) {
+    const extension = file.mimetype.split("/")[1];
+    next(null, file.originalname.split(".")[0] + "-" + Date.now() + "." + extension);
+  },
+});
+
+const upload = multer({storage: multerConfig});
 
 database.connect((err) => {
   if (err) throw err;
@@ -220,9 +232,9 @@ io.on("connection", (socket) => {
         message.senderID
       } (roomID, roomName, lastMessage, timestamp, sender, senderName, recipient, recipientName) VALUES ('${
         message.room
-      }', (SELECT * FROM (SELECT user FROM user.data WHERE ID = '${message.receiverID}') AS T),${database.escape(
-        message.content
-      )}, ${Date.now()}, '${
+      }', (SELECT * FROM (SELECT user FROM user.data WHERE ID = '${
+        message.receiverID
+      }') AS T),${database.escape(message.content)}, ${Date.now()}, '${
         message.senderID
       }',(SELECT user FROM user.data WHERE ID = '${message.senderID}'),
       ${message.receiverID}, (SELECT user FROM user.data WHERE ID = ${
@@ -237,9 +249,9 @@ io.on("connection", (socket) => {
         message.receiverID
       } (roomID, roomName, lastMessage, timestamp, sender, senderName, recipient, recipientName) VALUES ('${
         message.room
-      }', (SELECT * FROM (SELECT user FROM user.data WHERE ID = '${message.receiverID}') AS T),${database.escape(
-        message.content
-      )}, ${Date.now()}, '${
+      }', (SELECT * FROM (SELECT user FROM user.data WHERE ID = '${
+        message.receiverID
+      }') AS T),${database.escape(message.content)}, ${Date.now()}, '${
         message.senderID
       }',(SELECT user FROM user.data WHERE ID = '${message.senderID}'),
       ${message.receiverID}, (SELECT user FROM user.data WHERE ID = ${
@@ -249,16 +261,19 @@ io.on("connection", (socket) => {
   });
 
   socket.on("setLatestMessage", (data) => {
-    database.query(`SELECT user FROM user.data WHERE ID = '${data.sender}'`, (err, result) => {
-      if(err) throw err;
-      result = JSON.parse(JSON.stringify(result));
-      io.to(`${data.room}`).emit("getLatestMessage", {
-        room: data.room,
-        sender: result[0].user,
-        content: data.content,
-        timestamp: data.timestamp,
-      });
-    });
+    database.query(
+      `SELECT user FROM user.data WHERE ID = '${data.sender}'`,
+      (err, result) => {
+        if (err) throw err;
+        result = JSON.parse(JSON.stringify(result));
+        io.to(`${data.room}`).emit("getLatestMessage", {
+          room: data.room,
+          sender: result[0].user,
+          content: data.content,
+          timestamp: data.timestamp,
+        });
+      }
+    );
   });
 
   socket.on("getRoom", (data) => {
@@ -292,6 +307,10 @@ io.on("connection", (socket) => {
       }
     );
   });
+
+  // socket.on("fileMetadata", (data) => {
+  //   console.log(data);
+  // });
 
   socket.on("connect_error", (err) => {
     console.log(`connect_error due to ${err.message}`);
@@ -448,14 +467,21 @@ app.post("/search", (request, response) => {
   );
 });
 
-app.post('/api/user', (request, response) => {
+app.post("/api/user", (request, response) => {
   const ID = request.body.receiverID;
-  database.query(`SELECT user FROM user.data WHERE ID = ${database.escape(ID)} LIMIT 1`, (err, result) => {
-    if (err) throw err;
-    let data = JSON.parse(JSON.stringify(result));
-    response.json(data);
-  });
-})
+  database.query(
+    `SELECT user FROM user.data WHERE ID = ${database.escape(ID)} LIMIT 1`,
+    (err, result) => {
+      if (err) throw err;
+      let data = JSON.parse(JSON.stringify(result));
+      response.json(data);
+    }
+  );
+});
+
+app.post("/api/upload", upload.array("file"), (request, response) => {
+  console.log(request.files);
+});
 
 server.listen(port, (err) => {
   if (err) throw err;

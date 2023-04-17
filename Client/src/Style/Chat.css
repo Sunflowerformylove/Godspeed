@@ -10,6 +10,18 @@
   }
 }
 
+@keyframes spin {
+  0%{
+    transform: rotate(0deg);
+  }
+  50%{
+    transform: rotate(180deg);
+  }
+  100%{
+    transform: rotate(360deg);
+  }
+}
+
 .chatContainer {
   position: absolute;
   width: 75%;
@@ -246,16 +258,33 @@
 
 .previewFile{
   width: 100%;
-  height: 10rem;
-  display: flex;
+  height: 11rem;
   padding-left: 1rem;
-  flex-direction: column;
+  display: flex;
   align-items: center;
-  justify-content: center;
+  overflow-y: hidden;
+  overflow-x: scroll;
   background-color: rgba(215,215,215);
+  display: none;
   z-index: 1;
   transition: width 0.5s linear;
   border-radius: 10px 10px 0px 0px;
+}
+
+.previewFile::-webkit-scrollbar{
+  display: flex;
+  height: 5px;
+  cursor: pointer;
+}
+
+.previewFile::-webkit-scrollbar-thumb{
+  background-color: rgba(10,10,10,0.8);
+  border-radius: 5px;
+}
+
+.previewFile > div{
+  margin-left: 1rem;
+  margin-right: 1rem;
 }
 
 .previewContainer{
@@ -268,4 +297,26 @@
   flex-direction: column;
   align-items: flex-end;
   justify-content: space-evenly;
+}
+
+.addFile{
+  height: 90%;
+  width: 10rem;
+  min-width: 10rem;
+  border-radius: 10px;
+  font-size: 4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(1,2,3,0.5);
+  cursor: pointer;
+}
+
+.fa-plus{
+  animation: spin 1s linear infinite both;
+  animation-play-state: paused;
+}
+
+.fa-plus:hover{
+  animation-play-state: running;
 }
