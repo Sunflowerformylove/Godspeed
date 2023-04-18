@@ -55,11 +55,14 @@ const multerConfig = multer.diskStorage({
   },
   filename: function (req, file, next) {
     const extension = file.mimetype.split("/")[1];
-    next(null, file.originalname.split(".")[0] + "-" + Date.now() + "." + extension);
+    next(
+      null,
+      file.originalname.split(".")[0] + "-" + Date.now() + "." + extension
+    );
   },
 });
 
-const upload = multer({storage: multerConfig});
+const upload = multer({ storage: multerConfig });
 
 database.connect((err) => {
   if (err) throw err;
@@ -166,7 +169,7 @@ io.on("connection", (socket) => {
         6,
         options.receiver,
         options.sender
-      )} (ID INT NOT NULL AUTO_INCREMENT, sender VARCHAR(255) NOT NULL, content VARCHAR(255) NOT NULL, timestamp VARCHAR(255), recipientHide TINYINT DEFAULT 0, senderHide TINYINT DEFAULT 0, PRIMARY KEY (ID))`
+      )} (ID INT NOT NULL AUTO_INCREMENT, sender VARCHAR(255) NOT NULL, content VARCHAR(255) NOT NULL, timestamp VARCHAR(255), recipientHide TINYINT DEFAULT 0, senderHide TINYINT DEFAULT 0, type VARCHAR(255), PRIMARY KEY (ID))`
     );
     database.query(
       `REPLACE INTO convos.${
@@ -199,6 +202,11 @@ io.on("connection", (socket) => {
       (err, result) => {
         if (err) throw err;
         result = JSON.parse(JSON.stringify(result));
+        result.forEach((message) => {
+          if(message.type === "file"){
+            
+          }
+        })
         socket.emit("loadMessage", result);
         socket.emit("roomID", data);
       }
@@ -209,9 +217,9 @@ io.on("connection", (socket) => {
     database.query(
       `INSERT INTO message.${
         message.room
-      } (sender, content, timestamp) VALUES ('${
+      } (sender, content, timestamp, type) VALUES ('${
         message.senderID
-      }', ${database.escape(message.content)}, ${Date.now()})`
+      }', ${database.escape(message.content)}, ${Date.now()}, "text")`
     );
     database.query(
       `SELECT ID, recipientHide, senderHide FROM message.${message.room} WHERE sender = '${message.senderID}' ORDER BY timestamp DESC LIMIT 1`,
@@ -230,7 +238,7 @@ io.on("connection", (socket) => {
     database.query(
       `REPLACE INTO convos.${
         message.senderID
-      } (roomID, roomName, lastMessage, timestamp, sender, senderName, recipient, recipientName) VALUES ('${
+      } (roomID, roomName, lastMessage, timestamp, sender, senderName, recipient, recipientName, type) VALUES ('${
         message.room
       }', (SELECT * FROM (SELECT user FROM user.data WHERE ID = '${
         message.receiverID
@@ -239,15 +247,15 @@ io.on("connection", (socket) => {
       }',(SELECT user FROM user.data WHERE ID = '${message.senderID}'),
       ${message.receiverID}, (SELECT user FROM user.data WHERE ID = ${
         message.receiverID
-      }))`
+      }), "text")`
     );
     database.query(
-      `CREATE TABLE IF NOT EXISTS convos.${message.receiverID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage VARCHAR(255), timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), recipient VARCHAR(255), recipientName VARCHAR(255), PRIMARY KEY (roomID))`
+      `CREATE TABLE IF NOT EXISTS convos.${message.receiverID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage VARCHAR(255), timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), recipient VARCHAR(255), recipientName VARCHAR(255), type VARCHAR(255), PRIMARY KEY (roomID))`
     );
     database.query(
       `REPLACE INTO convos.${
         message.receiverID
-      } (roomID, roomName, lastMessage, timestamp, sender, senderName, recipient, recipientName) VALUES ('${
+      } (roomID, roomName, lastMessage, timestamp, sender, senderName, recipient, recipientName, type) VALUES ('${
         message.room
       }', (SELECT * FROM (SELECT user FROM user.data WHERE ID = '${
         message.receiverID
@@ -256,7 +264,7 @@ io.on("connection", (socket) => {
       }',(SELECT user FROM user.data WHERE ID = '${message.senderID}'),
       ${message.receiverID}, (SELECT user FROM user.data WHERE ID = ${
         message.receiverID
-      }))`
+      }), "text")`
     );
   });
 
@@ -446,7 +454,7 @@ app.post("/checkSession", (request, response) => {
           response.end();
         } else {
           database.query(
-            `CREATE TABLE IF NOT EXISTS convos.${data.ID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage VARCHAR(255), timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), recipient VARCHAR(255), recipientName VARCHAR(255), PRIMARY KEY (roomID))`
+            `CREATE TABLE IF NOT EXISTS convos.${data.ID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage VARCHAR(255), timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), recipient VARCHAR(255), recipientName VARCHAR(255), type VARCHAR(255), PRIMARY KEY (roomID))`
           );
           response.json({ accept: true });
         }
@@ -480,7 +488,18 @@ app.post("/api/user", (request, response) => {
 });
 
 app.post("/api/upload", upload.array("file"), (request, response) => {
-  console.log(request.files);
+  let file = request.files;
+  let data = request.body;
+  file.forEach((file) => {
+    database.query(`INSERT INTO message.${
+      data.room
+    } (sender, content, timestamp,type) VALUES(
+      ${database.escape(data.sender)},
+      ${database.escape(file.destination)},
+      ${database.escape(Date.now())},
+      "file"
+    )`);
+  });
 });
 
 server.listen(port, (err) => {

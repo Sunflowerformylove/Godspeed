@@ -128,12 +128,12 @@ export default function Chat() {
       });
       formData.append("sender", Cookies.get("userID"));
       formData.append("receiver", Cookies.get("receiver"));
+      formData.append("room", Cookies.get("currentRoom"));
       axios.post("http://localhost:3000/api/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      Socket.emit("fileMetadata", files);
       setFiles([]);
       element.value = "";
     }
