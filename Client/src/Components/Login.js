@@ -1,4 +1,5 @@
 import InputAndLabel from "./Input";
+import Register from "./Register";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -13,9 +14,14 @@ export default function Login() {
   });
   const [connectingCall, setConnectingCall] = useState(false);
   const [toggleLogin, setToggleLogin] = useState(true);
+  const [registerCall, setRegisterCall] = useState(false);
 
   function handleCallback(name, childData) {
     setForm({ ...form, [name]: childData });
+  }
+
+  function redirectToRegister() {
+    setRegisterCall(true);
   }
 
   useEffect(() => {
@@ -80,6 +86,9 @@ export default function Login() {
   if (connectingCall) {
     return <Connecting />;
   }
+  if (registerCall) {
+    return <Register />;
+  }
 
   return (
     <div className="loginPage">
@@ -100,7 +109,7 @@ export default function Login() {
       <button onClick={toggleLogin ? login : null} className="loginSubmit">
         Sign In
       </button>
-      <div className="registerRedirect">
+      <div onClick={redirectToRegister} className="registerRedirect">
         Need an account? <span className="registerKeyword">Sign up now!</span>
       </div>
     </div>
