@@ -37,6 +37,25 @@ export const Room = forwardRef((props, ref) => {
       ref.current.style.display = "flex";
       Socket.on("loadMessage", (data) => {
         if (data.length > 0) {
+          data.forEach((message) => {
+            if (message.type === "file") {
+              let blob = new Blob([message.file], { type: message.mimetype });
+              message.file = URL.createObjectURL(blob);
+            }
+          });
+          data.forEach((message) => {
+            if (message.type === "file") {
+              let timestamp = message.timestamp;
+              let tempArr = [message];
+              for (let i = 0; i < data.length; i++) {
+                if (data[i].timestamp === timestamp && data[i].type === "file") {
+                  tempArr.push(data[i]);
+                  data.splice(i, 1);
+                }
+              }
+              data.splice(data.indexOf(message), 1, tempArr);
+            }
+          })
           props.setMessage(data);
         } else {
           props.setMessage([]);
@@ -98,11 +117,31 @@ export const RoomExist = forwardRef((props, ref) => {
       sameSite: "strict",
       secure: true,
     });
-    console.log(props.ID);
     if (ref && ref.current) {
       ref.current.style.display = "flex";
       Socket.on("loadMessage", (data) => {
         if (data.length > 0) {
+          data.forEach((message) => {
+            if (message.type === "file") {
+              let blob = new Blob([message.file], { type: message.mimetype });
+              message.file = URL.createObjectURL(blob);
+            } 
+          });
+          data.forEach((message, index) => {
+            if (message.type === "file") {
+              let timestamp = message.timestamp;
+              let tempArr = [];
+              tempArr.push(message);
+              for (let i = 0; i < data.length; i++) {
+                if (data[i].timestamp === timestamp && data[i].type === "file" && i !== index) {
+                  tempArr.push(data[i]);
+                  data.splice(i, 1);
+                  i--;
+                }
+              }
+              data.splice(data.indexOf(message), 1, tempArr);
+            }
+          })
           props.setMessage(data);
         } else {
           props.setMessage([]);

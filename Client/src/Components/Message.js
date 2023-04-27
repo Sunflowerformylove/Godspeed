@@ -1,7 +1,7 @@
 import "../Style/Chat.css";
 import Socket from "./Socket";
 import Cookies from "js-cookie";
-import {toastSuccess, toastError} from "./Toast";
+import { toastSuccess } from "./Toast";
 // import { Swiper, SwiperSlide } from 'swiper/react';
 
 export function MessageRecipient(props) {
@@ -14,7 +14,7 @@ export function MessageRecipient(props) {
     });
     toastSuccess("Message hidden");
   }
-  function copyFunction(){
+  function copyFunction() {
     navigator.clipboard.writeText(props.message);
     toastSuccess("Copied to clipboard");
   }
@@ -60,7 +60,7 @@ export function MessageSender(props) {
     });
     toastSuccess("Message deleted");
   }
-  function copyFunction(){
+  function copyFunction() {
     navigator.clipboard.writeText(props.message);
     toastSuccess("Copied to clipboard");
   }
@@ -125,6 +125,50 @@ export default function Message(props) {
         message={props.message}
         setMessage={props.setMessage}
         messageArray={props.messageArray}
+      />
+    );
+  } else if (props.sender && props.senderHide) {
+    return <MessageDeletedSender />;
+  } else if (!props.sender && props.senderHide) {
+    return <MessageDeletedRecipient />;
+  }
+}
+
+export function MessageImageSender(props) {
+  return (<>
+    <div className="imageContainer sender" style={{ gridTemplateColumns: `repeat(${Math.min(props.src.length, 3)},auto)` }}>
+      {props.isArray ? props.src.map((src) => {
+        return (<img alt="" className="image" src={src.file} />)
+      }) : (<img alt="" className="image" src={props.src.file} />)}
+    </div>
+  </>)
+}
+
+export function MessageImageRecipient(props) {
+  return (<>
+    <div className="imageContainer recipient" style={{ gridTemplateColumns: `repeat(${Math.min(props.src.length, 3)},auto)` }}>
+      {props.isArray ? props.src.map((src) => {
+        return (<img alt="" className="image" src={src.file} />)
+      }) : (<img alt="" className="image" src={props.src.file} />)}
+    </div>
+  </>)
+}
+
+export function MessageImage(props) {
+  if (props.sender && !props.senderHide) {
+    return (
+      <MessageImageSender
+        key={Math.random() * (9999999999 - 0)}
+        isArray = {props.isArray}
+        src={props.src}
+      />
+    );
+  } else if (!props.sender && !props.recipientHide && !props.senderHide) {
+    return (
+      <MessageImageRecipient
+        key={Math.random() * (9999999999 - 0)}
+        isArray = {props.isArray}
+        src={props.src}
       />
     );
   } else if (props.sender && props.senderHide) {

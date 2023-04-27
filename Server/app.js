@@ -15,6 +15,8 @@ const http = require("http");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const Fuse = require("fuse.js");
+const events = require("events");
+const eventEmitter = new events();
 const { Server } = require("socket.io");
 const seedRandom = require("seedrandom");
 const path = require("path");
@@ -51,7 +53,7 @@ const databaseOption = {
 
 const multerConfig = multer.diskStorage({
   destination: function (req, file, next) {
-    next(null, "C:/Users/Hunter/Desktop/Godspeed/Server/Upload");
+    next(null, "./Upload");
   },
   filename: function (req, file, next) {
     const extension = file.mimetype.split("/")[1];
@@ -203,7 +205,8 @@ io.on("connection", (socket) => {
         result = JSON.parse(JSON.stringify(result));
         result.forEach((message) => {
           if (message.type === "file") {
-
+            let fileStream = fs.readFileSync(message.location);
+            message.file = fileStream;
           }
         })
         socket.emit("loadMessage", result);
@@ -229,6 +232,7 @@ io.on("connection", (socket) => {
           ID: result[0].ID,
           hideRecipient: result[0].recipientHide,
           hideSender: result[0].senderHide,
+          type : "text"
         });
       }
     );
@@ -254,6 +258,15 @@ io.on("connection", (socket) => {
       }), "text")`
     );
   });
+
+  eventEmitter.on("file", (data) => {
+    data.forEach((file) => {
+      let fileStream = fs.readFileSync(file.location);
+      file.file = fileStream;
+    })
+    console.log(data);
+    socket.emit("file", data);
+  })
 
   socket.on("setLatestMessage", (data) => {
     database.query(
@@ -472,18 +485,14 @@ app.post("/api/user", (request, response) => {
 app.post("/api/upload", upload.array("file"), (request, response) => {
   let file = request.files;
   let data = request.body;
+  let now = Date.now();
   file.forEach((file) => {
-    database.query(`INSERT INTO message.${data.room
-      } (sender, content, timestamp,type,filename,location,mimetype,size) VALUES(
-      ${database.escape(data.sender)},
-      ${database.escape(file.destination)},
-      ${database.escape(Date.now())},
-      "file",
-      ${database.escape(file.filename)},
-      ${database.escape(file.path)},
-      ${database.escape(file.mimetype)},
-      ${database.escape(file.size)}
-    )`);
+    database.query(`INSERT INTO message.${data.room} (sender, content, timestamp,type,filename,location,mimetype,size) VALUES(${database.escape(data.sender)},${database.escape(file.destination)},${database.escape(now)},"file",${database.escape(file.filename)},${database.escape(file.path)},${database.escape(file.mimetype)},${database.escape(file.size)})`);
+  });
+  database.query(`SELECT * FROM message.${data.room} WHERE timestamp = ${database.escape(now)} AND type = "file"`, (err, result) => {
+    if (err) throw err;
+    let data = JSON.parse(JSON.stringify(result));
+    eventEmitter.emit("file", data);
   });
 });
 

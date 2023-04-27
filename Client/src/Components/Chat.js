@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text */
 import axios from "axios";
 import "../Style/Chat.css";
-import Message from "./Message";
+import Message, { MessageImage, MessageImageSender } from "./Message";
 import { RoomNav } from "./RoomNav";
 import Socket from "./Socket";
 import Cookies from "js-cookie";
@@ -34,6 +34,58 @@ export default function Chat() {
     "eps",
   ];
 
+  useEffect(() => {
+    if (files.length !== 0) {
+      previewFileRef.current.style.display = "flex";
+    } else {
+      previewFileRef.current.style.display = "none";
+    }
+  }, [files]);
+
+  useEffect(() => {
+    if (chatBoxRef && chatBoxRef.current && allowScroll) {
+      chatBoxRef.current.scrollTo(0, chatBoxRef.current.scrollHeight);
+    }
+  }, [message, allowScroll]);
+
+  Socket.on("message", (data) => {
+    setAllowScroll(true);
+    setMessage([...message, data]);
+  });
+
+  Socket.on("file", (data) => {
+    setAllowScroll(true);
+    data.forEach((message) => {
+      if (message.type === "file") {
+        let blob = new Blob([message.file], { type: message.mimetype });
+        message.file = URL.createObjectURL(blob);
+      }
+    });
+    data.forEach((message, index) => {
+      if (message.type === "file") {
+        let timestamp = message.timestamp;
+        let tempArr = [message];
+        for (let i = 0; i < data.length; i++) {
+          if (data[i].timestamp === timestamp && data[i].type === "file" && i !== index) {
+            tempArr.push(data[i]);
+            data.splice(i, 1);
+            i--;
+          }
+        }
+        data.splice(data.indexOf(message), 1, tempArr);
+      }
+    })
+    setMessage([...message, ...data]);
+  });
+
+  Socket.on("getLatestMessage", (data) => {
+    setLatestMessage({ [data.room]: data });
+  });
+
+  useEffect(() => {
+    console.log(message);
+  },[message])
+
   function openFileInput() {
     sendFilesRef.current.click();
   }
@@ -64,14 +116,6 @@ export default function Chat() {
     });
     setFiles([...files, ...tempArr]);
   }
-
-  useEffect(() => {
-    if (files.length !== 0) {
-      previewFileRef.current.style.display = "flex";
-    } else {
-      previewFileRef.current.style.display = "none";
-    }
-  }, [files]);
 
   function adjustHeight() {
     const element = inputRef.current;
@@ -113,6 +157,8 @@ export default function Chat() {
           sender: Cookies.get("userID"),
         });
       }
+      inputRef.current.style.width = "100%";
+      previewFileRef.current.style.width = "100%";
       event.target.value = "";
       event.target.style.height = "2.5rem";
     }
@@ -155,19 +201,6 @@ export default function Chat() {
     }
   }
 
-  Socket.on("getLatestMessage", (data) => {
-    setLatestMessage({ [data.room]: data });
-  });
-
-  useEffect(() => {
-    if (chatBoxRef && chatBoxRef.current && allowScroll) {
-      chatBoxRef.current.scrollTo(0, chatBoxRef.current.scrollHeight);
-    }
-  }, [message, allowScroll]);
-  Socket.on("message", (data) => {
-    setAllowScroll(true);
-    setMessage([...message, data]);
-  });
   return (
     <>
       <RoomNav
@@ -235,18 +268,25 @@ export default function Chat() {
         <div ref={chatBoxRef} className="chatBox">
           {message.map((mess) => {
             return (
-              <Message
-                key={mess.ID}
-                ID={mess.ID}
-                sender={mess.sender === Cookies.get("userID")}
-                message={mess.content}
-                recipientHide={mess.recipientHide}
-                senderHide={mess.senderHide}
-                setMessage={setMessage}
-                messageArray={message}
-                allowScroll={allowScroll}
-                setAllowScroll={setAllowScroll}
-              />
+              mess.type === "text" ?
+                <Message
+                  key={mess.ID}
+                  ID={mess.ID}
+                  sender={mess.sender === Cookies.get("userID")}
+                  message={mess.content}
+                  recipientHide={mess.recipientHide}
+                  senderHide={mess.senderHide}
+                  setMessage={setMessage}
+                  messageArray={message}
+                  allowScroll={allowScroll}
+                  setAllowScroll={setAllowScroll}
+                /> :
+                <MessageImage key={Math.random() * (9999999999 - 0)} 
+                sender={Array.isArray(mess) ? mess[0].sender === Cookies.get("userID") : mess.sender === Cookies.get("userID")}
+                senderHide={Array.isArray(mess) ? mess[0].senderHide : mess.senderHide} 
+                recipientHide={Array.isArray(mess) ? mess[0].recipientHide : mess.recipientHide}
+                isArray={Array.isArray(mess)} 
+                src={mess} />
             );
           })}
         </div>
