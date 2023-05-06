@@ -11,7 +11,7 @@ const morgan = require("morgan");
 const port = 3000;
 const app = express();
 const cors = require("cors");
-const http = require("http");
+const https = require("https");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const Fuse = require("fuse.js");
@@ -23,6 +23,12 @@ const path = require("path");
 const multerS3 = require("multer-s3");
 const secret = speakeasy.generateSecretASCII(2048, false);
 const saltRound = 15;
+const { v4: uuidv4 } = require('uuid');
+
+const httpsOptions = {
+  key: fs.readFileSync("../Certificate/key.pem"),
+  cert: fs.readFileSync("../Certificate/cert.pem"),
+}
 
 const database = mysql.createConnection({
   host: "localhost",
@@ -62,6 +68,12 @@ const multerConfig = multer.diskStorage({
       file.originalname.split(".")[0] + "-" + Date.now() + "." + extension
     );
   },
+  fileFilter: function(req, file, cb) {
+    if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      file.mimetype = file.name;
+    }
+    cb(null, true);
+  }
 });
 
 const upload = multer({ storage: multerConfig });
@@ -147,16 +159,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(
   cors({
-    origin: "http://localhost",
+    origin: "https://localhost:80",
     methods: ["GET", "POST", "OPTIONS", "PUT", "DELETE"],
     credentials: true,
   })
 );
 app.use(cookieParser(speakeasy.generateSecretASCII()));
 app.use(morgan("combined"));
-const server = http.createServer(app);
+const server = https.createServer(httpsOptions, app);
+server.listen(port, (err) => {
+  if (err) throw err;
+  console.log("Server is running on port 3000");
+});
 const io = new Server(server, {
-  cors: { origin: "http://localhost" },
+  cors: { origin: "https://localhost:80" },
 });
 
 io.on("connection", (socket) => {
@@ -171,7 +187,7 @@ io.on("connection", (socket) => {
         6,
         options.receiver,
         options.sender
-      )} (ID INT NOT NULL AUTO_INCREMENT, sender VARCHAR(255) NOT NULL, content VARCHAR(255) NOT NULL, timestamp VARCHAR(255), recipientHide TINYINT DEFAULT 0, senderHide TINYINT DEFAULT 0, type VARCHAR(255), filename VARCHAR(255), location VARCHAR(255), size INT, mimetype VARCHAR(255), PRIMARY KEY (ID))`
+      )} (ID INT NOT NULL AUTO_INCREMENT, sender VARCHAR(255) NOT NULL, content VARCHAR(255) NOT NULL, timestamp VARCHAR(255), recipientHide TINYINT DEFAULT 0, senderHide TINYINT DEFAULT 0, type VARCHAR(255), filename VARCHAR(255), originalname VARCHAR(255), extension VARCHAR(255), location VARCHAR(255), size INT, mimetype VARCHAR(255), uuid VARCHAR(255), PRIMARY KEY (ID))`
     );
     database.query(
       `REPLACE INTO convos.${options.sender
@@ -191,6 +207,13 @@ io.on("connection", (socket) => {
       (err, result) => {
         if (err) throw err;
         result = JSON.parse(JSON.stringify(result));
+        result.forEach((message) => {
+          if (message.type === "file") {
+            let fileStream = fs.readFileSync(message.location);
+            message.file = fileStream;
+            message.extension = path.extname(message.originalname);
+          }
+        })
         socket.emit("loadMessage", result);
       }
     );
@@ -207,6 +230,7 @@ io.on("connection", (socket) => {
           if (message.type === "file") {
             let fileStream = fs.readFileSync(message.location);
             message.file = fileStream;
+            message.extension = path.extname(message.originalname);
           }
         })
         socket.emit("loadMessage", result);
@@ -246,7 +270,7 @@ io.on("connection", (socket) => {
       }), "text")`
     );
     database.query(
-      `CREATE TABLE IF NOT EXISTS convos.${message.receiverID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage VARCHAR(255), timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), recipient VARCHAR(255), recipientName VARCHAR(255), type VARCHAR(255), filename VARCHAR(255), location VARCHAR(255), size INT, mimetype VARCHAR(255), PRIMARY KEY (roomID))`
+      `CREATE TABLE IF NOT EXISTS convos.${message.receiverID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage VARCHAR(255), timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), recipient VARCHAR(255), recipientName VARCHAR(255), type VARCHAR(255), filename VARCHAR(255), originalname VARCHAR(255), extension VARCHAR(255), location VARCHAR(255), size INT, mimetype VARCHAR(255), uuid VARCHAR(255), PRIMARY KEY (roomID))`
     );
     database.query(
       `REPLACE INTO convos.${message.receiverID
@@ -408,13 +432,8 @@ app.post("/login", (request, response) => {
               response.cookie("userSession", request.sessionID, {
                 maxAge: 30 * 60 * 60 * 24 * 1000,
               });
-              response.cookie("userID", data[0].ID, {
-                maxAge: 30 * 60 * 60 * 24 * 1000,
-                secure: true,
-                sameSite: "strict",
-              });
               database.query(
-                `CREATE TABLE IF NOT EXISTS convos.${data[0].ID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage VARCHAR(255), timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), recipient VARCHAR(255), recipientName VARCHAR(255), type VARCHAR(255), filename VARCHAR(255), location VARCHAR(255), size INT, mimetype VARCHAR(255), PRIMARY KEY (roomID))`
+                `CREATE TABLE IF NOT EXISTS convos.${data[0].ID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage VARCHAR(255), timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), recipient VARCHAR(255), recipientName VARCHAR(255), type VARCHAR(255), filename VARCHAR(255), originalname VARCHAR(255), extension VARCHAR(255), location VARCHAR(255), size INT, mimetype VARCHAR(255), uuid VARCHAR(255), PRIMARY KEY (roomID))`
               );
               response.json({
                 errorCode: 0,
@@ -449,9 +468,12 @@ app.post("/checkSession", (request, response) => {
           response.end();
         } else {
           database.query(
-            `CREATE TABLE IF NOT EXISTS convos.${data.ID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage VARCHAR(255), timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), recipient VARCHAR(255), recipientName VARCHAR(255), type VARCHAR(255), filename VARCHAR(255), location VARCHAR(255), size INT, mimetype VARCHAR(255), PRIMARY KEY (roomID))`
+            `CREATE TABLE IF NOT EXISTS convos.${data.ID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage VARCHAR(255), timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), recipient VARCHAR(255), recipientName VARCHAR(255), type VARCHAR(255), filename VARCHAR(255), originalname VARCHAR(255), extension VARCHAR(255), location VARCHAR(255), size INT, mimetype VARCHAR(255), uuid VARCHAR(255), PRIMARY KEY (roomID))`
           );
-          response.json({ accept: true });
+          database.query(`SELECT * FROM user.data WHERE ID = ${data.ID}`, (err, result) => {
+            let userData = JSON.parse(JSON.stringify(result));
+            response.json({ accept: true, user: userData[0].user, ID: userData[0].ID });
+          });
         }
       }
     }
@@ -486,17 +508,22 @@ app.post("/api/upload", upload.array("file"), (request, response) => {
   let file = request.files;
   let data = request.body;
   let now = Date.now();
+  const ID = uuidv4();
   file.forEach((file) => {
-    database.query(`INSERT INTO message.${data.room} (sender, content, timestamp,type,filename,location,mimetype,size) VALUES(${database.escape(data.sender)},${database.escape(file.destination)},${database.escape(now)},"file",${database.escape(file.filename)},${database.escape(file.path)},${database.escape(file.mimetype)},${database.escape(file.size)})`);
+    database.query(`INSERT INTO message.${data.room} (sender, content, timestamp,type,filename,originalname,extension,location,mimetype,size, uuid) VALUES(${database.escape(data.sender)},${database.escape(file.destination)},${database.escape(now)},"file",${database.escape(file.filename)},'${file.originalname}','${path.extname(file.originalname)}',${database.escape(file.path)},${database.escape(file.mimetype)},${database.escape(file.size)},${database.escape(ID)})`);
   });
   database.query(`SELECT * FROM message.${data.room} WHERE timestamp = ${database.escape(now)} AND type = "file"`, (err, result) => {
     if (err) throw err;
     let data = JSON.parse(JSON.stringify(result));
+    data.forEach((file) => {
+      extension = path.extname(file.filename);
+    })
     eventEmitter.emit("file", data);
   });
 });
 
-server.listen(port, (err) => {
-  if (err) throw err;
-  console.log("Server is running on port 3000");
+app.post("/api/download", (request, response) => {
+  let body = request.body;
+  response.download("./Upload/" + body.filename, {maxAge: 5 * 60 * 1000, 
+  dotfiles: "allow"});
 });

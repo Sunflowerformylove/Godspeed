@@ -30,7 +30,7 @@ export default function Register() {
     let formData = { email: email };
     if (email !== "" && email !== undefined) {
       toastPromise(
-        axios("http://localhost:3000/OTP", {
+        axios("https://localhost:3000/OTP", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -50,7 +50,7 @@ export default function Register() {
   function register() {
     let user = form;
     let formData = { user: user };
-    axios("http://localhost:3000/register", {
+    axios("https://localhost:3000/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

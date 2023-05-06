@@ -1,13 +1,15 @@
 import InputAndLabel from "./Input";
 import Register from "./Register";
-import { useEffect, useState } from "react";
+import {useEffect, useState, useContext } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
 import Connecting from "./Connecting";
 import "../Style/Login.css";
+import userData from "./userData";
 import Socket from "./Socket.js";
 
 export default function Login() {
+  let user = useContext(userData);
   const [form, setForm] = useState({
     username: "",
     password: "",
@@ -34,7 +36,7 @@ export default function Login() {
     const loginPromise = new Promise((resolve, reject) => {
       axios({
         method: "POST",
-        url: "http://localhost:3000/login",
+        url: "https://localhost:3000/login",
         data: JSON.stringify(formData),
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
@@ -48,7 +50,7 @@ export default function Login() {
           } else if (data.errorCode === 2) {
             throw Error("Field(s) required!");
           } else {
-            resolve(data.user);
+            resolve(data);
           }
         })
         .catch((error) => reject(error));
@@ -58,7 +60,9 @@ export default function Login() {
       success: {
         render({ data }) {
           Socket.auth = data;
-          return `Welcome ${data}`;
+          user.username = data.user;
+          user.ID = data.ID;
+          return `Welcome ${data.user}`;
         },
         onClose: () => {
           setToggleLogin(true);

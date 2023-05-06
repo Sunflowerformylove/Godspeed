@@ -1,16 +1,19 @@
 import "../Style/RoomNav.css";
+import { useContext } from "react";
 import { forwardRef, useEffect, useRef, useState } from "react";
 import { Room, RoomExist } from "./Room";
 import axios from "axios";
-import Cookies from "js-cookie";
+import userData from "./userData";
 import Socket from "./Socket";
+
 export const RoomNav = forwardRef((props, ref) => {
   const searchIconRef = useRef(null);
   const searchContainerRef = useRef(null);
   const [searchResult, setSearchRes] = useState([]);
   const [room, setRoom] = useState([]);
+  const user = useContext(userData);
   useEffect(() => {
-    Socket.emit("getRoom", Cookies.get("userID"));
+    Socket.emit("getRoom", user.ID);
     Socket.on("loadRoom", (data) => {
       setRoom(data);
     });
@@ -19,7 +22,7 @@ export const RoomNav = forwardRef((props, ref) => {
     if (event.target.value.trim() !== "") {
       axios({
         method: "POST",
-        url: "http://localhost:3000/search",
+        url: "https://localhost:3000/search",
         data: JSON.stringify({ search: event.target.value.trim() }),
         headers: { "Content-Type": "application/json" },
       })

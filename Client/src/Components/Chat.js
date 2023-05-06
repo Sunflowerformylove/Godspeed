@@ -1,12 +1,14 @@
 /* eslint-disable jsx-a11y/alt-text */
 import axios from "axios";
 import "../Style/Chat.css";
-import Message, { MessageImage, MessageImageSender } from "./Message";
+import Message, { MessageImage, MessageFile } from "./Message";
 import { RoomNav } from "./RoomNav";
-import Socket from "./Socket";
-import Cookies from "js-cookie";
-import { useEffect, useRef, useState } from "react";
+import userData from "./userData";
+import Socket from "./Socket"
+import { useEffect, useRef, useState, useContext } from "react";
 import { ImagePreview } from "./Preview";
+import Cookies from "js-cookie";
+import NotificationOptions from "./Popup";
 
 export default function Chat() {
   const inputRef = useRef(null);
@@ -21,18 +23,27 @@ export default function Chat() {
   const [newRoom, setNewRoom] = useState({});
   const [latestMessage, setLatestMessage] = useState({});
   const [files, setFiles] = useState([]);
+  let user = useContext(userData);
   const imageExtension = [
-    "jpg",
-    "jpeg",
-    "png",
-    "gif",
-    "bmp",
-    "svg",
-    "webp",
-    "tiff",
-    "heif",
-    "eps",
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".gif",
+    ".bmp",
+    ".svg",
+    ".webp",
+    ".tiff",
+    ".heif",
+    ".eps",
   ];
+  const videoExtension = [
+    ".mp4",
+    ".webm",
+    ".ogg",
+    ".avi",
+    ".mov",
+    ".flv",
+    ".wmv"];
 
   useEffect(() => {
     if (files.length !== 0) {
@@ -62,11 +73,11 @@ export default function Chat() {
       }
     });
     data.forEach((message, index) => {
-      if (message.type === "file") {
-        let timestamp = message.timestamp;
+      if (message.type === "file" && imageExtension.some(extension => extension === message.extension.toLowerCase())) {
+        let uuid = message.uuid;
         let tempArr = [message];
         for (let i = 0; i < data.length; i++) {
-          if (data[i].timestamp === timestamp && data[i].type === "file" && i !== index) {
+          if (data[i].uuid === uuid && data[i].type === "file" && i !== index && imageExtension.some(extension => extension === data[i].extension.toLowerCase())) {
             tempArr.push(data[i]);
             data.splice(i, 1);
             i--;
@@ -75,6 +86,7 @@ export default function Chat() {
         data.splice(data.indexOf(message), 1, tempArr);
       }
     })
+    console.log(data);
     setMessage([...message, ...data]);
   });
 
@@ -82,12 +94,17 @@ export default function Chat() {
     setLatestMessage({ [data.room]: data });
   });
 
-  useEffect(() => {
-    console.log(message);
-  },[message])
-
   function openFileInput() {
     sendFilesRef.current.click();
+  }
+
+  function convertFileSize(size) {
+    let stage = 0;
+    while (size >= 1024) {
+      size /= 1024;
+      stage++;
+    }
+    return size.toFixed(2) + ["B", "KB", "MB", "GB", "TB"][stage];
   }
 
   function previewFile() {
@@ -126,27 +143,30 @@ export default function Chat() {
   }
   async function sendMessage(event) {
     if (event.key === "Enter") {
+      Object.values(iconRef.current).forEach((icon) => {
+        icon.style.transform = "scale(1)";
+      });
       event.preventDefault();
       if (event.target.value.trim() !== "") {
         Socket.emit("message", {
           content: event.target.value.trim(),
-          senderID: Cookies.get("userID"),
-          receiverID: Cookies.get("receiver"),
+          senderID: user.ID,
+          receiverID: user.receiver,
           room: Cookies.get("currentRoom"),
         });
 
-        const receiver = await axios("http://localhost:3000/api/user", {
+        const receiver = await axios("https://localhost:3000/api/user", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          data: { receiverID: Cookies.get("receiver") },
+          data: { receiverID: user.receiver },
         }).then((response) => response.data[0].user);
         setNewRoom({
           roomID: Cookies.get("currentRoom"),
           roomName: receiver,
-          sender: Cookies.get("userID"),
-          recipient: Cookies.get("receiver"),
+          sender: user.ID,
+          recipient: user.receiver,
           lastMessage: event.target.value.trim(),
           timestamp: Date.now(),
         });
@@ -154,7 +174,7 @@ export default function Chat() {
           room: Cookies.get("currentRoom"),
           content: event.target.value.trim(),
           timestamp: Date.now(),
-          sender: Cookies.get("userID"),
+          sender: user.ID,
         });
       }
       inputRef.current.style.width = "100%";
@@ -166,16 +186,19 @@ export default function Chat() {
 
   function sendFiles(event) {
     if (event.key === "Enter") {
+      Object.values(iconRef.current).forEach((icon) => {
+        icon.style.transform = "scale(1)";
+      });
       const element = sendFilesRef.current;
       const fileArr = Array.from(element.files);
       const formData = new FormData();
       fileArr.forEach((file) => {
         formData.append("file", file);
       });
-      formData.append("sender", Cookies.get("userID"));
-      formData.append("receiver", Cookies.get("receiver"));
+      formData.append("sender", user.ID);
+      formData.append("receiver", user.receiver);
       formData.append("room", Cookies.get("currentRoom"));
-      axios.post("http://localhost:3000/api/upload", formData, {
+      axios.post("https://localhost:3000/api/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -272,7 +295,7 @@ export default function Chat() {
                 <Message
                   key={mess.ID}
                   ID={mess.ID}
-                  sender={mess.sender === Cookies.get("userID")}
+                  sender={parseInt(mess.sender) === user.ID}
                   message={mess.content}
                   recipientHide={mess.recipientHide}
                   senderHide={mess.senderHide}
@@ -280,13 +303,23 @@ export default function Chat() {
                   messageArray={message}
                   allowScroll={allowScroll}
                   setAllowScroll={setAllowScroll}
-                /> :
-                <MessageImage key={Math.random() * (9999999999 - 0)} 
-                sender={Array.isArray(mess) ? mess[0].sender === Cookies.get("userID") : mess.sender === Cookies.get("userID")}
-                senderHide={Array.isArray(mess) ? mess[0].senderHide : mess.senderHide} 
-                recipientHide={Array.isArray(mess) ? mess[0].recipientHide : mess.recipientHide}
-                isArray={Array.isArray(mess)} 
-                src={mess} />
+                /> : imageExtension.some((ext) => !Array.isArray(mess) ? ext === mess.extension.toLowerCase() : ext === mess[0].extension.toLowerCase()) ?
+                  <MessageImage key={Math.random() * (9999999999 - 0)}
+                    ID={Array.isArray(mess) ? mess[0].ID : mess.ID}
+                    messageArray={message}
+                    setMessage={setMessage}
+                    timestamp={Array.isArray(mess) ? mess[0].timestamp : mess.timestamp}
+                    sender={Array.isArray(mess) ? parseInt(mess[0].sender) === user.ID : parseInt(mess.sender) === user.ID}
+                    senderHide={Array.isArray(mess) ? mess[0].senderHide : mess.senderHide}
+                    recipientHide={Array.isArray(mess) ? mess[0].recipientHide : mess.recipientHide}
+                    isArray={Array.isArray(mess)}
+                    src={mess} />
+                  :
+                  <MessageFile recipientHide={mess.recipientHide}
+                    ID={mess.ID}
+                    messageArray={message}
+                    setMessage={setMessage}
+                    senderHide={mess.senderHide} sender={parseInt(mess.sender) === user.ID} filename={mess.filename} key={Math.random() * (9999999999 - 0)} size={convertFileSize(mess.size)} mimetype={mess.mimetype} name={mess.originalname} type={mess.extension} />
             );
           })}
         </div>

@@ -1,11 +1,25 @@
 import "../Style/Room.css";
 import { useRef, forwardRef } from "react";
+import userData from "./userData";
 import Socket from "./Socket";
 import Cookies from "js-cookie";
-// import { useState } from "react";
+import { useContext } from "react";
+const imageExtension = [
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".gif",
+  ".bmp",
+  ".svg",
+  ".webp",
+  ".tiff",
+  ".heif",
+  ".eps",
+];
 export const Room = forwardRef((props, ref) => {
   const chosenRef = useRef(null);
   const className = "room";
+  let user = useContext(userData);
   // const [chosen, setChosen] = useState(false);
   // function toggleChosen(){
   //     const element = chosenRef.current;
@@ -19,36 +33,35 @@ export const Room = forwardRef((props, ref) => {
   //     }
   // }
   function createRoom() {
-    if (Cookies.get("currentRoom") !== undefined) {
-      Socket.emit("leave", Cookies.get("currentRoom"));
+    const currentRoom = Cookies.get("currentRoom");
+    if (currentRoom !== undefined) {
+      Socket.emit("leave", currentRoom);
     }
     Socket.emit("join", {
       receiver: props.ID,
-      sender: Cookies.get("userID"),
+      sender: user.ID,
     });
     Socket.on("roomID", (roomID) => {
       Cookies.set("currentRoom", roomID);
     });
-    Cookies.set("receiver", props.ID, {
-      sameSite: "strict",
-      secure: true,
-    });
+    user.receiver = props.ID;
     if (ref && ref.current) {
       ref.current.style.display = "flex";
       Socket.on("loadMessage", (data) => {
+        console.log(data);
         if (data.length > 0) {
           data.forEach((message) => {
-            if (message.type === "file") {
+            if (message.type === "file" && imageExtension.some(extension => extension === message.mimetype.toLowerCase())) {
               let blob = new Blob([message.file], { type: message.mimetype });
               message.file = URL.createObjectURL(blob);
             }
           });
           data.forEach((message) => {
-            if (message.type === "file") {
-              let timestamp = message.timestamp;
+            if (message.type === "file" && imageExtension.some(extension => extension === message.mimetype.toLowerCase())) {
+              let uuid = message.uuid;
               let tempArr = [message];
               for (let i = 0; i < data.length; i++) {
-                if (data[i].timestamp === timestamp && data[i].type === "file") {
+                if (data[i].uuid === uuid && data[i].type === "file" && imageExtension.some(extension => extension === data[i].extension.toLowerCase())) {
                   tempArr.push(data[i]);
                   data.splice(i, 1);
                 }
@@ -88,6 +101,7 @@ export const Room = forwardRef((props, ref) => {
 export const RoomExist = forwardRef((props, ref) => {
   const chosenRef = useRef(null);
   const className = "room";
+  let user = useContext(userData);
   // const [chosen, setChosen] = useState(false);
   // function toggleChosen(){
   //     const element = chosenRef.current;
@@ -106,17 +120,15 @@ export const RoomExist = forwardRef((props, ref) => {
   //   }
   // }
   function createRoom() {
-    if (Cookies.get("currentRoom") !== undefined) {
-      Socket.emit("leave", Cookies.get("currentRoom"));
+    const currentRoom = Cookies.get("currentRoom");
+    if (currentRoom !== undefined) {
+      Socket.emit("leave", currentRoom);
     }
     Socket.emit("joinExistingRoom", props.roomID);
     Socket.on("roomID", (roomID) => {
       Cookies.set("currentRoom", roomID);
     });
-    Cookies.set("receiver", props.ID, {
-      sameSite: "strict",
-      secure: true,
-    });
+    user.receiver = props.ID;
     if (ref && ref.current) {
       ref.current.style.display = "flex";
       Socket.on("loadMessage", (data) => {
@@ -125,15 +137,15 @@ export const RoomExist = forwardRef((props, ref) => {
             if (message.type === "file") {
               let blob = new Blob([message.file], { type: message.mimetype });
               message.file = URL.createObjectURL(blob);
-            } 
+            }
           });
           data.forEach((message, index) => {
-            if (message.type === "file") {
-              let timestamp = message.timestamp;
+            if (message.type === "file" && imageExtension.some(extension => extension === message.extension.toLowerCase())) {
+              let uuid = message.uuid;
               let tempArr = [];
               tempArr.push(message);
               for (let i = 0; i < data.length; i++) {
-                if (data[i].timestamp === timestamp && data[i].type === "file" && i !== index) {
+                if (data[i].uuid=== uuid && data[i].type === "file" && i !== index && imageExtension.some(extension => extension === data[i].extension.toLowerCase())) {
                   tempArr.push(data[i]);
                   data.splice(i, 1);
                   i--;
