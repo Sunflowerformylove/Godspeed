@@ -400,6 +400,11 @@
   top: 2rem;
 }
 
+.imageOptionSelection.recipient{
+  left: .3rem;
+  top: 2.2rem;
+}
+
 .imageOptions:hover > .imageOptionSelection{
   height: 10rem !important;
 }

@@ -1,0 +1,103 @@
+@keyframes dotAnimation {
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(0, -10px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 100%;
+}
+
+.options:hover > .dot:nth-of-type(1) {
+  animation: dotAnimation 1s infinite forwards;
+}
+
+.options:hover > .dot:nth-of-type(2) {
+  animation: dotAnimation 1s infinite 0.2s forwards;
+}
+
+.options:hover > .dot:nth-of-type(3) {
+  animation: dotAnimation 1s infinite 0.4s forwards;
+}
+
+.optionsSelection {
+  width: 12rem;
+  z-index: 1;
+  background-color: #f3f3f9;
+  position: absolute;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.optionsSelection.sender{
+  top: 0;
+  left: -12.5rem;
+}
+
+.optionsSelection.video.recipient{
+  top: 0;
+  right: -12.5rem;
+}
+
+.options:hover > .optionsSelection {
+  width: 12rem;
+  height: 12rem !important;
+}
+
+.videoContainer {
+  width: 100% !important;
+  height: 45rem;
+  min-height: 45rem;
+  position: relative;
+  margin-top: 1rem;
+}
+
+.videoContainer.sender > .options{
+  position: absolute;
+  top: 40%;
+  right: 70rem;
+  margin: 1rem;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.videoContainer.sender {
+  margin-left: auto;
+  margin-right: 2rem;
+}
+
+.videoContainer.recipient {
+  margin-left: 1rem;
+}
+
+.video {
+  position: absolute;
+  object-fit: cover;
+  object-position: center;
+  height: 45rem !important;
+  min-height: 35rem;
+  width: 60% !important;
+  top: 0;
+  border-radius: 10px;
+}
+
+.video.sender {
+  right: 0;
+}
+
+.video.recipient {
+  left: 0;
+}

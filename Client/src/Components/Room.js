@@ -119,6 +119,13 @@ export const RoomExist = forwardRef((props, ref) => {
 
   //   }
   // }
+  function checkURL(url) {
+    const regex = new RegExp("^(https?\:\/\/)?((www\.)?youtube\.com|youtu\.be)\/.+$");
+    if (regex.test(url)) {
+      return true;
+    }
+    return false;
+  }
   function createRoom() {
     const currentRoom = Cookies.get("currentRoom");
     if (currentRoom !== undefined) {
@@ -134,7 +141,7 @@ export const RoomExist = forwardRef((props, ref) => {
       Socket.on("loadMessage", (data) => {
         if (data.length > 0) {
           data.forEach((message) => {
-            if (message.type === "file") {
+            if (message.type === "file" && message.content !== "deleted") {
               let blob = new Blob([message.file], { type: message.mimetype });
               message.file = URL.createObjectURL(blob);
             }
@@ -145,13 +152,20 @@ export const RoomExist = forwardRef((props, ref) => {
               let tempArr = [];
               tempArr.push(message);
               for (let i = 0; i < data.length; i++) {
-                if (data[i].uuid=== uuid && data[i].type === "file" && i !== index && imageExtension.some(extension => extension === data[i].extension.toLowerCase())) {
+                if (data[i].uuid === uuid && data[i].type === "file" && i !== index && imageExtension.some(extension => extension === data[i].extension.toLowerCase())) {
                   tempArr.push(data[i]);
                   data.splice(i, 1);
                   i--;
                 }
               }
               data.splice(data.indexOf(message), 1, tempArr);
+            }
+          })
+          data.forEach(message => {
+            if (message.type === "text" && checkURL(message.content)) {
+              message.type = "video";
+              message.extension = "mp4";
+              message.file = message.content;
             }
           })
           props.setMessage(data);

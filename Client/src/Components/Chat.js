@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text */
 import axios from "axios";
 import "../Style/Chat.css";
-import Message, { MessageImage, MessageFile } from "./Message";
+import Message, { MessageImage, MessageFile, Video } from "./Message";
 import { RoomNav } from "./RoomNav";
 import userData from "./userData";
 import Socket from "./Socket"
@@ -61,8 +61,21 @@ export default function Chat() {
 
   Socket.on("message", (data) => {
     setAllowScroll(true);
+    if (data.type === "text" && checkURL(data.content)) {
+      data.type = "video";
+      data.extension = "mp4";
+      data.file = data.content;
+    }
     setMessage([...message, data]);
   });
+
+  function checkURL(url) {
+    const regex = new RegExp("^(https?\:\/\/)?((www\.)?youtube\.com|youtu\.be)\/.+$");
+    if (regex.test(url)) {
+      return true;
+    }
+    return false;
+  }
 
   Socket.on("file", (data) => {
     setAllowScroll(true);
@@ -86,7 +99,13 @@ export default function Chat() {
         data.splice(data.indexOf(message), 1, tempArr);
       }
     })
-    console.log(data);
+    data.forEach(message => {
+      if (message.type === "text" && checkURL(message.content)) {
+        message.type = "video";
+        message.extension = "mp4";
+        message.file = message.content;
+      }
+    })
     setMessage([...message, ...data]);
   });
 
@@ -233,6 +252,7 @@ export default function Chat() {
         ref={chatContainerRef}
         newRoom={newRoom}
       ></RoomNav>
+
       <div ref={chatContainerRef} className="chatContainer">
         <div className="chatHeader">
           <img className="recipientAvatar"></img>
@@ -313,13 +333,24 @@ export default function Chat() {
                     senderHide={Array.isArray(mess) ? mess[0].senderHide : mess.senderHide}
                     recipientHide={Array.isArray(mess) ? mess[0].recipientHide : mess.recipientHide}
                     isArray={Array.isArray(mess)}
+                    uuid={Array.isArray(mess) ? mess[0].uuid : mess.uuid}
                     src={mess} />
                   :
-                  <MessageFile recipientHide={mess.recipientHide}
-                    ID={mess.ID}
-                    messageArray={message}
-                    setMessage={setMessage}
-                    senderHide={mess.senderHide} sender={parseInt(mess.sender) === user.ID} filename={mess.filename} key={Math.random() * (9999999999 - 0)} size={convertFileSize(mess.size)} mimetype={mess.mimetype} name={mess.originalname} type={mess.extension} />
+                  videoExtension.some((ext) => !Array.isArray(mess) ? ext === mess.extension.toLowerCase() : ext === mess[0].extension.toLowerCase()) || mess.type === "video" ?
+                    <Video url={mess.file} ID={Array.isArray(mess) ? mess[0].ID : mess.ID}
+                      messageArray={message}
+                      setMessage={setMessage}
+                      timestamp={Array.isArray(mess) ? mess[0].timestamp : mess.timestamp}
+                      sender={Array.isArray(mess) ? parseInt(mess[0].sender) === user.ID : parseInt(mess.sender) === user.ID}
+                      senderHide={Array.isArray(mess) ? mess[0].senderHide : mess.senderHide}
+                      recipientHide={Array.isArray(mess) ? mess[0].recipientHide : mess.recipientHide}
+                      uuid={Array.isArray(mess) ? mess[0].uuid : mess.uuid}></Video>
+                    :
+                    <MessageFile recipientHide={mess.recipientHide}
+                      ID={mess.ID}
+                      messageArray={message}
+                      setMessage={setMessage}
+                      senderHide={mess.senderHide} sender={parseInt(mess.sender) === user.ID} filename={mess.filename} key={Math.random() * (9999999999 - 0)} size={convertFileSize(mess.size)} mimetype={mess.mimetype} name={mess.originalname} type={mess.extension} />
             );
           })}
         </div>
