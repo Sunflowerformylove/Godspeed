@@ -16,10 +16,39 @@ const imageExtension = [
   ".heif",
   ".eps",
 ];
+
+const videoExtension = [
+  ".mp4",
+  ".webm",
+  ".ogg",
+  ".avi",
+  ".mov",
+  ".flv",
+  ".wmv"];
+
+function checkURL(url) {
+  url.trim();
+  if (url === undefined || url === "") {
+    return false;
+  }
+  const URLRegex = new RegExp("(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})");
+  if (URLRegex.test(url)) {
+    return true;
+  }
+  return false;
+}
+
 export const Room = forwardRef((props, ref) => {
   const chosenRef = useRef(null);
   const className = "room";
   let user = useContext(userData);
+  function checkURL(url) {
+    const regex = new RegExp("^(https?\:\/\/)?((www\.)?youtube\.com|youtu\.be)\/.+$");
+    if (regex.test(url)) {
+      return true;
+    }
+    return false;
+  }
   // const [chosen, setChosen] = useState(false);
   // function toggleChosen(){
   //     const element = chosenRef.current;
@@ -48,14 +77,14 @@ export const Room = forwardRef((props, ref) => {
     if (ref && ref.current) {
       ref.current.style.display = "flex";
       Socket.on("loadMessage", (data) => {
-        console.log(data);
         if (data.length > 0) {
           data.forEach((message) => {
-            if (message.type === "file" && imageExtension.some(extension => extension === message.mimetype.toLowerCase())) {
+            if (message.type === "file" && message.content !== "deleted") {
               let blob = new Blob([message.file], { type: message.mimetype });
               message.file = URL.createObjectURL(blob);
             }
           });
+          console.log(data);
           data.forEach((message) => {
             if (message.type === "file" && imageExtension.some(extension => extension === message.mimetype.toLowerCase())) {
               let uuid = message.uuid;
@@ -67,6 +96,13 @@ export const Room = forwardRef((props, ref) => {
                 }
               }
               data.splice(data.indexOf(message), 1, tempArr);
+            }
+          })
+          data.forEach(message => {
+            if (message.type === "text" && checkURL(message.content)) {
+              message.type = "youtube";
+              message.extension = "mp4";
+              message.file = message.content;
             }
           })
           props.setMessage(data);
@@ -138,10 +174,10 @@ export const RoomExist = forwardRef((props, ref) => {
     user.receiver = props.ID;
     if (ref && ref.current) {
       ref.current.style.display = "flex";
-      Socket.on("loadMessage", (data) => {
+      Socket.once("loadMessage", (data) => {
         if (data.length > 0) {
           data.forEach((message) => {
-            if (message.type === "file" && message.content !== "deleted") {
+            if (message.type === "file" && message.content !== "deleted" && !checkURL(message.file)) {
               let blob = new Blob([message.file], { type: message.mimetype });
               message.file = URL.createObjectURL(blob);
             }
@@ -163,7 +199,7 @@ export const RoomExist = forwardRef((props, ref) => {
           })
           data.forEach(message => {
             if (message.type === "text" && checkURL(message.content)) {
-              message.type = "video";
+              message.type = "youtube";
               message.extension = "mp4";
               message.file = message.content;
             }

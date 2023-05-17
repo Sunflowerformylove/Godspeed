@@ -62,7 +62,7 @@ export default function Chat() {
   Socket.on("message", (data) => {
     setAllowScroll(true);
     if (data.type === "text" && checkURL(data.content)) {
-      data.type = "video";
+      data.type = "youtube";
       data.extension = "mp4";
       data.file = data.content;
     }
@@ -70,6 +70,7 @@ export default function Chat() {
   });
 
   function checkURL(url) {
+    if (typeof url !== "string") return false;
     const regex = new RegExp("^(https?\:\/\/)?((www\.)?youtube\.com|youtu\.be)\/.+$");
     if (regex.test(url)) {
       return true;
@@ -77,18 +78,20 @@ export default function Chat() {
     return false;
   }
 
-  Socket.on("file", (data) => {
-    setAllowScroll(true);
-    data.forEach((message) => {
-      if (message.type === "file") {
-        let blob = new Blob([message.file], { type: message.mimetype });
-        message.file = URL.createObjectURL(blob);
+  Socket.once("file", (data) => {
+    console.log(data);
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].type === "file" && data[i].content !== "deleted" && !checkURL(data[i].file)) {
+        const blob = new Blob([data[i].file], { type: data[i].mimetype});
+        data[i].file = window.URL.createObjectURL(blob);
+        console.log(data[i].file);
       }
-    });
+    }
     data.forEach((message, index) => {
       if (message.type === "file" && imageExtension.some(extension => extension === message.extension.toLowerCase())) {
         let uuid = message.uuid;
-        let tempArr = [message];
+        let tempArr = [];
+        tempArr.push(message);
         for (let i = 0; i < data.length; i++) {
           if (data[i].uuid === uuid && data[i].type === "file" && i !== index && imageExtension.some(extension => extension === data[i].extension.toLowerCase())) {
             tempArr.push(data[i]);
@@ -101,12 +104,13 @@ export default function Chat() {
     })
     data.forEach(message => {
       if (message.type === "text" && checkURL(message.content)) {
-        message.type = "video";
+        message.type = "youtube";
         message.extension = "mp4";
         message.file = message.content;
       }
     })
     setMessage([...message, ...data]);
+    setAllowScroll(true);
   });
 
   Socket.on("getLatestMessage", (data) => {
@@ -336,11 +340,13 @@ export default function Chat() {
                     uuid={Array.isArray(mess) ? mess[0].uuid : mess.uuid}
                     src={mess} />
                   :
-                  videoExtension.some((ext) => !Array.isArray(mess) ? ext === mess.extension.toLowerCase() : ext === mess[0].extension.toLowerCase()) || mess.type === "video" ?
+                  videoExtension.some((ext) => !Array.isArray(mess) ? ext === mess.extension.toLowerCase() : ext === mess[0].extension.toLowerCase()) || mess.type === "youtube" ?
                     <Video url={mess.file} ID={Array.isArray(mess) ? mess[0].ID : mess.ID}
+                      key = {mess.ID}
                       messageArray={message}
                       setMessage={setMessage}
                       timestamp={Array.isArray(mess) ? mess[0].timestamp : mess.timestamp}
+                      type={mess.type}
                       sender={Array.isArray(mess) ? parseInt(mess[0].sender) === user.ID : parseInt(mess.sender) === user.ID}
                       senderHide={Array.isArray(mess) ? mess[0].senderHide : mess.senderHide}
                       recipientHide={Array.isArray(mess) ? mess[0].recipientHide : mess.recipientHide}

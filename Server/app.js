@@ -130,6 +130,26 @@ function checkObject(object) {
   return true;
 }
 
+function checkURL(url) {
+  url.trim();
+  if(url === undefined || url === "") {
+    return false;
+  }
+  const URLRegex = new RegExp("(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})");
+  if(URLRegex.test(url)) {
+    return true;
+  }
+  return false;
+}
+
+function checkYoutubeURL(url) {
+  const YoutubeRegex = new RegExp("^(https?\:\/\/)?((www\.)?youtube\.com|youtu\.be)\/.+$");
+  if (YoutubeRegex.test(url)) {
+    return true;
+  }
+  return false;
+}
+
 function generateRoom(length, seed1, seed2) {
   const rng = seedRandom((parseInt(seed1) + parseInt(seed2)).toString());
   const character =
@@ -172,7 +192,7 @@ server.listen(port, (err) => {
   console.log("Server is running on port 3000");
 });
 const io = new Server(server, {
-  cors: { origin: "https://localhost:80" },
+  cors: { origin: "*" },
 });
 
 io.on("connection", (socket) => {
@@ -243,7 +263,7 @@ io.on("connection", (socket) => {
     database.query(
       `INSERT INTO message.${message.room
       } (sender, content, timestamp, type) VALUES ('${message.senderID
-      }', ${database.escape(message.content)}, ${Date.now()}, "text")`
+      }', ${database.escape(message.content)}, ${Date.now()}, '${checkURL(message.content) ? "url" : checkYoutubeURL(message.content) ? "youtube" : "text"}')`
     );
     database.query(
       `SELECT ID, recipientHide, senderHide FROM message.${message.room} WHERE sender = '${message.senderID}' ORDER BY timestamp DESC LIMIT 1`,
@@ -256,7 +276,7 @@ io.on("connection", (socket) => {
           ID: result[0].ID,
           hideRecipient: result[0].recipientHide,
           hideSender: result[0].senderHide,
-          type: "text"
+          type: checkURL(message.content) ? "url" : checkYoutubeURL(message.content) ? "youtube" : "text",
         });
       }
     );
@@ -267,7 +287,7 @@ io.on("connection", (socket) => {
       }') AS T),${database.escape(message.content)}, ${Date.now()}, '${message.senderID
       }',(SELECT user FROM user.data WHERE ID = '${message.senderID}'),
       ${message.receiverID}, (SELECT user FROM user.data WHERE ID = ${message.receiverID
-      }), "text")`
+      }), '${checkURL(message.content) ? "url" : checkYoutubeURL(message.content) ? "youtube" : "text"}')`
     );
     database.query(
       `CREATE TABLE IF NOT EXISTS convos.${message.receiverID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage VARCHAR(255), timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), recipient VARCHAR(255), recipientName VARCHAR(255), type VARCHAR(255), filename VARCHAR(255), originalname VARCHAR(255), extension VARCHAR(255), location VARCHAR(255), size INT, mimetype VARCHAR(255), uuid VARCHAR(255), PRIMARY KEY (roomID))`
@@ -279,18 +299,9 @@ io.on("connection", (socket) => {
       }') AS T),${database.escape(message.content)}, ${Date.now()}, '${message.senderID
       }',(SELECT user FROM user.data WHERE ID = '${message.senderID}'),
       ${message.receiverID}, (SELECT user FROM user.data WHERE ID = ${message.receiverID
-      }), "text")`
+      }), '${checkURL(message.content) ? "url" : checkYoutubeURL(message.content) ? "youtube" : "text"}')`
     );
   });
-
-  eventEmitter.on("file", (data) => {
-    data.forEach((file) => {
-      let fileStream = fs.readFileSync(file.location);
-      file.file = fileStream;
-    })
-    console.log(data);
-    socket.emit("file", data);
-  })
 
   socket.on("setLatestMessage", (data) => {
     database.query(
@@ -357,6 +368,18 @@ io.on("connection", (socket) => {
     database.query(`UPDATE message.${data.room} SET content = '', recipientHide = '1' WHERE uuid = '${data.uuid}' AND mimetype LIKE 'image%'`, (err, result) => {
       if (err) throw err;
     });
+  });
+
+  socket.on("deleteSVideo", (data) => {
+    database.query(`UPDATE message.${data.room} SET content = 'deleted', senderHide = '1' WHERE uuid = '${data.uuid}'`, (err, result) => {
+      if (err) throw err;
+      database.query(`SELECT filename FROM message.${data.room} WHERE uuid = '${data.uuid}' AND NOT type = 'video'`, (err, result) => {
+        const data = JSON.parse(JSON.stringify(result));
+        data.forEach((video) => {
+          fs.unlinkSync(`./Upload/${video.filename}`);
+        })
+      });
+    })
   });
 
     socket.on("connect_error", (err) => {
@@ -528,17 +551,24 @@ io.on("connection", (socket) => {
     let data = request.body;
     let now = Date.now();
     const ID = uuidv4();
+    // console.log(file)
     file.forEach((file) => {
       database.query(`INSERT INTO message.${data.room} (sender, content, timestamp,type,filename,originalname,extension,location,mimetype,size, uuid) VALUES(${database.escape(data.sender)},${database.escape(file.destination)},${database.escape(now)},"file",${database.escape(file.filename)},'${file.originalname}','${path.extname(file.originalname)}',${database.escape(file.path)},${database.escape(file.mimetype)},${database.escape(file.size)},${database.escape(ID)})`);
     });
     database.query(`SELECT * FROM message.${data.room} WHERE timestamp = ${database.escape(now)} AND type = "file"`, (err, result) => {
       if (err) throw err;
-      let data = JSON.parse(JSON.stringify(result));
-      data.forEach((file) => {
-        extension = path.extname(file.filename);
+      let dataDB = JSON.parse(JSON.stringify(result));
+      dataDB.forEach((file) => {
+        file.extension = path.extname(file.filename);
+        file.room = data.room
       })
-      eventEmitter.emit("file", data);
+      dataDB.forEach((file) => {
+        const fileStream = fs.readFileSync(file.location);
+        file.file = fileStream;
+      })
+      io.to(`${data.room}`).emit("file", dataDB);
     });
+    response.end();
   });
 
   app.post("/api/download", (request, response) => {
