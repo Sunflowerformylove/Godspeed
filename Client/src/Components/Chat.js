@@ -259,7 +259,7 @@ export default function Chat() {
         newRoom={newRoom}
       ></RoomNav>
       <div ref={chatContainerRef} className="chatContainer">
-        <ChatHeader name = "Hunter" src = "http://placekitten.com/200/300"></ChatHeader>
+        <ChatHeader src = "http://placekitten.com/200/300"></ChatHeader>
         <div ref={inputWidgetRef} className="inputWidgets">
           <div className="miscWidget">
             <IonIcon
