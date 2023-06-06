@@ -3,15 +3,17 @@ import { useContext } from "react";
 import { forwardRef, useEffect, useRef, useState } from "react";
 import { Room, RoomExist } from "./Room";
 import axios from "axios";
-import userData from "./userData";
+import userContext from "./userData";
 import Socket from "./Socket";
+import { IonIcon } from "@ionic/react";
+import * as Icon from "ionicons/icons";
 
 export const RoomNav = forwardRef((props, ref) => {
   const searchIconRef = useRef(null);
   const searchContainerRef = useRef(null);
   const [searchResult, setSearchRes] = useState([]);
   const [room, setRoom] = useState([]);
-  const user = useContext(userData);
+  const [user, setUser] = useContext(userContext);
   useEffect(() => {
     Socket.emit("getRoom", user.ID);
     Socket.on("loadRoom", (data) => {
@@ -42,7 +44,7 @@ export const RoomNav = forwardRef((props, ref) => {
       }
     }
     return false;
-  }   
+  }
 
   useEffect(() => {
     for (let i = 0; i < room.length; i++) {
@@ -90,10 +92,7 @@ export const RoomNav = forwardRef((props, ref) => {
             }}
             className="searchBar"
           />
-          <i
-            ref={searchIconRef}
-            className="fa-solid fa-magnifying-glass searchIcon"
-          ></i>
+          <IonIcon ref={searchIconRef} icon={Icon.searchOutline} className="searchIcon"></IonIcon>
         </div>
         <div className="roomContainer">
           {room.map((room) => {
@@ -106,8 +105,8 @@ export const RoomNav = forwardRef((props, ref) => {
                 setMessage={props.setMessage}
                 ref={ref}
                 name={room.roomName}
-                latestMessage = {!props.latestMessage[`${room.roomID}`] ? room.lastMessage : props.latestMessage[`${room.roomID}`].content}
-                sender = {!props.latestMessage[`${room.roomID}`] ? room.senderName : props.latestMessage[`${room.roomID}`].sender}
+                latestMessage={!props.latestMessage[`${room.roomID}`] ? room.lastMessage : props.latestMessage[`${room.roomID}`].content}
+                sender={!props.latestMessage[`${room.roomID}`] ? room.senderName : props.latestMessage[`${room.roomID}`].sender}
                 timestamp={room.timestamp}
               />
             );

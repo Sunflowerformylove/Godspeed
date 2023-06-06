@@ -24,6 +24,7 @@ const multerS3 = require("multer-s3");
 const secret = speakeasy.generateSecretASCII(2048, false);
 const saltRound = 15;
 const { v4: uuidv4 } = require('uuid');
+const { decode } = require("punycode");
 
 const httpsOptions = {
   key: fs.readFileSync("../Certificate/key.pem"),
@@ -132,11 +133,11 @@ function checkObject(object) {
 
 function checkURL(url) {
   url.trim();
-  if(url === undefined || url === "") {
+  if (url === undefined || url === "") {
     return false;
   }
   const URLRegex = new RegExp("(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})");
-  if(URLRegex.test(url)) {
+  if (URLRegex.test(url)) {
     return true;
   }
   return false;
@@ -161,6 +162,12 @@ function generateRoom(length, seed1, seed2) {
   return result;
 }
 
+function decodeSessionID(sessionID) {
+  sessionID = sessionID.split(".")[0];
+  sessionID = sessionID.split(":")[1];
+  return sessionID;
+}
+
 app.use(
   session({
     name: "userSession",
@@ -169,9 +176,9 @@ app.use(
     store: MySQLStore,
     saveUninitialized: false,
     cookie: {
-      secure: true,
-      httpOnly: true,
+      httpOnly: false,
       maxAge: 30 * 24 * 60 * 60 * 1000, // save the session cookie for 30 days
+      resave: false,
     },
   })
 );
@@ -202,6 +209,8 @@ io.on("connection", (socket) => {
   });
   socket.on("join", (options) => {
     socket.join(generateRoom(6, options.receiver, options.sender));
+    database.query(`CREATE TABLE IF NOT EXISTS room.${options.sender} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255) NOT NULL,recipient INT, type VARCHAR(255), lastChatTime BIGINT, PRIMARY KEY (roomID))`);
+    database.query(`CREATE TABLE IF NOT EXISTS room.${options.receiver} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255) NOT NULL,recipient INT, type VARCHAR(255), lastChatTime BIGINT, PRIMARY KEY (roomID))`);
     database.query(
       `CREATE TABLE IF NOT EXISTS message.${generateRoom(
         6,
@@ -290,7 +299,7 @@ io.on("connection", (socket) => {
       }), '${checkURL(message.content) ? "url" : checkYoutubeURL(message.content) ? "youtube" : "text"}')`
     );
     database.query(
-      `CREATE TABLE IF NOT EXISTS convos.${message.receiverID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage VARCHAR(255), timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), recipient VARCHAR(255), recipientName VARCHAR(255), type VARCHAR(255), filename VARCHAR(255), originalname VARCHAR(255), extension VARCHAR(255), location VARCHAR(255), size INT, mimetype VARCHAR(255), uuid VARCHAR(255), PRIMARY KEY (roomID))`
+      `CREATE TABLE IF NOT EXISTS convos.${message.receiverID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage VARCHAR(255), timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), type VARCHAR(255), uuid VARCHAR(255), PRIMARY KEY (roomID))`
     );
     database.query(
       `REPLACE INTO convos.${message.receiverID
@@ -320,13 +329,13 @@ io.on("connection", (socket) => {
   });
 
   socket.on("getRoom", (data) => {
-    database.query(
-      `SELECT * FROM convos.${data} ORDER BY timestamp DESC LIMIT 20`,
-      (err, result) => {
-        if (err) throw err;
-        socket.emit("loadRoom", JSON.parse(JSON.stringify(result)));
-      }
-    );
+    database.query(`SELECT room.${data}.*, convos.${data}.lastMessage, convos.${data}.timestamp, convos.${data}.senderName 
+    FROM room.${data}
+    INNER JOIN convos.${data} ON room.${data}.roomID = convos.${data}.roomID`, (err, result) => {
+      if (err) throw err;
+      result = JSON.parse(JSON.stringify(result));
+      socket.emit("loadRoom", result);
+    });
   });
 
   socket.on("leave", (roomID) => {
@@ -365,7 +374,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("deleteRImage", (data) => {
-    database.query(`UPDATE message.${data.room} SET content = '', recipientHide = '1' WHERE uuid = '${data.uuid}' AND mimetype LIKE 'image%'`, (err, result) => {
+    database.query(`UPDATE message.${data.room} SET recipientHide = '1' WHERE uuid = '${data.uuid}' AND mimetype LIKE 'image%'`, (err, result) => {
       if (err) throw err;
     });
   });
@@ -373,13 +382,27 @@ io.on("connection", (socket) => {
   socket.on("deleteSVideo", (data) => {
     database.query(`UPDATE message.${data.room} SET content = 'deleted', senderHide = '1' WHERE uuid = '${data.uuid}'`, (err, result) => {
       if (err) throw err;
-      database.query(`SELECT filename FROM message.${data.room} WHERE uuid = '${data.uuid}' AND NOT type = 'video'`, (err, result) => {
-        const data = JSON.parse(JSON.stringify(result));
-        data.forEach((video) => {
-          fs.unlinkSync(`./Upload/${video.filename}`);
-        })
-      });
+      fs.unlinkSync(`./Upload/${data.filename}`);
+    });
+  });
+
+  socket.on("deleteRVideo", (data) => {
+    database.query(`UPDATE message.${data.room} SET recipientHide = '1' WHERE uuid = '${data.uuid}'`, (err, result) => {
+      if (err) throw err;
+    });
+  })
+
+  socket.on("deleteSAudio", (data) => {
+    database.query(`UPDATE message.${data.room} SET content = 'deleted', senderHide = '1' WHERE uuid = '${data.uuid}'`, (err, result) => {
+      if (err) throw err;
+      fs.unlinkSync(`./Upload/${data.filename}`);
     })
+  })
+
+  socket.on("deleteRAudio", (data) => {
+    database.query(`UPDATE message.${data.room} SET recipientHide = '1' WHERE uuid = '${data.uuid}'`, (err, result) => {
+      if (err) throw err;
+    });
   });
 
     socket.on("connect_error", (err) => {
@@ -475,7 +498,7 @@ io.on("connection", (socket) => {
                   maxAge: 30 * 60 * 60 * 24 * 1000,
                 });
                 database.query(
-                  `CREATE TABLE IF NOT EXISTS convos.${data[0].ID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage VARCHAR(255), timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), recipient VARCHAR(255), recipientName VARCHAR(255), type VARCHAR(255), filename VARCHAR(255), originalname VARCHAR(255), extension VARCHAR(255), location VARCHAR(255), size INT, mimetype VARCHAR(255), uuid VARCHAR(255), PRIMARY KEY (roomID))`
+                  `CREATE TABLE IF NOT EXISTS convos.${data[0].ID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage VARCHAR(255), timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), type VARCHAR(255), uuid VARCHAR(255), PRIMARY KEY (roomID))`
                 );
                 response.json({
                   errorCode: 0,
@@ -496,6 +519,7 @@ io.on("connection", (socket) => {
 
   app.post("/checkSession", (request, response) => {
     let sessionID = request.body.userSession;
+    sessionID = decodeSessionID(sessionID);
     database.query(
       `SELECT * from user.session where sessionID = '${sessionID}' limit 1`,
       (err, result) => {
@@ -510,7 +534,7 @@ io.on("connection", (socket) => {
             response.end();
           } else {
             database.query(
-              `CREATE TABLE IF NOT EXISTS convos.${data.ID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage VARCHAR(255), timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), recipient VARCHAR(255), recipientName VARCHAR(255), type VARCHAR(255), filename VARCHAR(255), originalname VARCHAR(255), extension VARCHAR(255), location VARCHAR(255), size INT, mimetype VARCHAR(255), uuid VARCHAR(255), PRIMARY KEY (roomID))`
+              `CREATE TABLE IF NOT EXISTS convos.${data.ID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage VARCHAR(255), timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), type VARCHAR(255), uuid VARCHAR(255), PRIMARY KEY (roomID))`
             );
             database.query(`SELECT * FROM user.data WHERE ID = ${data.ID}`, (err, result) => {
               let userData = JSON.parse(JSON.stringify(result));

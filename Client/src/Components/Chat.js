@@ -1,14 +1,17 @@
-/* eslint-disable jsx-a11y/alt-text */
 import axios from "axios";
 import "../Style/Chat.css";
 import Message, { MessageImage, MessageFile, Video } from "./Message";
+import ChatHeader from "./ChatHeader";
 import { RoomNav } from "./RoomNav";
-import userData from "./userData";
+import userContext from "./userData";
 import Socket from "./Socket"
 import { useEffect, useRef, useState, useContext } from "react";
 import { ImagePreview } from "./Preview";
 import Cookies from "js-cookie";
+import { MessageAudioRecipient, MessageAudioSender } from "./Audio";
 import NotificationOptions from "./Popup";
+import { IonIcon } from "@ionic/react";
+import * as Icon from "ionicons/icons";
 
 export default function Chat() {
   const inputRef = useRef(null);
@@ -23,7 +26,7 @@ export default function Chat() {
   const [newRoom, setNewRoom] = useState({});
   const [latestMessage, setLatestMessage] = useState({});
   const [files, setFiles] = useState([]);
-  let user = useContext(userData);
+  const [user,setUser] = useContext(userContext);
   const imageExtension = [
     ".jpg",
     ".jpeg",
@@ -79,10 +82,9 @@ export default function Chat() {
   }
 
   Socket.once("file", (data) => {
-    console.log(data);
     for (let i = 0; i < data.length; i++) {
       if (data[i].type === "file" && data[i].content !== "deleted" && !checkURL(data[i].file)) {
-        const blob = new Blob([data[i].file], { type: data[i].mimetype});
+        const blob = new Blob([data[i].file], { type: data[i].mimetype });
         data[i].file = window.URL.createObjectURL(blob);
         console.log(data[i].file);
       }
@@ -256,24 +258,21 @@ export default function Chat() {
         ref={chatContainerRef}
         newRoom={newRoom}
       ></RoomNav>
-
       <div ref={chatContainerRef} className="chatContainer">
-        <div className="chatHeader">
-          <img className="recipientAvatar"></img>
-          <span className="recipientName"></span>
-          <span className="recipientStatus"></span>
-        </div>
+        <ChatHeader name = "Hunter" src = "http://placekitten.com/200/300"></ChatHeader>
         <div ref={inputWidgetRef} className="inputWidgets">
           <div className="miscWidget">
-            <i
-              ref={(el) => (iconRef.current[0] = el)}
-              className="fa-solid fa-microphone widgetIcon"
-            ></i>
-            <i
+            <IonIcon
+              icon={Icon.micOutline}
+              className="widgetIcon"
+              ref={(el) => (iconRef.current[0] = el)}>
+            </IonIcon>
+            <IonIcon
               ref={(el) => (iconRef.current[1] = el)}
               onClick={openFileInput}
-              className="fa-solid fa-image widgetIcon sendFiles"
-            ></i>
+              icon={Icon.apertureOutline}
+              className="widgetIcon sendFiles">
+            </IonIcon>
             <input
               ref={sendFilesRef}
               type="file"
@@ -287,7 +286,7 @@ export default function Chat() {
           <div className="previewContainer">
             <div ref={previewFileRef} className="previewFile">
               <div className="addFile" onClick={openFileInput}>
-                <i className="fa-solid fa-plus"></i>
+                <IonIcon icon={Icon.addCircleOutline} className="plus"></IonIcon>
               </div>
               {files.map((file) => {
                 return file.type === "image" ? (
@@ -310,10 +309,10 @@ export default function Chat() {
               id="textInput"
             ></textarea>
           </div>
-          <i className="fa-solid fa-paper-plane sendButton"></i>
+          <IonIcon icon={Icon.paperPlaneOutline} className="sendButton"></IonIcon>
         </div>
         <div ref={chatBoxRef} className="chatBox">
-          {message.map((mess) => {
+          {/* {message.map((mess) => {
             return (
               mess.type === "text" ?
                 <Message
@@ -358,7 +357,19 @@ export default function Chat() {
                       setMessage={setMessage}
                       senderHide={mess.senderHide} sender={parseInt(mess.sender) === user.ID} filename={mess.filename} key={Math.random() * (9999999999 - 0)} size={convertFileSize(mess.size)} mimetype={mess.mimetype} name={mess.originalname} type={mess.extension} />
             );
-          })}
+          })} */}
+          <MessageAudioSender
+            ID={1}
+            timestamp={Date.now()}
+            uuid={"123"}
+            src={"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"}
+          ></MessageAudioSender>
+          <MessageAudioRecipient
+            ID = {2}
+            timestamp={Date.now()}
+            uuid={"123"}
+            src={"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"}
+          ></MessageAudioRecipient>
         </div>
       </div>
     </>

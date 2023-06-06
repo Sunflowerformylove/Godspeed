@@ -1,17 +1,55 @@
 import "../Style/Welcome.css";
 import Register from "./Register";
 import Login from "./Login";
-import {useState } from "react";
+import {useState, useContext, useEffect} from "react";
+import Cookies from "js-cookie";
+import axios from "axios";
+import Connecting from "./Connecting";
+import userContext from "./userData";
+import Socket from "./Socket.js";
 
 export default function Welcome() {
   const [registerCall, setRegisterCall] = useState(false);
   const [loginCall, setLoginCall] = useState(false);
+  const [connecting, setConnecting] = useState(false);
+  const [user, setUser] = useContext(userContext);
+
+  useEffect(() => {
+    if (Cookies.get("userSession") !== undefined) {
+      axios({
+        method: "POST",
+        url: "https://localhost:3000/checkSession",
+        data: JSON.stringify({ userSession: Cookies.get("userSession") }),
+        headers: { "Content-Type": "application/json" },
+      })
+        .then((response) => response.data)
+        .then((data) => {
+          if (data.accept) {
+            Socket.connect();
+            user.username = data.user;
+            user.ID = data.ID;
+            Socket.on("connect", () => {
+              setConnecting(true);
+              const userData = {
+                user: data.user,
+                ID: data.ID,
+              }
+              setUser(userData);
+              setConnecting(true);
+            });
+          }
+        });
+    }
+  }, []); 
   
   if(registerCall) {
     return (<Register/>);
   }
   else if(loginCall){
     return (<Login/>);
+  }
+  else if(connecting){
+    return (<Connecting/>);
   }
   return (
     <div className="welcomePage">

@@ -1,6 +1,6 @@
 import "../Style/Room.css";
 import { useRef, forwardRef } from "react";
-import userData from "./userData";
+import userContext from "./userData";
 import Socket from "./Socket";
 import Cookies from "js-cookie";
 import { useContext } from "react";
@@ -41,7 +41,7 @@ function checkURL(url) {
 export const Room = forwardRef((props, ref) => {
   const chosenRef = useRef(null);
   const className = "room";
-  let user = useContext(userData);
+  const [user, setUser] = useContext(userContext);
   function checkURL(url) {
     const regex = new RegExp("^(https?\:\/\/)?((www\.)?youtube\.com|youtu\.be)\/.+$");
     if (regex.test(url)) {
@@ -73,7 +73,7 @@ export const Room = forwardRef((props, ref) => {
     Socket.on("roomID", (roomID) => {
       Cookies.set("currentRoom", roomID);
     });
-    user.receiver = props.ID;
+    setUser({ ...user, receiver: props.ID, receiverName: props.name });
     if (ref && ref.current) {
       ref.current.style.display = "flex";
       Socket.on("loadMessage", (data) => {
@@ -137,7 +137,7 @@ export const Room = forwardRef((props, ref) => {
 export const RoomExist = forwardRef((props, ref) => {
   const chosenRef = useRef(null);
   const className = "room";
-  let user = useContext(userData);
+  const [user, setUser] = useContext(userContext);
   // const [chosen, setChosen] = useState(false);
   // function toggleChosen(){
   //     const element = chosenRef.current;
@@ -171,7 +171,7 @@ export const RoomExist = forwardRef((props, ref) => {
     Socket.on("roomID", (roomID) => {
       Cookies.set("currentRoom", roomID);
     });
-    user.receiver = props.ID;
+    setUser({ ...user, receiver: props.ID, receiverName: props.name });
     if (ref && ref.current) {
       ref.current.style.display = "flex";
       Socket.once("loadMessage", (data) => {

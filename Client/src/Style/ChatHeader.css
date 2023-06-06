@@ -1,0 +1,83 @@
+.chatHeader{
+    width: 100%;
+    height: 10%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.leftSection{
+    width: 15%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    margin-left: 1rem;
+}
+
+.recipientAvatar{
+    width: 7rem;
+    height: 7rem;
+    border-radius: 100%;
+    object-fit: cover;
+}
+
+.recipientInfo{
+    display: flex;
+    flex-direction: column;
+}
+
+.leftSection > .recipientName{
+    font-size: 2rem;
+    font-weight: bolder;
+    color: white;
+    font-family: 'Source Serif Pro', serif;
+}
+
+.recipientStatus{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-family: 'EB Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 400;
+}
+
+.recipientStatus.online > .statusText{
+    color: #00ff00;
+}
+
+.recipientStatus.offline > .statusText{
+    color: #ff0000;
+}
+
+.moonIcon{
+    color: #dadada;
+    margin-right: 0.2rem;
+}
+
+.sunIcon{
+    color: #FF8000;
+    margin-right: 0.2rem;
+}
+
+.rightSection{
+    width: 10%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    font-size: 3rem;
+}
+
+.chatIcon{
+    color: white;
+    cursor: pointer;
+}
+
+.chatIcon:hover{
+    color: #00ff00;
+}

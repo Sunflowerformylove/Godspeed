@@ -5,11 +5,15 @@ import { toast } from "react-toastify";
 import { toastSuccess, toastError, toastPromise } from "./Toast";
 import Login from "./Login";
 import axios from "axios";
+import { IonIcon } from "@ionic/react";
+import * as Icon from "ionicons/icons";
+
 export default function Register() {
   const eyeRef = useRef(null);
   const [loginCall, setLoginCall] = useState(false);
   const [passwordProp, setPasswordProp] = useState("password");
   const [passState, setPassState] = useState(true);
+  const [eyeState, setEyeState] = useState(Icon.eyeOutline);
   const [form, setForm] = useState({
     email: "",
     username: "",
@@ -42,7 +46,7 @@ export default function Register() {
         "Failed to send OTP"
       );
     }
-    else{
+    else {
       toastError("Email has not been set!");
     }
   }
@@ -78,11 +82,11 @@ export default function Register() {
 
   function togglePassword() {
     if (passState) {
-      eyeRef.current.textContent = "visibility";
+      setEyeState(Icon.eyeOffOutline);
       setPasswordProp("text");
       setPassState(false);
     } else {
-      eyeRef.current.textContent = "visibility_off";
+      setEyeState(Icon.eyeOutline);
       setPasswordProp("password");
       setPassState(true);
     }
@@ -143,22 +147,20 @@ export default function Register() {
           type="text"
           truetype="phone"
         />
-        <i
+        <IonIcon icon={Icon.reload}
           ref={otpRef}
           onClick={sendOTP}
-          className="fa-solid fa-rotate-right resendOTP"
-        ></i>
-        <div onClick = {switchToLogin} className="loginRedirect">
+          className="resendOTP"></IonIcon>
+        <div onClick={switchToLogin} className="loginRedirect">
           Already have an account?{" "}
           <span className="signInKeyword">Sign in now!</span>
         </div>
-        <span
-          ref={eyeRef}
-          onClick={togglePassword}
-          className="material-symbols-outlined eyeIcon"
-        >
-          visibility_off
-        </span>
+        <IonIcon
+        icon = {eyeState}
+        className="eyeIcon"
+        ref={eyeRef}
+        onClick={togglePassword}
+        ></IonIcon>
         <button ref={submitRef} onClick={register} className="submitBtn">
           Get Started
         </button>
