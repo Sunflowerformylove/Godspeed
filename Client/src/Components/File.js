@@ -1,31 +1,34 @@
 import axios from 'axios';
+import { IonIcon } from "@ionic/react";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import * as Icon from "ionicons/icons";
 
 function setFileIcon(props) {
     const fileType = props.type;
-    let fileIcon = <i className="fa-solid fa-file fileIcon generalIcon"></i>;
+    let fileIcon = <IonIcon icon={Icon.document} className="fileIcon generalIcon"></IonIcon>;
     if (fileType === ".pdf") {
-        fileIcon = <i className="fa-solid fa-file-pdf fileIcon pdfIcon"></i>
+        fileIcon = <FontAwesomeIcon icon={["far", "file-pdf"]} className="fileIcon pdfIcon"></FontAwesomeIcon>
     }
     else if (fileType === ".docx" || fileType === ".doc") {
-        fileIcon = <i className="fa-solid fa-file-word fileIcon docIcon"></i>
+        fileIcon = <svg className="svgIcon docIcon" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Microsoft Word</title><path d="M23.004 1.5q.41 0 .703.293t.293.703v19.008q0 .41-.293.703t-.703.293H6.996q-.41 0-.703-.293T6 21.504V18H.996q-.41 0-.703-.293T0 17.004V6.996q0-.41.293-.703T.996 6H6V2.496q0-.41.293-.703t.703-.293zM6.035 11.203l1.442 4.735h1.64l1.57-7.876H9.036l-.937 4.653-1.325-4.5H5.38l-1.406 4.523-.938-4.675H1.312l1.57 7.874h1.641zM22.5 21v-3h-15v3zm0-4.5v-3.75H12v3.75zm0-5.25V7.5H12v3.75zm0-5.25V3h-15v3Z" /></svg>
     }
     else if (fileType === ".pptx" || fileType === ".ppt") {
-        fileIcon = <i className="fa-solid fa-file-powerpoint fileIcon pptIcon"></i>
+        fileIcon = <FontAwesomeIcon icon="fa-solid fa-file-powerpoint" className='fileIcon pptIcon'/>;
     }
     else if (fileType === ".xlsx" || fileType === ".xls") {
-        fileIcon = <i className="fa-solid fa-file-excel fileIcon excelIcon"></i>
+        fileIcon = <FontAwesomeIcon icon="fa-solid fa-file-excel" />
     }
     else if (fileType === ".txt") {
-        fileIcon = <i className="fa-solid fa-file-lines"></i>
+        fileIcon = <IonIcon icon={Icon.documentText} className="fileIcon textIcon"></IonIcon>
     }
     else if (fileType === ".zip" || fileType === ".rar") {
-        fileIcon = <i className="fa-solid fa-file-zip fileIcon zipIcon"></i>
+        fileIcon = <FontAwesomeIcon icon="fa-solid fa-file-zipper" className='fileIcon zipIcon'/>
     }
     else if (fileType === ".cpp") {
         fileIcon = <svg className="svgIcon cppIcon" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>C++</title><path d="M22.394 6c-.167-.29-.398-.543-.652-.69L12.926.22c-.509-.294-1.34-.294-1.848 0L2.26 5.31c-.508.293-.923 1.013-.923 1.6v10.18c0 .294.104.62.271.91.167.29.398.543.652.69l8.816 5.09c.508.293 1.34.293 1.848 0l8.816-5.09c.254-.147.485-.4.652-.69.167-.29.27-.616.27-.91V6.91c.003-.294-.1-.62-.268-.91zM12 19.11c-3.92 0-7.109-3.19-7.109-7.11 0-3.92 3.19-7.11 7.11-7.11a7.133 7.133 0 016.156 3.553l-3.076 1.78a3.567 3.567 0 00-3.08-1.78A3.56 3.56 0 008.444 12 3.56 3.56 0 0012 15.555a3.57 3.57 0 003.08-1.778l3.078 1.78A7.135 7.135 0 0112 19.11zm7.11-6.715h-.79v.79h-.79v-.79h-.79v-.79h.79v-.79h.79v.79h.79zm2.962 0h-.79v.79h-.79v-.79h-.79v-.79h.79v-.79h.79v.79h.79z" /></svg>
     }
     else if (fileType === ".js") {
-        fileIcon = <i className="fa-brands fa-square-js jsIcon fileIcon"></i>;
+        fileIcon = <FontAwesomeIcon icon="fa-brands fa-js" className='fileIcon jsIcon'/>
     }
     else if (fileType === ".c") {
         fileIcon = <svg className="svgIcon cIcon" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>C</title><path d="M16.5921 9.1962s-.354-3.298-3.627-3.39c-3.2741-.09-4.9552 2.474-4.9552 6.14 0 3.6651 1.858 6.5972 5.0451 6.5972 3.184 0 3.5381-3.665 3.5381-3.665l6.1041.365s.36 3.31-2.196 5.836c-2.552 2.5241-5.6901 2.9371-7.8762 2.9201-2.19-.017-5.2261.034-8.1602-2.97-2.938-3.0101-3.436-5.9302-3.436-8.8002 0-2.8701.556-6.6702 4.047-9.5502C7.444.72 9.849 0 12.254 0c10.0422 0 10.7172 9.2602 10.7172 9.2602z" /></svg>
@@ -37,7 +40,7 @@ function setFileIcon(props) {
         fileIcon = <svg className="svgIcon htmlIcon" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>HTML5</title><path d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0zm7.031 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z" /></svg>
     }
     else if (fileType === ".java") {
-        fileIcon = <i className="fa-brands fa-java fileIcon javaIcon"></i>
+        fileIcon = <FontAwesomeIcon icon="fa-brands fa-java" className = "fileIcon javaIcon"/>
     }
     else if (fileType === ".rb") {
         fileIcon = <svg className="svgIcon rubyIcon" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Ruby</title><path d="M20.156.083c3.033.525 3.893 2.598 3.829 4.77L24 4.822 22.635 22.71 4.89 23.926h.016C3.433 23.864.15 23.729 0 19.139l1.645-3 2.819 6.586.503 1.172 2.805-9.144-.03.007.016-.03 9.255 2.956-1.396-5.431-.99-3.9 8.82-.569-.615-.51L16.5 2.114 20.159.073l-.003.01zM0 19.089zM5.13 5.073c3.561-3.533 8.157-5.621 9.922-3.84 1.762 1.777-.105 6.105-3.673 9.636-3.563 3.532-8.103 5.734-9.864 3.957-1.766-1.777.045-6.217 3.612-9.75l.003-.003z" /></svg>

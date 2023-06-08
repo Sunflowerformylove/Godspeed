@@ -34,6 +34,7 @@ export default function Welcome() {
                 user: data.user,
                 ID: data.ID,
               }
+              Socket.emit("getUser", data.ID);
               setUser(userData);
               setConnecting(true);
             });

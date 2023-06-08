@@ -220,3 +220,19 @@ export function Video(props) {
     return <MessageDeletedRecipient />;
   }
 }
+
+export function Audio(props){
+  if (props.sender && !props.senderHide) {
+    return (
+      <MessageAudioSender url={props.url} />
+    );
+  } else if (!props.sender && !props.recipientHide && !props.senderHide) {
+    return (
+      <MessageAudioRecipient url={props.url} />
+    );
+  } else if (props.sender && props.senderHide) {
+    return <MessageDeletedSender />;
+  } else if (!props.sender && props.senderHide) {
+    return <MessageDeletedRecipient />;
+  }
+}

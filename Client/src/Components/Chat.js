@@ -1,12 +1,12 @@
 import axios from "axios";
 import "../Style/Chat.css";
-import Message, { MessageImage, MessageFile, Video } from "./Message";
+import Message, { MessageImage, MessageFile, Video, Audio } from "./Message";
 import ChatHeader from "./ChatHeader";
 import { RoomNav } from "./RoomNav";
 import userContext from "./userData";
 import Socket from "./Socket"
 import { useEffect, useRef, useState, useContext } from "react";
-import { ImagePreview } from "./Preview";
+import { ImagePreview, VideoPreview, FilePreview } from "./Preview";
 import Cookies from "js-cookie";
 import { MessageAudioRecipient, MessageAudioSender } from "./Audio";
 import NotificationOptions from "./Popup";
@@ -26,7 +26,7 @@ export default function Chat() {
   const [newRoom, setNewRoom] = useState({});
   const [latestMessage, setLatestMessage] = useState({});
   const [files, setFiles] = useState([]);
-  const [user,setUser] = useContext(userContext);
+  const [user, setUser] = useContext(userContext);
   const imageExtension = [
     ".jpg",
     ".jpeg",
@@ -47,12 +47,20 @@ export default function Chat() {
     ".mov",
     ".flv",
     ".wmv"];
+  const audioExtension = [
+    ".mp3",
+    ".wav",
+    ".aac",
+    ".ogg",
+    ".wma",
+    ".m4a"
+  ]
 
   useEffect(() => {
     if (files.length !== 0) {
       previewFileRef.current.style.display = "flex";
     } else {
-      previewFileRef.current.style.display = "none";
+      previewFileRef.current.style.display = "flex";
     }
   }, [files]);
 
@@ -259,7 +267,7 @@ export default function Chat() {
         newRoom={newRoom}
       ></RoomNav>
       <div ref={chatContainerRef} className="chatContainer">
-        <ChatHeader src = "http://placekitten.com/200/300"></ChatHeader>
+        <ChatHeader src="https://placekitten.com/200/300"></ChatHeader>
         <div ref={inputWidgetRef} className="inputWidgets">
           <div className="miscWidget">
             <IonIcon
@@ -351,6 +359,15 @@ export default function Chat() {
                       recipientHide={Array.isArray(mess) ? mess[0].recipientHide : mess.recipientHide}
                       uuid={Array.isArray(mess) ? mess[0].uuid : mess.uuid}></Video>
                     :
+                    soundExtension.some((ext) => !Array.isArray(mess) ? ext === mess.extension.toLowerCase() : ext === mess[0].extension.toLowerCase()) ?
+                    <Audio recipientHide={mess.recipientHide}
+                      ID={mess.ID}
+                      messageArray={message}
+                      setMessage={setMessage}
+                      senderHide={mess.senderHide} 
+                      sender={parseInt(mess.sender) === user.ID}
+                      key={Math.random() * (9999999999 - 0)} 
+                    ></Audio>
                     <MessageFile recipientHide={mess.recipientHide}
                       ID={mess.ID}
                       messageArray={message}
@@ -365,7 +382,7 @@ export default function Chat() {
             src={"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"}
           ></MessageAudioSender>
           <MessageAudioRecipient
-            ID = {2}
+            ID={2}
             timestamp={Date.now()}
             uuid={"123"}
             src={"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"}
