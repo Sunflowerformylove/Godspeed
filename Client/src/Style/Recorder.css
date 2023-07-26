@@ -1,0 +1,50 @@
+.visible {
+  display: flex !important;
+}
+
+.recorderContainer {
+  width: 60rem;
+  height: 5rem;
+  background-color: #d3d3d3;
+  border-radius: 10px;
+  position: absolute;
+  bottom: 6%;
+  left: 13%;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  display: none;
+}
+
+.pauseIcon {
+  font-size: 3rem;
+  cursor: pointer;
+  color: black;
+}
+
+.restartIcon {
+  font-size: 3rem;
+  cursor: pointer;
+  color: black;
+}
+
+.maxDuration {
+  width: 40rem;
+  height: 2px;
+  background-color: red;
+  display: flex;
+  align-items: center;
+}
+
+.currentDuration{
+  height: 6px;
+  background-color: black;
+  border-radius: 10px;
+  transition: width 0.1s ease-in-out;
+}
+
+.recordingTime{
+  font-size: 2rem;
+  font-weight: 600;
+  color: black;
+}

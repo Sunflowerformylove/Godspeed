@@ -1,0 +1,68 @@
+.svgIcon {
+  height: 90%;
+}
+
+.svgIcon.previewIcon{
+	height: 60%;
+}
+
+.cppIcon {
+  fill: #00599c;
+}
+
+.jsIcon {
+  fill: #F7DF1E
+}
+
+.cIcon {
+  fill: #a0b2dc;
+}
+
+.cssIcon {
+  fill: #2196f3;
+}
+
+.htmlIcon {
+  fill: #e54c21;
+}
+
+.javaIcon {
+  color: #507e9c;
+}
+
+.rubyIcon {
+  fill: #ba190c;
+}
+
+.sassIcon {
+  fill: #c66394;
+}
+
+.pdfIcon {
+  fill: #FF0000;
+}
+
+.docIcon {
+  color: #335a94;
+}
+
+.pptIcon {
+  color: #d04423;
+}
+
+.excelIcon{
+	fill: #217346;
+}
+
+.fileIcon {
+  font-size: 5rem;
+  margin-left: 0.5rem;
+}
+
+.generalIcon {
+  color: rgb(30, 48, 80);
+}
+
+.pythonIcon{
+	fill: #3776AB
+}
