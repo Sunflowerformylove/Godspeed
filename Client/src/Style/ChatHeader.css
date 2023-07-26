@@ -81,3 +81,12 @@
 .chatIcon:hover{
     color: #00ff00;
 }
+
+.settingIcon{
+    color: white;
+    cursor: pointer;
+}
+
+.settingIcon:hover{
+    color: #00ff00;
+}

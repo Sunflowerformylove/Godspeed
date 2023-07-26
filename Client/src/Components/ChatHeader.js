@@ -43,6 +43,7 @@ export default function ChatHeader(props) {
                 </div>
             </div>
             <div className="rightSection">
+                <IonIcon icon = {Icon.cogOutline} className="chatSetting chatIcon"></IonIcon>
                 <IonIcon icon={Icon.videocam} className="videoChat chatIcon"></IonIcon>
                 <IonIcon icon={Icon.call} className="callChat chatIcon"></IonIcon>
             </div>

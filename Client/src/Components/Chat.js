@@ -8,10 +8,12 @@ import Socket from "./Socket"
 import { useEffect, useRef, useState, useContext } from "react";
 import { ImagePreview, VideoPreview, FilePreview } from "./Preview";
 import Cookies from "js-cookie";
-import { MessageAudioRecipient, MessageAudioSender } from "./Audio";
-import NotificationOptions from "./Popup";
+import AudioRecorder from "./AudioRecorder";
+// import NotificationOptions from "./Popup";
+import ChatSetting from "./ChatSetting";
 import { IonIcon } from "@ionic/react";
 import * as Icon from "ionicons/icons";
+import { toastError, toastSuccess } from "./Toast";
 
 export default function Chat() {
   const inputRef = useRef(null);
@@ -20,13 +22,17 @@ export default function Chat() {
   const chatContainerRef = useRef(null);
   const chatBoxRef = useRef(null);
   const inputWidgetRef = useRef(null);
-  const sendFilesRef = useRef(null);
+  const audioRecorderRef = useRef(null);
   const [message, setMessage] = useState([]);
   const [allowScroll, setAllowScroll] = useState(true);
   const [newRoom, setNewRoom] = useState({});
   const [latestMessage, setLatestMessage] = useState({});
   const [files, setFiles] = useState([]);
+  const [customFiles, setCustomFiles] = useState([]);
   const [user, setUser] = useContext(userContext);
+  const [startTimer, setStartTimer] = useState(false);
+  let recordingTime = 0;
+  let recordingProgress = 0;
   const imageExtension = [
     ".jpg",
     ".jpeg",
@@ -55,14 +61,13 @@ export default function Chat() {
     ".wma",
     ".m4a"
   ]
-
   useEffect(() => {
-    if (files.length !== 0) {
+    if (customFiles.length !== 0) {
       previewFileRef.current.style.display = "flex";
     } else {
-      previewFileRef.current.style.display = "flex";
+      previewFileRef.current.style.display = "none";
     }
-  }, [files]);
+  }, [customFiles]);
 
   useEffect(() => {
     if (chatBoxRef && chatBoxRef.current && allowScroll) {
@@ -80,21 +85,11 @@ export default function Chat() {
     setMessage([...message, data]);
   });
 
-  function checkURL(url) {
-    if (typeof url !== "string") return false;
-    const regex = new RegExp("^(https?\:\/\/)?((www\.)?youtube\.com|youtu\.be)\/.+$");
-    if (regex.test(url)) {
-      return true;
-    }
-    return false;
-  }
-
   Socket.once("file", (data) => {
     for (let i = 0; i < data.length; i++) {
       if (data[i].type === "file" && data[i].content !== "deleted" && !checkURL(data[i].file)) {
         const blob = new Blob([data[i].file], { type: data[i].mimetype });
         data[i].file = window.URL.createObjectURL(blob);
-        console.log(data[i].file);
       }
     }
     data.forEach((message, index) => {
@@ -127,8 +122,85 @@ export default function Chat() {
     setLatestMessage({ [data.room]: data });
   });
 
-  function openFileInput() {
-    sendFilesRef.current.click();
+  function addFiles() {
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.style.display = "none";
+    fileInput.multiple = true;
+    fileInput.addEventListener("change", (event) => {
+      const tempFiles = Array.from(event.target.files);
+      files.push(...tempFiles);
+      setFiles(files);
+      previewFile();
+      fileInput.remove();
+    });
+    fileInput.click();
+  }
+
+  const audioAPI = {
+    isRecording: false,
+    audioStream: null,
+    audioRecorder: null,
+    start: async function () {
+      if (!this.isRecording) {
+        this.isRecording = true;
+      }
+      if (!this.audioStream) {
+        this.audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      }
+      if (!this.audioRecorder) {
+        this.audioRecorder = new MediaRecorder(this.audioStream);
+      }
+      this.audioRecorder.start();
+      if(this.audioRecorder.state === "recording"){
+        setStartTimer(true);
+      }
+      this.audioRecorder.ondataavailable = async (event) => {
+        const blob = new Blob([event.data], { type: "audio/wav" });
+        const file = new File([blob], "audio.wav", { type: "audio/wav" });
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("room", Cookies.get("currentRoom"));
+        formData.append("sender", user.ID);
+        formData.append("receiver", user.receiver);
+        await axios.post("https://localhost:3000/api/upload", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+      }
+    },
+    stop: function () {
+      if (this.isRecording) {
+        this.isRecording = false;
+        setStartTimer(false);
+      }
+      if (this.audioRecorder && this.audioRecorder.state === "recording" && this.audioStream) {
+        this.audioRecorder.stop();
+        this.audioStream.getTracks().forEach(track => track.stop());
+        this.audioRecorder.addEventListener("stop", () => {
+          toastSuccess("Audio recorded successfully");
+        });
+        this.audioRecorder = null;
+        this.audioStream = null;
+      }
+    },
+    toggle: function () {
+      if (this.isRecording) {
+        this.stop();
+      } else {
+        this.start();
+      }
+    }
+  }
+
+  function checkURL(url) {
+    if (typeof url !== "string") return false;
+    const regex = new RegExp("^(https?\:\/\/)?((www\.)?youtube\.com|youtu\.be)\/.+$");
+    if (regex.test(url)) {
+      return true;
+    }
+    return false;
   }
 
   function convertFileSize(size) {
@@ -140,32 +212,49 @@ export default function Chat() {
     return size.toFixed(2) + ["B", "KB", "MB", "GB", "TB"][stage];
   }
 
+  function toggleAudioRecorderVisibility() {
+    const recorder = audioRecorderRef.current;
+    recorder.classList.toggle("visible");
+  }
+
   function previewFile() {
-    const element = sendFilesRef.current;
-    const fileArr = Array.from(element.files);
     const tempArr = [];
-    fileArr.forEach((file) => {
+    files.forEach((file) => {
       const isImage = imageExtension.some((ext) => file.name.endsWith(ext));
+      const isVideo = videoExtension.some((ext) => file.name.endsWith(ext));
       if (isImage) {
         tempArr.push({
-          url: URL.createObjectURL(file),
+          url: URL.createObjectURL(new Blob([file, { type: file.mimetype }])),
           type: "image",
           name: file.name,
           timestamp: Date.now(),
           size: file.size,
+          dateModified: file.lastModifiedDate,
         });
-      } else {
+      }
+      else if (isVideo) {
         tempArr.push({
-          url: URL.createObjectURL(file),
-          type: "file",
+          url: URL.createObjectURL(new Blob([file, { type: file.mimetype }])),
+          type: "video",
           name: file.name,
           timestamp: Date.now(),
           size: file.size,
+          dateModified: file.lastModifiedDate,
+        });
+      }
+      else {
+        tempArr.push({
+          url: URL.createObjectURL(new Blob([file, { type: file.mimetype }])),
+          type: "." + file.name.split(".").pop(),
+          name: file.name,
+          timestamp: Date.now(),
+          size: file.size,
+          dateModified: file.lastModifiedDate,
         });
       }
     });
-    setFiles([...files, ...tempArr]);
-  }
+    setCustomFiles([...tempArr]);
+  };
 
   function adjustHeight() {
     const element = inputRef.current;
@@ -174,6 +263,7 @@ export default function Chat() {
     element.style.height =
       parseInt(element.style.height) + parseInt(element.scrollHeight) + "px";
   }
+
   async function sendMessage(event) {
     if (event.key === "Enter") {
       Object.values(iconRef.current).forEach((icon) => {
@@ -187,7 +277,6 @@ export default function Chat() {
           receiverID: user.receiver,
           room: Cookies.get("currentRoom"),
         });
-
         const receiver = await axios("https://localhost:3000/api/user", {
           method: "POST",
           headers: {
@@ -222,10 +311,8 @@ export default function Chat() {
       Object.values(iconRef.current).forEach((icon) => {
         icon.style.transform = "scale(1)";
       });
-      const element = sendFilesRef.current;
-      const fileArr = Array.from(element.files);
       const formData = new FormData();
-      fileArr.forEach((file) => {
+      files.forEach((file) => {
         formData.append("file", file);
       });
       formData.append("sender", user.ID);
@@ -237,7 +324,7 @@ export default function Chat() {
         },
       });
       setFiles([]);
-      element.value = "";
+      setCustomFiles([]);
     }
   }
 
@@ -259,6 +346,7 @@ export default function Chat() {
 
   return (
     <>
+      <ChatSetting></ChatSetting>
       <RoomNav
         message={message}
         setMessage={setMessage}
@@ -268,38 +356,52 @@ export default function Chat() {
       ></RoomNav>
       <div ref={chatContainerRef} className="chatContainer">
         <ChatHeader src="https://placekitten.com/200/300"></ChatHeader>
+        <AudioRecorder ref={audioRecorderRef} flag = {{timer: startTimer, setTimer: setStartTimer}}></AudioRecorder>
         <div ref={inputWidgetRef} className="inputWidgets">
           <div className="miscWidget">
             <IonIcon
               icon={Icon.micOutline}
               className="widgetIcon"
+              onClick={() => {
+                toggleAudioRecorderVisibility();
+                audioAPI.toggle();
+              }}
               ref={(el) => (iconRef.current[0] = el)}>
             </IonIcon>
             <IonIcon
               ref={(el) => (iconRef.current[1] = el)}
-              onClick={openFileInput}
+              onClick={addFiles}
               icon={Icon.apertureOutline}
               className="widgetIcon sendFiles">
             </IonIcon>
-            <input
-              ref={sendFilesRef}
-              type="file"
-              name="fileMess"
-              onChange={previewFile}
-              className="sendFilesInput"
-              style={{ display: "none" }}
-              multiple
-            />
           </div>
-          <div className="previewContainer">
+          <div className="previewContainer" >
             <div ref={previewFileRef} className="previewFile">
-              <div className="addFile" onClick={openFileInput}>
+              <div className="addFile" onClick={addFiles}>
                 <IonIcon icon={Icon.addCircleOutline} className="plus"></IonIcon>
               </div>
-              {files.map((file) => {
+              {customFiles.map((file) => {
                 return file.type === "image" ? (
-                  <ImagePreview key={Math.random(Date.now())} url={file.url} />
-                ) : null;
+                  <ImagePreview key={Math.random(Date.now())}
+                    fileArr={files}
+                    setFileArr={setFiles}
+                    customFilesArr={customFiles}
+                    setCustomFilesArr={setCustomFiles}
+                    url={file.url} />
+                ) : file.type === "video" ? (
+                  <VideoPreview key={Math.random(Date.now())}
+                    fileArr={files}
+                    setFileArr={setFiles}
+                    customFilesArr={customFiles}
+                    setCustomFilesArr={setCustomFiles}
+                    url={file.url} />
+                ) :
+                  <FilePreview key={Math.random(Date.now())}
+                    fileArr={files}
+                    setFileArr={setFiles}
+                    customFilesArr={customFiles}
+                    setCustomFilesArr={setCustomFiles}
+                    url={file.url} type={file.type} name={file.name} size={convertFileSize(file.size)} />
               })}
             </div>
             <textarea
@@ -320,7 +422,7 @@ export default function Chat() {
           <IonIcon icon={Icon.paperPlaneOutline} className="sendButton"></IonIcon>
         </div>
         <div ref={chatBoxRef} className="chatBox">
-          {/* {message.map((mess) => {
+          {message.map((mess) => {
             return (
               mess.type === "text" ?
                 <Message
@@ -349,7 +451,7 @@ export default function Chat() {
                   :
                   videoExtension.some((ext) => !Array.isArray(mess) ? ext === mess.extension.toLowerCase() : ext === mess[0].extension.toLowerCase()) || mess.type === "youtube" ?
                     <Video url={mess.file} ID={Array.isArray(mess) ? mess[0].ID : mess.ID}
-                      key = {mess.ID}
+                      key={mess.ID}
                       messageArray={message}
                       setMessage={setMessage}
                       timestamp={Array.isArray(mess) ? mess[0].timestamp : mess.timestamp}
@@ -359,34 +461,24 @@ export default function Chat() {
                       recipientHide={Array.isArray(mess) ? mess[0].recipientHide : mess.recipientHide}
                       uuid={Array.isArray(mess) ? mess[0].uuid : mess.uuid}></Video>
                     :
-                    soundExtension.some((ext) => !Array.isArray(mess) ? ext === mess.extension.toLowerCase() : ext === mess[0].extension.toLowerCase()) ?
-                    <Audio recipientHide={mess.recipientHide}
-                      ID={mess.ID}
-                      messageArray={message}
-                      setMessage={setMessage}
-                      senderHide={mess.senderHide} 
-                      sender={parseInt(mess.sender) === user.ID}
-                      key={Math.random() * (9999999999 - 0)} 
-                    ></Audio>
-                    <MessageFile recipientHide={mess.recipientHide}
-                      ID={mess.ID}
-                      messageArray={message}
-                      setMessage={setMessage}
-                      senderHide={mess.senderHide} sender={parseInt(mess.sender) === user.ID} filename={mess.filename} key={Math.random() * (9999999999 - 0)} size={convertFileSize(mess.size)} mimetype={mess.mimetype} name={mess.originalname} type={mess.extension} />
+                    audioExtension.some((ext) => !Array.isArray(mess) ? ext === mess.extension.toLowerCase() : ext === mess[0].extension.toLowerCase()) ?
+                      <Audio recipientHide={mess.recipientHide}
+                        ID={mess.ID}
+                        messageArray={message}
+                        setMessage={setMessage}
+                        senderHide={mess.senderHide}
+                        sender={parseInt(mess.sender) === user.ID}
+                        key={Math.random() * (9999999999 - 0)}
+                        src={mess.file}
+                      ></Audio>
+                      :
+                      <MessageFile recipientHide={mess.recipientHide}
+                        ID={mess.ID}
+                        messageArray={message}
+                        setMessage={setMessage}
+                        senderHide={mess.senderHide} sender={parseInt(mess.sender) === user.ID} filename={mess.filename} key={Math.random() * (9999999999 - 0)} size={convertFileSize(mess.size)} mimetype={mess.mimetype} name={mess.originalname} type={mess.extension} />
             );
-          })} */}
-          <MessageAudioSender
-            ID={1}
-            timestamp={Date.now()}
-            uuid={"123"}
-            src={"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"}
-          ></MessageAudioSender>
-          <MessageAudioRecipient
-            ID={2}
-            timestamp={Date.now()}
-            uuid={"123"}
-            src={"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"}
-          ></MessageAudioRecipient>
+          })}
         </div>
       </div>
     </>

@@ -224,11 +224,11 @@ export function Video(props) {
 export function Audio(props){
   if (props.sender && !props.senderHide) {
     return (
-      <MessageAudioSender url={props.url} />
+      <MessageAudioSender src = {props.src} />
     );
   } else if (!props.sender && !props.recipientHide && !props.senderHide) {
     return (
-      <MessageAudioRecipient url={props.url} />
+      <MessageAudioRecipient src = {props.src}  />
     );
   } else if (props.sender && props.senderHide) {
     return <MessageDeletedSender />;

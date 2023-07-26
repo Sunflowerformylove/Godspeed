@@ -1,5 +1,5 @@
 import "../Style/Room.css";
-import { useRef, forwardRef } from "react";
+import { useRef, forwardRef, useEffect } from "react";
 import userContext from "./userData";
 import Socket from "./Socket";
 import Cookies from "js-cookie";
@@ -49,6 +49,7 @@ export const Room = forwardRef((props, ref) => {
     }
     return false;
   }
+  
   // const [chosen, setChosen] = useState(false);
   // function toggleChosen(){
   //     const element = chosenRef.current;
@@ -174,7 +175,8 @@ export const RoomExist = forwardRef((props, ref) => {
     setUser({ ...user, receiver: props.ID, receiverName: props.name });
     if (ref && ref.current) {
       ref.current.style.display = "flex";
-      Socket.once("loadMessage", (data) => {
+      Socket.on("loadMessage", (data) => {
+        console.log(data)
         if (data.length > 0) {
           data.forEach((message) => {
             if (message.type === "file" && message.content !== "deleted" && !checkURL(message.file)) {

@@ -10,6 +10,40 @@
   min-width: 10rem;
   height: 90%;
   position: relative;
+
+}
+
+.previewFileContainer{
+  width: 10rem;
+  min-width: 10rem;
+  height: 90%;
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  border: 1px solid black;
+  background-color: #f3f3f5;
+}
+
+.fileInfo{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.fileName{
+  width: 100%;
+  font-size: small;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: left;
+  justify-content: center;
 }
 
 .previewImage {
@@ -18,6 +52,7 @@
   object-fit: cover;
   object-position: center;
   border-radius: 10px;
+  
 }
 
 .previewVideo{

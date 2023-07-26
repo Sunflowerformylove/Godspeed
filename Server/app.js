@@ -230,7 +230,7 @@ io.on("connection", (socket) => {
         6,
         options.receiver,
         options.sender
-      )} (ID INT NOT NULL AUTO_INCREMENT, sender VARCHAR(255) NOT NULL, content VARCHAR(255) NOT NULL, timestamp VARCHAR(255), recipientHide TINYINT DEFAULT 0, senderHide TINYINT DEFAULT 0, type VARCHAR(255), filename VARCHAR(255), originalname VARCHAR(255), extension VARCHAR(255), location VARCHAR(255), size INT, mimetype VARCHAR(255), uuid VARCHAR(255), PRIMARY KEY (ID))`
+      )} (ID INT NOT NULL AUTO_INCREMENT, sender VARCHAR(255) NOT NULL, content LONGTEXT NOT NULL, timestamp VARCHAR(255), recipientHide TINYINT DEFAULT 0, senderHide TINYINT DEFAULT 0, type VARCHAR(255), filename VARCHAR(255), originalname VARCHAR(255), extension VARCHAR(255), location VARCHAR(255), size INT, mimetype VARCHAR(255), uuid VARCHAR(255), PRIMARY KEY (ID))`
     );
     database.query(
       `REPLACE INTO convos.${options.sender
@@ -305,25 +305,26 @@ io.on("connection", (socket) => {
     );
     database.query(
       `REPLACE INTO convos.${message.senderID
-      } (roomID, roomName, lastMessage, timestamp, sender, senderName, recipient, recipientName, type) VALUES ('${message.room
+      } (roomID, roomName, lastMessage, timestamp, sender, senderName, type) VALUES ('${message.room
       }', (SELECT * FROM (SELECT user FROM user.data WHERE ID = '${message.receiverID
       }') AS T),${database.escape(message.content)}, ${Date.now()}, '${message.senderID
       }',(SELECT user FROM user.data WHERE ID = '${message.senderID}'),
-      ${message.receiverID}, (SELECT user FROM user.data WHERE ID = ${message.receiverID
-      }), '${checkURL(message.content) ? "url" : checkYoutubeURL(message.content) ? "youtube" : "text"}')`
+      '${checkURL(message.content) ? "url" : checkYoutubeURL(message.content) ? "youtube" : "text"}')`
     );
     database.query(
-      `CREATE TABLE IF NOT EXISTS convos.${message.receiverID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage VARCHAR(255), timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), type VARCHAR(255), uuid VARCHAR(255), PRIMARY KEY (roomID))`
+      `CREATE TABLE IF NOT EXISTS convos.${message.receiverID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage LONGTEXT, timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), type VARCHAR(255), uuid VARCHAR(255), PRIMARY KEY (roomID))`
     );
     database.query(
       `REPLACE INTO convos.${message.receiverID
-      } (roomID, roomName, lastMessage, timestamp, sender, senderName, recipient, recipientName, type) VALUES ('${message.room
+      } (roomID, roomName, lastMessage, timestamp, sender, senderName, type) VALUES ('${message.room
       }', (SELECT * FROM (SELECT user FROM user.data WHERE ID = '${message.receiverID
       }') AS T),${database.escape(message.content)}, ${Date.now()}, '${message.senderID
       }',(SELECT user FROM user.data WHERE ID = '${message.senderID}'),
-      ${message.receiverID}, (SELECT user FROM user.data WHERE ID = ${message.receiverID
-      }), '${checkURL(message.content) ? "url" : checkYoutubeURL(message.content) ? "youtube" : "text"}')`
+      '${checkURL(message.content) ? "url" : checkYoutubeURL(message.content) ? "youtube" : "text"}')`
     );
+    console.log(message);
+    database.query(`REPLACE INTO room.${message.senderID} (roomID, roomName, recipient, lastChatTime) VALUES ('${message.room}', (SELECT user FROM user.data WHERE ID = '${message.receiverID}'), ${message.receiverID}, ${Date.now()})`);
+    database.query(`REPLACE INTO room.${message.receiverID} (roomID, roomName, recipient, lastChatTime) VALUES ('${message.room}', (SELECT user FROM user.data WHERE ID = '${message.senderID}'), ${message.senderID}, ${Date.now()})`);
   });
 
   socket.on("setLatestMessage", (data) => {
@@ -540,8 +541,9 @@ app.post("/login", (request, response) => {
                 maxAge: 30 * 60 * 60 * 24 * 1000,
               });
               database.query(
-                `CREATE TABLE IF NOT EXISTS convos.${data[0].ID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage VARCHAR(255), timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), type VARCHAR(255), uuid VARCHAR(255), PRIMARY KEY (roomID))`
+                `CREATE TABLE IF NOT EXISTS convos.${data[0].ID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage LONGTEXT, timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), type VARCHAR(255), uuid VARCHAR(255), PRIMARY KEY (roomID))`
               );
+              database.query(`CREATE TABLE IF NOT EXISTS room.${data[0].ID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255) NOT NULL,recipient INT, type VARCHAR(255), lastChatTime BIGINT, PRIMARY KEY (roomID))`);
               response.json({
                 errorCode: 0,
                 user: user.username,
@@ -576,8 +578,9 @@ app.post("/checkSession", (request, response) => {
           response.end();
         } else {
           database.query(
-            `CREATE TABLE IF NOT EXISTS convos.${data.ID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage VARCHAR(255), timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), type VARCHAR(255), uuid VARCHAR(255), PRIMARY KEY (roomID))`
+            `CREATE TABLE IF NOT EXISTS convos.${data.ID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255), lastMessage LONGTEXT, timestamp VARCHAR(255), sender VARCHAR(255), senderName VARCHAR(255), type VARCHAR(255), uuid VARCHAR(255), PRIMARY KEY (roomID))`
           );
+          database.query(`CREATE TABLE IF NOT EXISTS room.${data.ID} (roomID VARCHAR(255) NOT NULL, roomName VARCHAR(255) NOT NULL,recipient INT, type VARCHAR(255), lastChatTime BIGINT, PRIMARY KEY (roomID))`);
           database.query(`SELECT * FROM user.data WHERE ID = ${data.ID}`, (err, result) => {
             let userData = JSON.parse(JSON.stringify(result));
             response.json({ accept: true, user: userData[0].user, ID: userData[0].ID });
@@ -617,12 +620,18 @@ app.post("/api/upload", upload.array("file"), (request, response) => {
   let data = request.body;
   let now = Date.now();
   const ID = uuidv4();
-  // console.log(file)
+  console.log(file)
   file.forEach((file) => {
-    database.query(`INSERT INTO message.${data.room} (sender, content, timestamp,type,filename,originalname,extension,location,mimetype,size, uuid) VALUES(${database.escape(data.sender)},${database.escape(file.destination)},${database.escape(now)},"file",${database.escape(file.filename)},'${file.originalname}','${path.extname(file.originalname)}',${database.escape(file.path)},${database.escape(file.mimetype)},${database.escape(file.size)},${database.escape(ID)})`);
+    database.query(`INSERT INTO message.${data.room} (sender, content, timestamp,type,filename,originalname,extension,location,mimetype,size, uuid) VALUES(${database.escape(data.sender)},${database.escape(file.destination)},${database.escape(now)},"file",${database.escape(file.filename)},'${file.originalname}','${path.extname(file.originalname)}',${database.escape(file.path)},${database.escape(file.mimetype)},${database.escape(file.size)},${database.escape(ID)})`, (err) => {
+      if(err){
+        response.json({status: 500});
+      }
+    });
   });
   database.query(`SELECT * FROM message.${data.room} WHERE timestamp = ${database.escape(now)} AND type = "file"`, (err, result) => {
-    if (err) throw err;
+    if (err) {
+      throw err;
+    }
     let dataDB = JSON.parse(JSON.stringify(result));
     dataDB.forEach((file) => {
       file.extension = path.extname(file.filename);
@@ -630,11 +639,11 @@ app.post("/api/upload", upload.array("file"), (request, response) => {
     })
     dataDB.forEach((file) => {
       const fileStream = fs.readFileSync(file.location);
+      console.log(fileStream)
       file.file = fileStream;
     })
     io.to(`${data.room}`).emit("file", dataDB);
   });
-  response.end();
 });
 
 app.post("/api/download", (request, response) => {
