@@ -9,7 +9,7 @@ export function VideoSender(props) {
     }
 
     function deleteVideo() {
-        const updatedMessage = props.message.filter((message) => message.id !== props.id);
+        const updatedMessage = props.messageArray.filter((message) => message.id !== props.id);
         props.setMessage(updatedMessage);
         Socket.emit("deleteSVideo", {
             ID: props.id,
@@ -31,7 +31,7 @@ export function VideoSender(props) {
                 <div className="dot"></div>
                 <div className="optionsSelection sender" style={{ height: 0 }}>
                     <div className="option">Blur this video</div>
-                    <div className="option">Delete this video</div>
+                    <div onClick={deleteVideo} className="option">Delete this video</div>
                     <div className="option">Save video</div>
                 </div>
             </div>

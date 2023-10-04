@@ -397,7 +397,11 @@ io.on("connection", (socket) => {
   socket.on("deleteSVideo", (data) => {
     database.query(`UPDATE message.${data.room} SET content = 'deleted', senderHide = '1' WHERE uuid = '${data.uuid}'`, (err, result) => {
       if (err) throw err;
-      fs.unlinkSync(`./Upload/${data.filename}`);
+    });
+    database.query(`SELECT filename from message.${data.room} WHERE uuid = '${data.uuid}'`, (err, result) => {
+      if (err) throw err;
+      result = JSON.parse(JSON.stringify(result));
+      fs.unlinkSync(`./Upload/${result.filename}`);
     });
   });
 

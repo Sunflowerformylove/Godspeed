@@ -1,0 +1,27 @@
+.switch{
+    position: relative;
+    display: flex;
+    width: 7rem;
+    height: 3rem;
+    background-color: red;
+    border-radius: 30px;
+    align-items: center;
+}
+
+.boolean{
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 30px;
+    transition: transform 0.2s linear, background-image 0.5s ease;
+    background-image: url('../../public/Images/638.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+
+.boolean.true{
+    background-image: url('../../public/Images/5210759.jpg');
+    transform: translateX(4.2rem);
+    border-radius: 30px;
+}

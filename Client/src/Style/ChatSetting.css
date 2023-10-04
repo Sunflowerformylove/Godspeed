@@ -89,6 +89,11 @@
     flex-direction: column;
     align-items: center;
     border-radius: 0 20px 20px 0;
+    overflow-y: scroll;
+}
+
+.ThemeBoard{
+    display: none;
 }
 
 .settingOption {
@@ -105,6 +110,7 @@
     align-items: center;
     justify-content: flex-start;
     background-color: #404040;
+    border-radius: 10px;
 }
 
 .AccentAndTheme {
@@ -198,6 +204,7 @@
     filter: brightness(1.2);
 }
 
+
 .themeOptions {
     width: 90%;
     height: 40%;
@@ -210,7 +217,7 @@
 
 .themeOption {
     width: 20%;
-    height: 100%;
+    height: 4.5rem;
     background-color: black;
     border-radius: 20px;
     position: relative;
@@ -231,8 +238,8 @@
     border-radius: 100%;
     border: 3px solid #fca;
     position: absolute;
-    top: 30%;
-    left: 10%;
+    top: 35%;
+    left: 8%;
     background-color: #faa0a0;
 }
 
@@ -254,4 +261,149 @@
     justify-content: center;
     width: 100%;
     height: 100%;
+}
+
+.fontSizeOptions{
+    width: 100%;
+    height: 5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    flex-direction: row;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+}
+
+.fontSizeOption{
+    width: 20%;
+    height: 4.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: black;
+    border-radius: 2rem;
+    cursor: pointer;
+    position: relative;
+}
+
+.fontName.small{
+    font-size: 1.2rem;
+}
+
+.fontName.medium{
+    font-size: 1.6rem;   
+}
+
+.fontName.large{
+    font-size: 2rem;
+}
+
+.fontOptions{
+    width: 100%;
+    height: 5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.fontOption{
+    width: 20%;
+    height: 4.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: black;
+    border-radius: 2rem;
+    cursor: pointer;
+    position: relative;
+    font-size: 1.4rem;
+}
+
+.bubbleColorOptions{
+    width: 80%;
+    height: 10rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    font-size: 1.6rem;
+    margin-left: 10%;
+}
+
+.bubbleColor{
+    width: 15%;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2rem;
+    cursor: pointer;
+    position: relative;
+}
+
+.bubbleColor.chosen{
+    border: 3px solid #fca;
+    filter: brightness(1.2);
+}
+
+.apple{
+    background-color: #FF0800;
+}
+
+.arctic{
+    background-color: #82EEFD;
+}
+
+.seaFoam{
+    background-color: #3DDE97;
+}
+
+.orange{
+    background-color: orangered;
+}
+
+.ebony{
+    background-color: #0A0A0A;
+}
+
+.lilac{
+    background-color: #C8A2C8;
+}
+
+.NotifyBoard{
+    display: none;
+}
+
+.popupOptions{
+    width: 100%;
+    height: 5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.popupOption{
+    width: 20%;
+    height: 4.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: black;
+    border-radius: 2rem;
+    cursor: pointer;
+    position: relative;
+    font-size: 1.6rem;
+    font-family: "Roboto Mono", sans-serif;
+    font-weight: 600;
+}
+
+.popupOption.chosen{
+    border: 3px solid #fca;
+    filter: brightness(1.2);
 }

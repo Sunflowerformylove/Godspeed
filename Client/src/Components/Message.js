@@ -208,11 +208,28 @@ export function MessageFile(props) {
 export function Video(props) {
   if (props.sender && !props.senderHide) {
     return (
-      <VideoSender url={props.url} />
+      <VideoSender
+        uuid={props.uuid}
+        ID={props.ID}
+        messageArray={props.messageArray}
+        setMessage={props.setMessage}
+        senderHide={props.senderHide}
+        sender={props.sender}
+        recipientHide={props.recipientHide}
+        setAllowScroll={props.setAllowScroll}
+        url={props.url} />
     );
   } else if (!props.sender && !props.recipientHide && !props.senderHide) {
     return (
-      <VideoRecipient url={props.url} />
+      <VideoRecipient uuid={props.uuid}
+        ID={props.ID}
+        messageArray={props.messageArray}
+        setMessage={props.setMessage}
+        senderHide={props.senderHide}
+        sender={props.sender}
+        recipientHide={props.recipientHide}
+        setAllowScroll={props.setAllowScroll}
+        url={props.url} />
     );
   } else if (props.sender && props.senderHide) {
     return <MessageDeletedSender />;
@@ -221,14 +238,32 @@ export function Video(props) {
   }
 }
 
-export function Audio(props){
+export function Audio(props) {
   if (props.sender && !props.senderHide) {
     return (
-      <MessageAudioSender src = {props.src} />
+      <MessageAudioSender
+        uuid={props.uuid}
+        src={props.src}
+        ID={props.ID}
+        messageArray={props.messageArray}
+        setMessage={props.setMessage}
+        senderHide={props.senderHide}
+        sender={props.sender}
+        recipientHide={props.recipientHide}
+        setAllowScroll={props.setAllowScroll} />
     );
   } else if (!props.sender && !props.recipientHide && !props.senderHide) {
     return (
-      <MessageAudioRecipient src = {props.src}  />
+      <MessageAudioRecipient
+        uuid={props.uuid}
+        src={props.src}
+        ID={props.ID}
+        messageArray={props.messageArray}
+        setMessage={props.setMessage}
+        senderHide={props.senderHide}
+        sender={props.sender}
+        recipientHide={props.recipientHide}
+        setAllowScroll={props.setAllowScroll} />
     );
   } else if (props.sender && props.senderHide) {
     return <MessageDeletedSender />;

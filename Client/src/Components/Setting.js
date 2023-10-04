@@ -7,23 +7,17 @@ export function ChatConfigProvider(props) {
     const config ={
             "Appearance": {
                 "Theme": "Light", // Light, Dark, System
-                "Accent": "Black", // Black, Teal, Turquoise, Mint, Golden, Magenta, SlateBlue, Coral, Purple
-                "Wallpaper": "None", // None, Image, Presets
-                "Emoji": "Like",
+                "Accent": "black", // Black, Teal, Turquoise, Mint, Golden, Magenta, SlateBlue, Coral, Purple
                 "Font": "Source Serif Pro",
-                "FontSize": "16px",
+                "FontSize": "Small",
                 "FontColor": "Black",
-                "FontWeight": "400",
-                "Bubble": "Rounded", // Rounded, Square, Circle, None
-                "BubbleColor": "#c9c9c9",
-                "BubbleOpacity": "1",
-                "BubbleRadius": "10px",
+                "BubbleColor": "Ebony",
+                "BubbleOpacity": "100",
+                "BubbleRadius": "10",
             },
             "Notification": {
                 "Sound": "Default",
-                "Popup": "Default",
-                "Preview": "Default",
-                "Priority": "Default",
+                "Popup": "Banner + Sound",
             },
             "ProfanityFilter": "Off",// Off, Weak, Strong, Strongest, Custom
             "AutoDelete": "Off", // Off, 1 Day, 1 Week, 1 Month, 1 Year, Custom
@@ -45,3 +39,5 @@ export function UserConfigProvider(props) {
         </UserConfigContext.Provider>
     );
 }
+
+export { ChatConfigContext, UserConfigContext };

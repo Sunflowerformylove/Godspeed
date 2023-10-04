@@ -1,0 +1,69 @@
+.slider {
+    width: 100%;
+    height: 10rem;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    z-index: 1;
+    cursor: pointer;
+    /* Track styling */
+    height: 25px;
+    width: 50%;
+    background-color: orangered;
+    border-radius: 20px;
+}
+
+/* Track: webkit browsers */
+input[type="range"]::-webkit-slider-runnable-track {
+    height: 20px;
+    background-color: orangered;
+    border-radius: 16px;
+}
+
+/* Track: Mozilla Firefox */
+input[type="range"]::-moz-range-track {
+    height: 20px;
+    background-color: orangered;
+    border-radius: 16px;
+}
+
+/* Thumb styling */
+input[type="range"]::-webkit-slider-thumb {
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    -webkit-appearance: none;
+    appearance: none;
+    z-index: 2;
+    border: 4px solid #4169E1;
+}
+
+/* Thumb: Firefox */
+input[type="range"]::-moz-range-thumb {
+    height: 20px;
+    width: 20px;
+    background-color: #fff;
+    border-radius: 50%;
+    border: 3px solid #4169E1;
+    /* Due to how Mozilla handles the thumb, we reduced the border from the 2px applied for WebKit browsers to 1px so the thumb can fit appropriately in the range slider.
+    Keep in mind that Mozilla applies a grey border to the thumb by default. You can add a border: none; property if you don’t want to apply a border. */
+}
+
+.tooltip{
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+    background-color: #4169E1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 2rem;
+}

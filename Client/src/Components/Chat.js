@@ -463,6 +463,7 @@ export default function Chat() {
                     :
                     audioExtension.some((ext) => !Array.isArray(mess) ? ext === mess.extension.toLowerCase() : ext === mess[0].extension.toLowerCase()) ?
                       <Audio recipientHide={mess.recipientHide}
+                        uuid = {mess.uuid}
                         ID={mess.ID}
                         messageArray={message}
                         setMessage={setMessage}
@@ -470,6 +471,7 @@ export default function Chat() {
                         sender={parseInt(mess.sender) === user.ID}
                         key={Math.random() * (9999999999 - 0)}
                         src={mess.file}
+                        setAllowScroll={setAllowScroll}
                       ></Audio>
                       :
                       <MessageFile recipientHide={mess.recipientHide}

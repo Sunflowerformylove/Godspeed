@@ -10,7 +10,7 @@ import Socket from "./Socket.js";
 
 
 export default function Login() {
-  let user = useContext(userData);
+  const [user, setUser] = useContext(userData);
   const [form, setForm] = useState({
     username: "",
     password: "",
@@ -60,9 +60,9 @@ export default function Login() {
       pending: "Signing in...",
       success: {
         render({ data }) {
-          Socket.auth = data;
           user.username = data.user;
           user.ID = data.ID;
+          setUser(user);
           return `Welcome ${data.user}`;
         },
         onClose: () => {
