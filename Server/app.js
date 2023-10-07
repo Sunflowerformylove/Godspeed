@@ -553,6 +553,9 @@ app.post("/login", (request, response) => {
                 user: user.username,
                 ID: data[0].ID,
               });
+              database.query(`INSERT INTO setting.chat_config(ID, config, timestamp) VALUES(${data[0].ID}, 
+                '{"Appearance": {"Theme": "Light", "Accent": "black", "Font": "Source Serif Pro", "FontSize": "Small", "FontColor": "Black", "BubbleColor": "Ebony", "BubbleOpacity": "100", "BubbleRadius": "10"}, "Notification": {"Sound": "Default", "Popup": "Banner + Sound"}, "ProfanityFilter": "Off", "AutoDelete": "Off"}', ${Date.now()})
+                ON DUPLICATE KEY UPDATE ID = ${data[0].ID}, config = '{"Appearance": {"Theme": "Light", "Accent": "black", "Font": "Source Serif Pro", "FontSize": "Small", "FontColor": "Black", "BubbleColor": "Ebony", "BubbleOpacity": "100", "BubbleRadius": "10"}, "Notification": {"Sound": "Default", "Popup": "Banner + Sound"}, "ProfanityFilter": "Off", "AutoDelete": "Off"}', timestamp = ${Date.now()}`);
             } else {
               response.json({ errorCode: 1 });
             }
@@ -627,8 +630,8 @@ app.post("/api/upload", upload.array("file"), (request, response) => {
   console.log(file)
   file.forEach((file) => {
     database.query(`INSERT INTO message.${data.room} (sender, content, timestamp,type,filename,originalname,extension,location,mimetype,size, uuid) VALUES(${database.escape(data.sender)},${database.escape(file.destination)},${database.escape(now)},"file",${database.escape(file.filename)},'${file.originalname}','${path.extname(file.originalname)}',${database.escape(file.path)},${database.escape(file.mimetype)},${database.escape(file.size)},${database.escape(ID)})`, (err) => {
-      if(err){
-        response.json({status: 500});
+      if (err) {
+        response.json({ status: 500 });
       }
     });
   });
@@ -657,3 +660,7 @@ app.post("/api/download", (request, response) => {
     dotfiles: "allow"
   });
 });
+
+app.post("/api/setting", (request, response) => {
+  database.query(`UPDATE `)
+})

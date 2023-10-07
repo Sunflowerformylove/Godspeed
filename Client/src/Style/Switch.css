@@ -6,6 +6,12 @@
     background-color: red;
     border-radius: 30px;
     align-items: center;
+    cursor: pointer;
+    transition: background-color 0.5s ease;
+}
+
+.switch.true{
+    background-color: lime;
 }
 
 .boolean{
@@ -18,10 +24,11 @@
     background-position: center;
     background-repeat: no-repeat;
     cursor: pointer;
+    margin-left: 3px;
 }
 
 .boolean.true{
     background-image: url('../../public/Images/5210759.jpg');
-    transform: translateX(4.2rem);
+    transform: translateX(3.9rem);
     border-radius: 30px;
 }

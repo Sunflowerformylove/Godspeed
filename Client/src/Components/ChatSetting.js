@@ -7,9 +7,15 @@ import { useContext } from "react";
 import { Slider } from "./Slider";
 import { Select } from "./Select";
 import { BooleanSwitch } from "./Switch";
+import axios from "axios";
+import { toastSuccess } from "./Toast";
 
 export default function ChatSetting() {
     const [chosenRingtone, setChosenRingtone] = useState("Default");
+    const [profanity, setProfanity] = useState(false);
+    const [profanityInt, setProfanityIntensity] = useState("Low");
+    const settingSectionRef = [useRef(), useRef(), useRef()];
+    const settingBoardRef = [useRef(), useRef(), useRef()];
     const themeRef = [useRef(), useRef(), useRef(), useRef()];
     const accentRef = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
     const fontSizeRef = [useRef(), useRef(), useRef()];
@@ -17,6 +23,7 @@ export default function ChatSetting() {
     const bubbleColorRef = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
     const popupRef = [useRef(), useRef(), useRef()];
     const [Setting, setSetting] = useContext(ChatConfigContext);
+    
     const SoundOptions = ["Default", "Facebook", "Snapchat", "Microsoft Teams",
         "Kungfu Panda", "Chime", "Battlenet", "Pop", "Facebook Pop", "Cat Meow", "Whatsapp", "Invite MS",
         "Chirp", "Xylophone", "Techno", "Among Us", "Duskwood"]
@@ -26,6 +33,8 @@ export default function ChatSetting() {
         '/Sounds/miaou_chat.mp3', '/Sounds/tchwhatsapp.mp3', '/Sounds/invite_ms.mp3',
         '/Sounds/chat_2.mp3', '/Sounds/yeeeeeeet.mp3', '/Sounds/messenger.mp3', '/Sounds/chat_amongus.mp3'
         , '/Sounds/duskwood_chat.mp3']
+    const profanityIntensity = ["Low", "Medium", "High"]
+
 
     function selectTheme(index) {
         themeRef.forEach(element => {
@@ -86,11 +95,40 @@ export default function ChatSetting() {
         setSetting({ ...Setting, Notification: { ...Setting.Notification, Popup: popupRef[index].current.querySelector(".popupName").innerHTML } });
     }
 
+    function switchSettingSection(index) {
+        settingBoardRef.forEach(element => {
+            element.current.classList.remove("chosen");
+        });
+        settingBoardRef[index].current.classList.add("chosen");
+    }
+
+    function saveSetting() {
+        axios.post("https://localhost:3000/api/setting", Setting).then(response => {
+            return response.data;
+        }).then(data => {
+            if (data.errorCode === 1) {
+                throw Error("Setting failed to save");
+            }
+            else {
+                toastSuccess("Setting saved");
+            }
+        })
+    }
+
     // useEffect(() => {
     //     setSetting({ ...Setting, Notification: { ...Setting.Notification, Sound: chosenRingtone } });
     //     let audio = new Audio(Sounds[SoundOptions.indexOf(chosenRingtone)]);
     //     audio.play();
     // }, [chosenRingtone])
+
+    useEffect(() => {
+        if(profanity){
+            setSetting({...Setting, ProfanityFilter: "On"})
+        }
+        else{
+            setSetting({...Setting, ProfanityFilter: "Off"})
+        }
+    }, [profanity])
 
     useEffect(() => {
         accentRef.forEach(element => {
@@ -130,12 +168,12 @@ export default function ChatSetting() {
             <div className="settingContainer">
                 <IonIcon icon={Icon.closeCircle} className="closeIcon"></IonIcon>
                 <div className="settingSectionSlider">
-                    <div className="ThemeSection settingSection">Appearance</div>
-                    <div className="NotificationSection settingSection">Notification</div>
-                    <div className="LanguageSection settingSection">Language</div>
+                    <div onClick = {event => switchSettingSection(0)} ref = {settingSectionRef[0]} className="ThemeSection settingSection">Appearance</div>
+                    <div onClick = {event => switchSettingSection(1)} ref = {settingSectionRef[1]} className="NotificationSection settingSection">Notification</div>
+                    <div onClick = {event => switchSettingSection(2)} ref = {settingSectionRef[2]} className="LanguageSection settingSection">Language</div>
                 </div>
                 <div className="setting">
-                    <div className="settingBoard ThemeBoard">
+                    <div ref = {settingBoardRef[0]} className="settingBoard ThemeBoard">
                         <div className="sectionName">Appearance</div>
                         <div className="settingOption AccentAndTheme">
                             <div className="settingSubsection">
@@ -236,7 +274,7 @@ export default function ChatSetting() {
                             </div>
                         </div>
                     </div>
-                    <div className="settingBoard NotifyBoard">
+                    <div ref = {settingBoardRef[1]} className="settingBoard NotifyBoard">
                         <div className="sectionName">Notification</div>
                         <div className="settingSubsection" style={{ "height": "20%" }}>
                             <div className="settingSubsectionName">Sound</div>
@@ -262,19 +300,24 @@ export default function ChatSetting() {
                             </div>
                         </div>
                     </div>
-                    <div className="settingBoard LanguageBoard">
+                    <div ref = {settingBoardRef[2]} className="settingBoard LanguageBoard">
                         <div className="sectionName">Language</div>
                         <div className="settingSubsection">
                             <div className="settingSubsectionName">Profanity Filter</div>
                             <div className="profanityOptions">
                                 <div className="profanityOption">
                                     <div className="turnOption">Profanity Filter</div>
-                                    <BooleanSwitch></BooleanSwitch>
+                                    <BooleanSwitch isTrue = {profanity} setTrue = {setProfanity}></BooleanSwitch>
+                                </div>
+                                <div className="profanityOption">
+                                    <div className="profanityIntensity">Filter Intensity</div>
+                                    <Select options = {profanityIntensity} value ={profanityIntensity} setValue={setProfanity}></Select>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div className="saveChanges">Save Changes</div>
             </div>
         </div>
     </>);
