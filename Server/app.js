@@ -662,5 +662,25 @@ app.post("/api/download", (request, response) => {
 });
 
 app.post("/api/setting", (request, response) => {
-  database.query(`UPDATE `)
+  const ID = request.body.ID;
+  const config = JSON.stringify(request.body.Setting);
+  database.query(`UPDATE setting.chat_config SET config = ${database.escape(config)}, timestamp = ${Date.now()} WHERE ID = ${ID}`, (err, result) => {
+  }, (err, result) => {
+    if (err) response.json({ status: 500 });
+  });
+  response.json({ status: 200 });
+  response.end();
 })
+
+app.post("/api/getSetting", (request, response) => {
+  const ID = request.body.ID;
+  database.query(`SELECT config FROM setting.chat_config WHERE ID = ${ID}`, (err, result) => {
+    if (err) response.json({ status: 500 });
+    let setting = JSON.parse(JSON.stringify(result));
+    const data = {
+      Setting: JSON.parse(setting[0].config),
+      status: 200
+    }
+    response.json(data);
+  });
+});

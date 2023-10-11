@@ -21,11 +21,11 @@ export default function ChatHeader(props) {
     }, [user.receiver]);
 
     return (<>
-        <div className="chatHeader">
+        <div className= {`chatHeader ${props.themeName}`}>
             <div className="leftSection">
                 <img src={props.src} alt="" className="recipientAvatar" />
                 <div className="recipientInfo">
-                    <div className="recipientName">{user.receiverName}</div>
+                    <div className={`recipientName ${props.themeName}`}>{user.receiverName}</div>
                     <div className="recipientStatusContainer">
                         {status
                             ?
@@ -35,7 +35,7 @@ export default function ChatHeader(props) {
                             </div>
                             :
                             <div className="recipientStatus offline">
-                                <IonIcon icon={Icon.moonSharp} className="moonIcon" />
+                                <IonIcon icon={Icon.moonSharp} className={`moonIcon ${props.themeName}`} />
                                 <div className="statusText">Offline</div>
                             </div>
                         }
@@ -43,9 +43,9 @@ export default function ChatHeader(props) {
                 </div>
             </div>
             <div className="rightSection">
-                <IonIcon icon = {Icon.cogOutline} className="chatSetting chatIcon"></IonIcon>
-                <IonIcon icon={Icon.videocam} className="videoChat chatIcon"></IonIcon>
-                <IonIcon icon={Icon.call} className="callChat chatIcon"></IonIcon>
+                <IonIcon icon = {Icon.cogOutline} className={`chatSetting chatIcon ${props.themeName}`}></IonIcon>
+                <IonIcon icon={Icon.videocam} className={`videoChat chatIcon ${props.themeName}`}></IonIcon>
+                <IonIcon icon={Icon.call} className={`callChat chatIcon ${props.themeName}`}></IonIcon>
             </div>
         </div>
     </>)

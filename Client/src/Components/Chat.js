@@ -9,8 +9,8 @@ import { useEffect, useRef, useState, useContext } from "react";
 import { ImagePreview, VideoPreview, FilePreview } from "./Preview";
 import Cookies from "js-cookie";
 import AudioRecorder from "./AudioRecorder";
-// import NotificationOptions from "./Popup";
-import ChatSetting from "./ChatSetting";
+import { ChatConfigContext } from "./Setting";
+import {ChatSetting} from "./ChatSetting";
 import { IonIcon } from "@ionic/react";
 import * as Icon from "ionicons/icons";
 import { toastError, toastSuccess } from "./Toast";
@@ -21,6 +21,7 @@ export default function Chat() {
   const iconRef = useRef([]);
   const chatContainerRef = useRef(null);
   const chatBoxRef = useRef(null);
+  const generalSettingRef = useRef(null);
   const inputWidgetRef = useRef(null);
   const audioRecorderRef = useRef(null);
   const [message, setMessage] = useState([]);
@@ -31,6 +32,8 @@ export default function Chat() {
   const [customFiles, setCustomFiles] = useState([]);
   const [user, setUser] = useContext(userContext);
   const [startTimer, setStartTimer] = useState(false);
+  const [Setting, setSetting] = useContext(ChatConfigContext);
+  const [themeName, setThemeName] = useState("");
   let recordingTime = 0;
   let recordingProgress = 0;
   const imageExtension = [
@@ -68,6 +71,61 @@ export default function Chat() {
       previewFileRef.current.style.display = "none";
     }
   }, [customFiles]);
+
+  function formatTheme(){
+    if(chatBoxRef.current.classList.contains("light")){
+      chatBoxRef.current.classList.remove("light");
+      inputWidgetRef.current.classList.remove("light");
+    }
+    else if(chatBoxRef.current.classList.contains("sunset")){
+      chatBoxRef.current.classList.remove("sunset");
+      inputWidgetRef.current.classList.remove("sunset");
+    }
+  }
+
+  function turnLight(){
+    chatBoxRef.current.classList.add("light");
+    setThemeName("light");
+    inputWidgetRef.current.classList.add("light");
+  }
+
+  function turnDark(){
+    setThemeName("");
+    chatBoxRef.current.classList.remove("light");
+    inputWidgetRef.current.classList.remove("light");
+  }
+
+  function turnSunset(){
+    chatBoxRef.current.classList.add("sunset");
+    setThemeName("sunset");
+    inputWidgetRef.current.classList.add("sunset");
+  }
+
+  function turnSystem(){
+    if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){
+      turnDark();
+    }
+    else{
+      turnLight();
+    }
+  }
+
+  useEffect(() => {
+    //load setting
+    formatTheme();
+    if(Setting.Appearance.Theme === "Light"){
+      turnLight();
+    }
+    else if(Setting.Appearance.Theme === "Dark"){
+      turnDark();
+    }
+    else if(Setting.Appearance.Theme === "Sunset"){
+      turnSunset();
+    }
+    else if(Setting.Appearance.Theme === "System"){
+      turnSystem();
+    }
+  },[Setting])
 
   useEffect(() => {
     if (chatBoxRef && chatBoxRef.current && allowScroll) {
@@ -346,16 +404,17 @@ export default function Chat() {
 
   return (
     <>
-      <ChatSetting></ChatSetting>
+      <ChatSetting ref = {generalSettingRef}></ChatSetting>
       <RoomNav
         message={message}
         setMessage={setMessage}
         latestMessage={latestMessage}
         ref={chatContainerRef}
         newRoom={newRoom}
+        generalSettingRef = {generalSettingRef}
       ></RoomNav>
       <div ref={chatContainerRef} className="chatContainer">
-        <ChatHeader src="https://placekitten.com/200/300"></ChatHeader>
+        <ChatHeader src="https://placekitten.com/200/300" themeName = {themeName}></ChatHeader>
         <AudioRecorder ref={audioRecorderRef} flag = {{timer: startTimer, setTimer: setStartTimer}}></AudioRecorder>
         <div ref={inputWidgetRef} className="inputWidgets">
           <div className="miscWidget">

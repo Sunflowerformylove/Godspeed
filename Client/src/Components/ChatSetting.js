@@ -1,5 +1,5 @@
 import "../Style/ChatSetting.css"
-import { useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useRef, useState } from "react";
 import { IonIcon } from "@ionic/react";
 import * as Icon from "ionicons/icons";
 import { ChatConfigContext } from "./Setting";
@@ -8,9 +8,10 @@ import { Slider } from "./Slider";
 import { Select } from "./Select";
 import { BooleanSwitch } from "./Switch";
 import axios from "axios";
-import { toastSuccess } from "./Toast";
+import { toastSuccess, toastError } from "./Toast";
+import userContext from "./userData";
 
-export default function ChatSetting() {
+export const ChatSetting = forwardRef((props, ref) => {
     const [chosenRingtone, setChosenRingtone] = useState("Default");
     const [profanity, setProfanity] = useState(false);
     const [profanityInt, setProfanityIntensity] = useState("Low");
@@ -22,8 +23,11 @@ export default function ChatSetting() {
     const fontRef = [useRef(), useRef(), useRef(), useRef()];
     const bubbleColorRef = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
     const popupRef = [useRef(), useRef(), useRef()];
+    const closeRef = useRef();
+    const containerRef = useRef();
     const [Setting, setSetting] = useContext(ChatConfigContext);
-    
+    const [user, setUser] = useContext(userContext);
+
     const SoundOptions = ["Default", "Facebook", "Snapchat", "Microsoft Teams",
         "Kungfu Panda", "Chime", "Battlenet", "Pop", "Facebook Pop", "Cat Meow", "Whatsapp", "Invite MS",
         "Chirp", "Xylophone", "Techno", "Among Us", "Duskwood"]
@@ -102,17 +106,29 @@ export default function ChatSetting() {
         settingBoardRef[index].current.classList.add("chosen");
     }
 
-    function saveSetting() {
-        axios.post("https://localhost:3000/api/setting", Setting).then(response => {
+    async function saveSetting() {
+        axios.post("https://localhost:3000/api/setting", { Setting: Setting, ID: user.ID }, {
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }).then((response) => {
+            console.log(response)
             return response.data;
-        }).then(data => {
-            if (data.errorCode === 1) {
-                throw Error("Setting failed to save");
+        }).then((data) => {
+            console.log(data);
+            if (data.status === 200) {
+                toastSuccess("Setting saved!");
             }
-            else {
-                toastSuccess("Setting saved");
+            else if (data.status === 500) {
+                toastError("Setting failed to save!");
             }
-        })
+        }).catch((error) => {
+            toastError("Setting failed to save!");
+        });
+    }
+
+    function closeSetting(){
+        ref.current.classList.remove("show");
     }
 
     // useEffect(() => {
@@ -122,11 +138,11 @@ export default function ChatSetting() {
     // }, [chosenRingtone])
 
     useEffect(() => {
-        if(profanity){
-            setSetting({...Setting, ProfanityFilter: "On"})
+        if (profanity) {
+            setSetting({ ...Setting, ProfanityFilter: "On" })
         }
-        else{
-            setSetting({...Setting, ProfanityFilter: "Off"})
+        else {
+            setSetting({ ...Setting, ProfanityFilter: "Off" })
         }
     }, [profanity])
 
@@ -164,16 +180,16 @@ export default function ChatSetting() {
     }, []);
 
     return (<>
-        <div className="modal">
+        <div ref = {ref} className={`modal`}>
             <div className="settingContainer">
-                <IonIcon icon={Icon.closeCircle} className="closeIcon"></IonIcon>
+                <IonIcon onClick={closeSetting} icon={Icon.closeCircle} className="closeIcon"></IonIcon>
                 <div className="settingSectionSlider">
-                    <div onClick = {event => switchSettingSection(0)} ref = {settingSectionRef[0]} className="ThemeSection settingSection">Appearance</div>
-                    <div onClick = {event => switchSettingSection(1)} ref = {settingSectionRef[1]} className="NotificationSection settingSection">Notification</div>
-                    <div onClick = {event => switchSettingSection(2)} ref = {settingSectionRef[2]} className="LanguageSection settingSection">Language</div>
+                    <div onClick={event => switchSettingSection(0)} ref={settingSectionRef[0]} className="ThemeSection settingSection">Appearance</div>
+                    <div onClick={event => switchSettingSection(1)} ref={settingSectionRef[1]} className="NotificationSection settingSection">Notification</div>
+                    <div onClick={event => switchSettingSection(2)} ref={settingSectionRef[2]} className="LanguageSection settingSection">Language</div>
                 </div>
                 <div className="setting">
-                    <div ref = {settingBoardRef[0]} className="settingBoard ThemeBoard">
+                    <div ref={settingBoardRef[0]} className="settingBoard ThemeBoard chosen">
                         <div className="sectionName">Appearance</div>
                         <div className="settingOption AccentAndTheme">
                             <div className="settingSubsection">
@@ -274,7 +290,7 @@ export default function ChatSetting() {
                             </div>
                         </div>
                     </div>
-                    <div ref = {settingBoardRef[1]} className="settingBoard NotifyBoard">
+                    <div ref={settingBoardRef[1]} className="settingBoard NotifyBoard">
                         <div className="sectionName">Notification</div>
                         <div className="settingSubsection" style={{ "height": "20%" }}>
                             <div className="settingSubsectionName">Sound</div>
@@ -300,25 +316,25 @@ export default function ChatSetting() {
                             </div>
                         </div>
                     </div>
-                    <div ref = {settingBoardRef[2]} className="settingBoard LanguageBoard">
+                    <div ref={settingBoardRef[2]} className="settingBoard LanguageBoard">
                         <div className="sectionName">Language</div>
                         <div className="settingSubsection">
                             <div className="settingSubsectionName">Profanity Filter</div>
                             <div className="profanityOptions">
                                 <div className="profanityOption">
                                     <div className="turnOption">Profanity Filter</div>
-                                    <BooleanSwitch isTrue = {profanity} setTrue = {setProfanity}></BooleanSwitch>
+                                    <BooleanSwitch isTrue={profanity} setTrue={setProfanity}></BooleanSwitch>
                                 </div>
                                 <div className="profanityOption">
                                     <div className="profanityIntensity">Filter Intensity</div>
-                                    <Select options = {profanityIntensity} value ={profanityIntensity} setValue={setProfanity}></Select>
+                                    <Select options={profanityIntensity} value={profanityIntensity} setValue={setProfanity}></Select>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className="saveChanges">Save Changes</div>
+                <div className="saveChanges" onClick={saveSetting}>Save Changes</div>
             </div>
         </div>
     </>);
-}
+}) 

@@ -1,16 +1,19 @@
 import InputAndLabel from "./Input";
 import Register from "./Register";
-import {useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
 import Connecting from "./Connecting";
 import "../Style/Login.css";
 import userData from "./userData";
 import Socket from "./Socket.js";
+import { ChatConfigContext } from "./Setting";
+import { toastError, toastSuccess } from "./Toast";
 
 
 export default function Login() {
   const [user, setUser] = useContext(userData);
+  const [chatConfig, setChatConfig] = useContext(ChatConfigContext);
   const [form, setForm] = useState({
     username: "",
     password: "",
@@ -29,7 +32,26 @@ export default function Login() {
 
   useEffect(() => {
     Socket.connect();
-  },[connectingCall])
+  }, [connectingCall])
+
+  function getSetting() {
+    axios.post("https://localhost:3000/api/getSetting", { ID: user.ID }, { withCredentials: true }).then((response) => {
+      return response.data;
+    }).then((data) => {
+      if (data.status === 200) {
+        toastSuccess("Setting loaded successfully!");
+        setChatConfig(data.Setting);
+      }
+      else if (data.status === 500) {
+        toastError("Setting failed to load!");
+      }
+      else if (data.status === 401) {
+        toastError("You are not authorized to perform this action!");
+      }
+    }).catch((error) => {
+      toastError(error);
+    })
+  }
 
   function login() {
     setToggleLogin(false);
@@ -63,6 +85,8 @@ export default function Login() {
           user.username = data.user;
           user.ID = data.ID;
           setUser(user);
+          console.log("hell0")
+          getSetting();
           return `Welcome ${data.user}`;
         },
         onClose: () => {

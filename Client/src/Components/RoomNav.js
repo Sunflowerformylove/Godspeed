@@ -70,6 +70,10 @@ export const RoomNav = forwardRef((props, ref) => {
     }
   }, [props, room]);
 
+  function openSetting(){
+    props.generalSettingRef.current.classList.add("show");
+  }
+
   return (
     <>
       <div className="roomNav">
@@ -126,6 +130,17 @@ export const RoomNav = forwardRef((props, ref) => {
               />
             );
           })}
+        </div>
+        <div className="RoomNavFooter">
+          <div onClick = {openSetting} className="generalSetting">
+            <IonIcon icon={Icon.settingsSharp}></IonIcon>
+          </div>
+          <div className="version">
+            <span>Version 1.0.0</span>
+          </div>
+          <div className="reportBug">
+            <IonIcon icon = {Icon.bugSharp}></IonIcon>
+          </div>
         </div>
       </div>
     </>

@@ -7,6 +7,11 @@
     justify-content: space-between;
 }
 
+.chatHeader.light{
+    background-color: #f3f3f5;
+    border-bottom: #cccccc 4px solid;
+}
+
 .leftSection{
     width: 15%;
     height: 100%;
@@ -36,6 +41,10 @@
     font-family: 'Source Serif Pro', serif;
 }
 
+.recipientName.light{
+    color: black;
+}
+
 .recipientStatus{
     display: flex;
     flex-direction: row;
@@ -58,9 +67,17 @@
     margin-right: 0.2rem;
 }
 
+.moonIcon.light{
+    color: black;
+}
+
 .sunIcon{
     color: #FF8000;
     margin-right: 0.2rem;
+}
+
+.sunIcon{
+    color: orangered;
 }
 
 .rightSection{
@@ -78,6 +95,10 @@
     cursor: pointer;
 }
 
+.chatIcon.light{
+    color: black;
+}
+
 .chatIcon:hover{
     color: #00ff00;
 }
@@ -85,6 +106,10 @@
 .settingIcon{
     color: white;
     cursor: pointer;
+}
+
+.settingIcon.light{
+    color: black;
 }
 
 .settingIcon:hover{

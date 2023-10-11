@@ -7,12 +7,34 @@ import axios from "axios";
 import Connecting from "./Connecting";
 import userContext from "./userData";
 import Socket from "./Socket.js";
+import { toastError, toastSuccess } from "./Toast";
+import { ChatConfigContext } from "./Setting";
 
 export default function Welcome() {
   const [registerCall, setRegisterCall] = useState(false);
   const [loginCall, setLoginCall] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [user, setUser] = useContext(userContext);
+  const [chatConfig, setChatConfig] = useContext(ChatConfigContext);
+
+  function getSetting() {
+    axios.post("https://localhost:3000/api/getSetting", { ID: user.ID }, { withCredentials: true }).then((response) => {
+      return response.data;
+    }).then((data) => {
+      if(data.status === 200){
+        toastSuccess("Setting loaded successfully!");
+        setChatConfig(data.Setting);
+      }
+      else if(data.status === 500){
+        toastError("Setting failed to load!");
+      }
+      else if(data.status === 401){
+        toastError("You are not authorized to perform this action!");
+      }
+    }).catch((error) => {
+      toastError(error);
+    })
+  }
 
   useEffect(() => {
     if (Cookies.get("userSession") !== undefined) {
@@ -37,6 +59,7 @@ export default function Welcome() {
               Socket.emit("getUser", data.ID);
               setUser(userData);
               setConnecting(true);
+              getSetting();
             });
           }
         });

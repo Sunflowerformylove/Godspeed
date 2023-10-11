@@ -47,6 +47,11 @@
   justify-content: flex-start;
 }
 
+.inputWidgets.light{
+  background-color: #f3f3f5;
+  border-top: #cccccc 4px solid;
+}
+
 #textInput {
   height: 2.5rem;
   min-height: 2.5rem;
@@ -88,11 +93,14 @@
 .chatBox {
   display: flex;
   width: 100%;
-  margin-top: 1%;
-  height: 79%;
+  height: 80%;
   top: 10%;
   flex-direction: column;
   overflow-y: scroll;
+}
+
+.chatBox.light{
+  background-color: #f3f3f5;
 }
 
 .message {

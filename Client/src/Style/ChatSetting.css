@@ -6,9 +6,13 @@
     left: 0;
     background-color: rgba(10, 10, 10, 0.3);
     z-index: 99;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
+}
+
+.modal.show {
+    display: flex;
 }
 
 .settingContainer {
