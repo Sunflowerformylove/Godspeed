@@ -1,500 +1,509 @@
-@import url('./Icon.css');
+@import url("./Icon.css");
 
 @keyframes dotAnimation {
-  0% {
-    transform: translate(0, 0);
-  }
-  50% {
-    transform: translate(0, -10px);
-  }
-  100% {
-    transform: translate(0, 0);
-  }
+    0% {
+        transform: translate(0, 0);
+    }
+    50% {
+        transform: translate(0, -10px);
+    }
+    100% {
+        transform: translate(0, 0);
+    }
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  50% {
-    transform: rotate(180deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+    0% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(180deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .chatContainer {
-  position: absolute;
-  width: 75%;
-  height: 100%;
-  right: 0;
-  align-items: center;
-  border-left: 2px solid #c9c9c9;
-  scroll-behavior: smooth;
-  display: none;
-  flex-direction: column;
+    position: absolute;
+    width: 75%;
+    height: 100%;
+    right: 0;
+    align-items: center;
+    border-left: 2px solid #c9c9c9;
+    scroll-behavior: smooth;
+    display: none;
+    flex-direction: column;
 }
 
 .inputWidgets {
-  width: 100%;
-  height: 10%;
-  position: absolute;
-  bottom: 0%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
+    width: 100%;
+    height: 10%;
+    position: absolute;
+    bottom: 0%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
 }
 
-.inputWidgets.light{
-  background-color: #f3f3f5;
-  border-top: #cccccc 4px solid;
+.inputWidgets.light {
+    background-color: #f3f3f5;
+    border-top: #cccccc 4px solid;
+}
+
+.inputWidgets.sunset {
+    background-image: linear-gradient(to right, #b92b27 60%, #1565c0);
+    border-top: #cccccc 4px solid;
 }
 
 #textInput {
-  height: 2.5rem;
-  min-height: 2.5rem;
-  max-height: 15rem;
-  width: 100%;
-  align-self: flex-end;
-  font-size: 1.6rem;
-  border-radius: 5px;
-  padding-left: 1rem;
-  background-color: #f3f3f5;
-  color: black;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  text-rendering: geometricPrecision;
-  text-align: left;
-  resize: none;
-  line-height: 2.5rem;
-  overflow-y: scroll;
-  outline: none;
-  z-index: 1;
-  transition: width 0.5s linear;
+    height: 2.5rem;
+    min-height: 2.5rem;
+    max-height: 15rem;
+    width: 100%;
+    align-self: flex-end;
+    font-size: 1.6rem;
+    border-radius: 5px;
+    padding-left: 1rem;
+    background-color: #f3f3f5;
+    color: black;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    text-rendering: geometricPrecision;
+    text-align: left;
+    resize: none;
+    line-height: 2.5rem;
+    overflow-y: scroll;
+    outline: none;
+    z-index: 1;
+    transition: width 0.5s linear;
 }
 
 #textInput::-webkit-scrollbar {
-  display: none;
+    display: none;
 }
 
 .sendButton {
-  top: 40%;
-  position: absolute;
-  color: #3c91ee;
-  font-size: 2.4rem;
-  right: 4.5%;
-  cursor: pointer;
+    top: 40%;
+    position: absolute;
+    color: #3c91ee;
+    font-size: 2.4rem;
+    right: 4.5%;
+    cursor: pointer;
 }
 
 .chatBox {
-  display: flex;
-  width: 100%;
-  height: 80%;
-  top: 10%;
-  flex-direction: column;
-  overflow-y: scroll;
+    display: flex;
+    width: 100%;
+    height: 80%;
+    top: 10%;
+    flex-direction: column;
+    overflow-y: scroll;
 }
 
-.chatBox.light{
-  background-color: #f3f3f5;
+.chatBox.light {
+    background-color: #f3f3f5;
+}
+
+.chatBox.sunset {
+    background-image: linear-gradient(to right, #b92b27 60%, #1565c0);
 }
 
 .message {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    position: relative;
 }
 
 .message.sender {
-  flex-direction: row-reverse;
-  justify-content: flex-end;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
 }
 
 .innerMessage {
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 .bubble {
-  width: -moz-fit-content;
-  width: fit-content;
-  max-width: 40%;
-  padding: 1rem;
-  font-size: 1.6rem;
-  font-weight: 400;
-  font-family: "Source Serif Pro", sans-serif;
-  display: flex;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+    width: -moz-fit-content;
+    width: fit-content;
+    max-width: 40%;
+    padding: 1rem;
+    font-size: 1.6rem;
+    font-weight: 400;
+    font-family: "Source Serif Pro", sans-serif;
+    display: flex;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
 .bubble.recipient {
-  align-self: flex-start;
-  background-color: #3c91ee;
-  color: white;
-  border-radius: 10px;
-  margin-left: 2%;
+    align-self: flex-start;
+    background-color: #3c91ee;
+    color: white;
+    border-radius: 10px;
+    margin-left: 2%;
 }
 
 .bubble.sender {
-  align-self: flex-end;
-  background-color: #c9c9c9;
-  color: black;
-  border-radius: 10px;
-  margin-right: 2%;
+    align-self: flex-end;
+    background-color: #c9c9c9;
+    color: black;
+    border-radius: 10px;
+    margin-right: 2%;
 }
 
 .bubble.deleted.sender {
-  margin-left: auto;
-  background-color: rgba(200, 200, 200, 0.6);
+    margin-left: auto;
+    background-color: rgba(200, 200, 200, 0.6);
 }
 
 .options {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-evenly;
-  width: 3rem;
-  height: 3rem;
-  margin-left: 0.3rem;
-  cursor: pointer;
-  position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 3rem;
+    height: 3rem;
+    margin-left: 0.3rem;
+    cursor: pointer;
+    position: relative;
 }
 
 .options.sender {
-  margin-left: auto;
-  margin-right: 0.3rem;
+    margin-left: auto;
+    margin-right: 0.3rem;
 }
 
 .dot {
-  width: 5px;
-  height: 5px;
-  background-color: rgba(255, 255, 255, 0.5);
-  border-radius: 100%;
+    width: 5px;
+    height: 5px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 100%;
 }
 
 .options:hover > .dot:nth-of-type(1) {
-  animation: dotAnimation 1s infinite forwards;
+    animation: dotAnimation 1s infinite forwards;
 }
 
 .options:hover > .dot:nth-of-type(2) {
-  animation: dotAnimation 1s infinite 0.2s forwards;
+    animation: dotAnimation 1s infinite 0.2s forwards;
 }
 
 .options:hover > .dot:nth-of-type(3) {
-  animation: dotAnimation 1s infinite 0.4s forwards;
+    animation: dotAnimation 1s infinite 0.4s forwards;
 }
 
 .optionsSelection {
-  width: 12rem;
-  z-index: 1;
-  background-color: #f3f3f9;
-  position: absolute;
-  border-radius: 5px;
-  transition: all 0.3s ease;
-  overflow-y: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    width: 12rem;
+    z-index: 1;
+    background-color: #f3f3f9;
+    position: absolute;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .optionsSelection.sender {
-  top: 0;
-  left: -12.5rem;
+    top: 0;
+    left: -12.5rem;
 }
 
 .optionsSelection.recipient {
-  top: 0;
-  right: -12.5rem;
+    top: 0;
+    right: -12.5rem;
 }
 
 .options:hover > .optionsSelection {
-  width: 12rem;
-  height: 12rem !important;
+    width: 12rem;
+    height: 12rem !important;
 }
 
 .optionsSelection > .option {
-  width: 90%;
-  height: calc(33.33% - 1rem);
-  color: #121212;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  margin-top: 1rem;
-  cursor: pointer;
-  font-family: "Source Serif Pro";
-  font-size: 1.12rem;
-  font-weight: 600;
+    width: 90%;
+    height: calc(33.33% - 1rem);
+    color: #121212;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    margin-top: 1rem;
+    cursor: pointer;
+    font-family: "Source Serif Pro";
+    font-size: 1.12rem;
+    font-weight: 600;
 }
 
 .option:hover {
-  background-color: #c9c9c9;
+    background-color: #c9c9c9;
 }
 
 .miscWidget {
-  width: 21%;
-  height: 90%;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-end;
-  justify-content: flex-end;
-  position: relative;
+    width: 21%;
+    height: 90%;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: flex-end;
+    position: relative;
 }
 
 .widgetIcon {
-  font-size: 3.2rem;
-  color: #3c91ee;
-  cursor: pointer;
-  margin-bottom: 0.8rem;
-  margin-right: 1rem;
-  margin-left: 1rem;
-  transition: transform 0.3s ease;
+    font-size: 3.2rem;
+    color: #3c91ee;
+    cursor: pointer;
+    margin-bottom: 0.8rem;
+    margin-right: 1rem;
+    margin-left: 1rem;
+    transition: transform 0.3s ease;
 }
 
 .previewFile {
-  height: 11rem;
-  width: 100%;
-  padding-left: 1rem;
-  align-items: center;
-  overflow-y: hidden;
-  overflow-x: scroll;
-  background-color: rgba(215, 215, 215);
-  z-index: 1;
-  transition: width 0.5s linear;
-  border-radius: 10px 10px 0px 0px;
+    height: 11rem;
+    width: 100%;
+    padding-left: 1rem;
+    align-items: center;
+    overflow-y: hidden;
+    overflow-x: scroll;
+    background-color: rgba(215, 215, 215);
+    z-index: 1;
+    transition: width 0.5s linear;
+    border-radius: 10px 10px 0px 0px;
 }
 
 .previewFile::-webkit-scrollbar {
-  display: flex;
-  height: 5px;
-  cursor: pointer;
+    display: flex;
+    height: 5px;
+    cursor: pointer;
 }
 
 .previewFile::-webkit-scrollbar-thumb {
-  background-color: rgba(10, 10, 10, 0.8);
-  border-radius: 5px;
+    background-color: rgba(10, 10, 10, 0.8);
+    border-radius: 5px;
 }
 
 .previewFile > div {
-  margin-left: 1rem;
-  margin-right: 1rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
 }
 
 .previewContainer {
-  width: 70%;
-  height: auto;
-  position: absolute;
-  bottom: 1.2rem;
-  right: 8%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: space-evenly;
+    width: 70%;
+    height: auto;
+    position: absolute;
+    bottom: 1.2rem;
+    right: 8%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-evenly;
 }
 
 .addFile {
-  height: 90%;
-  width: 10rem;
-  min-width: 10rem;
-  border-radius: 10px;
-  font-size: 4rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(1, 2, 3, 0.5);
-  cursor: pointer;
+    height: 90%;
+    width: 10rem;
+    min-width: 10rem;
+    border-radius: 10px;
+    font-size: 4rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(1, 2, 3, 0.5);
+    cursor: pointer;
 }
 
 .plus {
-  animation: spin 1s linear infinite both;
-  animation-play-state: paused;
+    animation: spin 1s linear infinite both;
+    animation-play-state: paused;
 }
 
 .plus:hover {
-  animation-play-state: running;
+    animation-play-state: running;
 }
 
-.imageWrap{
-  max-width: 55%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
+.imageWrap {
+    max-width: 55%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
 }
 
-.imageWrap.sender{
-  margin-left: auto;
-  margin-right: 1rem;
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
+.imageWrap.sender {
+    margin-left: auto;
+    margin-right: 1rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
-.imageWrap.recipient{
-  margin-left: 1rem;
-  margin-right: auto;
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
+.imageWrap.recipient {
+    margin-left: 1rem;
+    margin-right: auto;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .imageContainer {
-  display: grid;
-  column-gap: 1rem;
-  row-gap: 1rem;
-  width: 100%;
+    display: grid;
+    column-gap: 1rem;
+    row-gap: 1rem;
+    width: 100%;
 }
 
 .image {
-  width: 100%;
-  height: 100%;
-  max-width: 100%;
-  min-width: 33%;
-  object-fit: cover;
-  border-radius: 10px;
-  cursor: pointer;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    min-width: 33%;
+    object-fit: cover;
+    border-radius: 10px;
+    cursor: pointer;
 }
 
-.imageOptions{
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-evenly;
-  width: 3rem;
-  height: 3rem;
-  cursor: pointer;
-  margin-right: .3rem;
-  position: relative;
+.imageOptions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 3rem;
+    height: 3rem;
+    cursor: pointer;
+    margin-right: 0.3rem;
+    position: relative;
 }
 
 .imageOptions:hover > .dot:nth-of-type(1) {
-  animation: dotAnimation 1s infinite forwards;
+    animation: dotAnimation 1s infinite forwards;
 }
 
 .imageOptions:hover > .dot:nth-of-type(2) {
-  animation: dotAnimation 1s infinite 0.2s forwards;
+    animation: dotAnimation 1s infinite 0.2s forwards;
 }
 
 .imageOptions:hover > .dot:nth-of-type(3) {
-  animation: dotAnimation 1s infinite 0.4s forwards;
+    animation: dotAnimation 1s infinite 0.4s forwards;
 }
 
-.imageOptionSelection{
-  width: 12rem;
-  z-index: 1;
-  background-color: #f3f3f9;
-  position: absolute;
-  border-radius: 5px;
-  transition: all 0.3s ease;
-  overflow-y: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: absolute;
-  top: 2rem;
+.imageOptionSelection {
+    width: 12rem;
+    z-index: 1;
+    background-color: #f3f3f9;
+    position: absolute;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    top: 2rem;
 }
 
-.imageOptionSelection.recipient{
-  left: .3rem;
-  top: 2.2rem;
+.imageOptionSelection.recipient {
+    left: 0.3rem;
+    top: 2.2rem;
 }
 
-.imageOptions:hover > .imageOptionSelection{
-  height: 10rem !important;
+.imageOptions:hover > .imageOptionSelection {
+    height: 10rem !important;
 }
 
-.imageOption{
-  width: 90%;
-  height: calc(33.33% - 1rem);
-  color: #121212;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  margin-top: 1rem;
-  cursor: pointer;
-  font-family: "Source Serif Pro";
-  font-size: 1.15rem;
-  font-weight: 600;
+.imageOption {
+    width: 90%;
+    height: calc(33.33% - 1rem);
+    color: #121212;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    margin-top: 1rem;
+    cursor: pointer;
+    font-family: "Source Serif Pro";
+    font-size: 1.15rem;
+    font-weight: 600;
 }
 
-.imageOption:hover{
-  background-color: #c9c9c9;
+.imageOption:hover {
+    background-color: #c9c9c9;
 }
 
 .fileContainer {
-  width: 25%;
-  max-width: 35%;
-  min-width: 25%;
-  height: 6rem;
-  min-height: 6rem;
-  display: flex;
-  align-items: center;
-  background-color: #ccc;
-  border-radius: 5px;
-  cursor: pointer;
-  box-shadow: 5px 5px 0px rgba(200, 200, 200, 0.33);
-  margin-top: 1rem;
+    width: 25%;
+    max-width: 35%;
+    min-width: 25%;
+    height: 6rem;
+    min-height: 6rem;
+    display: flex;
+    align-items: center;
+    background-color: #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 5px 5px 0px rgba(200, 200, 200, 0.33);
+    margin-top: 1rem;
 }
 
 .fileContainer.sender {
-  margin-left: auto;
-  margin-right: 1rem;
+    margin-left: auto;
+    margin-right: 1rem;
 }
 
-.fileContainer.recipient{
-  margin-left: 2rem;
-  margin-right: auto;
+.fileContainer.recipient {
+    margin-left: 2rem;
+    margin-right: auto;
 }
 
 .fileData {
-  width: 85%;
-  height: 90%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  margin-left: 5%;
+    width: 85%;
+    height: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    margin-left: 5%;
 }
 
 .fileNameChat {
-  color: #004;
-  font-size: 1.85rem;
-  font-weight: 600;
-  font-family: "Source Serif Pro";
+    color: #004;
+    font-size: 1.85rem;
+    font-weight: 600;
+    font-family: "Source Serif Pro";
 }
 
 .fileSizeChat {
-  color: #004;
-  font-size: 1.2rem;
-  font-weight: 600;
-  font-family: "Source Serif Pro";
+    color: #004;
+    font-size: 1.2rem;
+    font-weight: 600;
+    font-family: "Source Serif Pro";
 }
 
-.audioContainer{
-  width: 45%;
-  max-width: 50%;
-  min-width: 45%;
-  height: 6rem;
-  min-height: 6rem;
-  display: flex;
-  align-items: center;
+.audioContainer {
+    width: 45%;
+    max-width: 50%;
+    min-width: 45%;
+    height: 6rem;
+    min-height: 6rem;
+    display: flex;
+    align-items: center;
 }
 
-.audioContainer.sender{
-  margin-left: auto;
-  margin-right: 1rem;
+.audioContainer.sender {
+    margin-left: auto;
+    margin-right: 1rem;
 }
 
-.audioContainer.recipient{
-  margin-left: 1rem;
-  margin-right: auto;
+.audioContainer.recipient {
+    margin-left: 1rem;
+    margin-right: auto;
 }

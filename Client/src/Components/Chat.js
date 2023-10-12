@@ -103,9 +103,11 @@ export default function Chat() {
 
   function turnSystem(){
     if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){
+      console.log("dark")
       turnDark();
     }
     else{
+      console.log("light")
       turnLight();
     }
   }
@@ -412,6 +414,7 @@ export default function Chat() {
         ref={chatContainerRef}
         newRoom={newRoom}
         generalSettingRef = {generalSettingRef}
+        themeName = {themeName}
       ></RoomNav>
       <div ref={chatContainerRef} className="chatContainer">
         <ChatHeader src="https://placekitten.com/200/300" themeName = {themeName}></ChatHeader>

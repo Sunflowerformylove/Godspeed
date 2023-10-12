@@ -1,4 +1,4 @@
-.roomNav{
+.roomNav {
     position: absolute;
     left: 0;
     width: 25%;
@@ -6,7 +6,15 @@
     border-right: 2px solid white;
 }
 
-.navHeader{
+.roomNav.light {
+    border-right: 2px solid black;
+}
+
+.roomNav.sunset {
+    border-right: 2px solid white;
+}
+
+.navHeader {
     width: 100%;
     height: 10%;
     display: flex;
@@ -15,14 +23,26 @@
     flex-direction: column;
 }
 
-.textTitle{
+.roomNav.light .navHeader {
+    background-color: #f3f3f5;
+}
+
+.roomNav.sunset .navHeader {
+    background-image: linear-gradient(to right, #b92b27 60%, #1565c0);
+}
+
+.textTitle {
     margin-left: 1rem;
     font-size: 3rem;
     font-weight: 800;
     color: white;
 }
 
-.searchBar{
+.roomNav.light .textTitle {
+    color: black;
+}
+
+.searchBar {
     width: 90%;
     height: 40%;
     font-size: 1.4rem;
@@ -31,13 +51,14 @@
     border-radius: 20px;
     text-indent: 1rem;
     background-color: #333;
+    color: white;
 }
 
-.searchBar:focus{
+.searchBar:focus {
     border: 1px solid white !important;
 }
 
-.searchIcon{
+.searchIcon {
     position: absolute;
     display: flex;
     font-size: 2rem;
@@ -45,7 +66,7 @@
     top: 4.5rem;
 }
 
-.roomContainer{
+.roomContainer {
     width: 90%;
     height: 85%;
     overflow-y: scroll;
@@ -59,7 +80,15 @@
     flex-basis: 1;
 }
 
-.searchContainer{
+.roomNav.light .roomContainer {
+    background-color: #f3f3f5;
+}
+
+.roomNav.sunset .roomContainer {
+    background-image: linear-gradient(to right, #b92b27 60%, #1565c0);
+}
+
+.searchContainer {
     background-color: #121212;
     width: 90%;
     height: 85%;
@@ -72,7 +101,11 @@
     left: 5%;
 }
 
-.RoomNavFooter{
+.roomNav.light .searchContainer {
+    background-color: #f3f3f5;
+}
+
+.RoomNavFooter {
     position: absolute;
     width: 100%;
     height: 5%;
@@ -86,18 +119,42 @@
     border-bottom: 2px solid white;
 }
 
-.generalSetting{
+.roomNav.light .RoomNavFooter {
+    background-color: #f3f3f5;
+    border-top: 2px solid black;
+    border-bottom: 2px solid black;
+}
+
+.roomNav.sunset .RoomNavFooter {
+    background-image: linear-gradient(to right, #b92b27 60%, #1565c0);
+    border-top: 2px solid white;
+    border-bottom: 2px solid white;
+}
+
+.generalSetting {
     font-size: 2.6rem;
     cursor: pointer;
 }
 
-.version{
+.roomNav.light .generalSetting {
+    color: black;
+}
+
+.version {
     font-size: 1.4rem;
     margin-right: 1rem;
     color: white;
 }
 
-.reportBug{
+.roomNav.light .version {
+    color: black;
+}
+
+.reportBug {
     font-size: 2.6rem;
     cursor: pointer;
+}
+
+.roomNav.light .reportBug {
+    color: black;
 }

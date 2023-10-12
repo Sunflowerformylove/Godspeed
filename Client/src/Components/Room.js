@@ -40,7 +40,6 @@ function checkURL(url) {
 
 export const Room = forwardRef((props, ref) => {
   const chosenRef = useRef(null);
-  const className = "room";
   const [user, setUser] = useContext(userContext);
   function checkURL(url) {
     const regex = new RegExp("^(https?\:\/\/)?((www\.)?youtube\.com|youtu\.be)\/.+$");
@@ -49,19 +48,7 @@ export const Room = forwardRef((props, ref) => {
     }
     return false;
   }
-  
-  // const [chosen, setChosen] = useState(false);
-  // function toggleChosen(){
-  //     const element = chosenRef.current;
-  //     if(!chosen){
-  //         element.className = className + " chosen";
-  //         setChosen(true);
-  //     }
-  //     else{
-  //         element.className = className;
-  //         setChosen(false);
-  //     }
-  // }
+
   function createRoom() {
     const currentRoom = Cookies.get("currentRoom");
     if (currentRoom !== undefined) {
@@ -85,7 +72,6 @@ export const Room = forwardRef((props, ref) => {
               message.file = URL.createObjectURL(blob);
             }
           });
-          console.log(data);
           data.forEach((message) => {
             if (message.type === "file" && imageExtension.some(extension => extension === message.mimetype.toLowerCase())) {
               let uuid = message.uuid;
@@ -118,7 +104,7 @@ export const Room = forwardRef((props, ref) => {
     <>
       <div
         data-id={props.ID}
-        className={className}
+        className={`room ${props.themeName}`}
         ref={chosenRef}
         onClick={createRoom}
       >
@@ -137,25 +123,8 @@ export const Room = forwardRef((props, ref) => {
 
 export const RoomExist = forwardRef((props, ref) => {
   const chosenRef = useRef(null);
-  const className = "room";
   const [user, setUser] = useContext(userContext);
-  // const [chosen, setChosen] = useState(false);
-  // function toggleChosen(){
-  //     const element = chosenRef.current;
-  //     if(!chosen){
-  //         element.className = className + " chosen";
-  //         setChosen(true);
-  //     }
-  //     else{
-  //         element.className = className;
-  //         setChosen(false);
-  //     }
-  // }
-  // function setSender(){
-  //   if(Cookies.get("currentRoom") === props.roomID){
 
-  //   }
-  // }
   function checkURL(url) {
     const regex = new RegExp("^(https?\:\/\/)?((www\.)?youtube\.com|youtu\.be)\/.+$");
     if (regex.test(url)) {
@@ -176,7 +145,6 @@ export const RoomExist = forwardRef((props, ref) => {
     if (ref && ref.current) {
       ref.current.style.display = "flex";
       Socket.on("loadMessage", (data) => {
-        console.log(data)
         if (data.length > 0) {
           data.forEach((message) => {
             if (message.type === "file" && message.content !== "deleted" && !checkURL(message.file)) {
@@ -217,7 +185,7 @@ export const RoomExist = forwardRef((props, ref) => {
     <>
       <div
         data-id={props.ID}
-        className={className}
+        className={`room ${props.themeName}`}
         ref={chosenRef}
         onClick={createRoom}
       >

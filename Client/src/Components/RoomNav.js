@@ -76,7 +76,7 @@ export const RoomNav = forwardRef((props, ref) => {
 
   return (
     <>
-      <div className="roomNav">
+      <div className={`roomNav ${props.themeName}`}>
         <div className="navHeader">
           <span className="textTitle">Chats</span>
           <input
@@ -112,6 +112,7 @@ export const RoomNav = forwardRef((props, ref) => {
                 latestMessage={!props.latestMessage[`${room.roomID}`] ? room.lastMessage : props.latestMessage[`${room.roomID}`].content}
                 sender={!props.latestMessage[`${room.roomID}`] ? room.senderName : props.latestMessage[`${room.roomID}`].sender}
                 timestamp={room.timestamp}
+                themeName={props.themeName}
               />
             );
           })}
@@ -127,6 +128,7 @@ export const RoomNav = forwardRef((props, ref) => {
                 message={props.message}
                 setMessage={props.setMessage}
                 name={user.user}
+                themeName={props.themeName}
               />
             );
           })}
