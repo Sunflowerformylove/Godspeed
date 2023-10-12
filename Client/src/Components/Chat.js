@@ -103,11 +103,9 @@ export default function Chat() {
 
   function turnSystem(){
     if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){
-      console.log("dark")
       turnDark();
     }
     else{
-      console.log("light")
       turnLight();
     }
   }
