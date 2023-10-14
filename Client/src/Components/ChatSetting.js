@@ -112,10 +112,8 @@ export const ChatSetting = forwardRef((props, ref) => {
                 "Content-Type": "application/json"
             }
         }).then((response) => {
-            console.log(response)
             return response.data;
         }).then((data) => {
-            console.log(data);
             if (data.status === 200) {
                 toastSuccess("Setting saved!");
             }
@@ -139,10 +137,10 @@ export const ChatSetting = forwardRef((props, ref) => {
 
     useEffect(() => {
         if (profanity) {
-            setSetting({ ...Setting, ProfanityFilter: "On" })
+            setSetting({ ...Setting, ProfanityFilter: "true" })
         }
         else {
-            setSetting({ ...Setting, ProfanityFilter: "Off" })
+            setSetting({ ...Setting, ProfanityFilter: "false" })
         }
     }, [profanity])
 
@@ -177,6 +175,9 @@ export const ChatSetting = forwardRef((props, ref) => {
                 element.current.classList.add("chosen");
             }
         });
+        if(Setting.ProfanityFilter){
+            setProfanity(true);
+        }
     }, []);
 
     return (<>

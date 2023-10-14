@@ -110,8 +110,13 @@ export default function Chat() {
     }
   }
 
+  function adjustFontSize(){
+    
+  }
+
   useEffect(() => {
     //load setting
+    //load theme
     formatTheme();
     if(Setting.Appearance.Theme === "Light"){
       turnLight();
@@ -125,6 +130,8 @@ export default function Chat() {
     else if(Setting.Appearance.Theme === "System"){
       turnSystem();
     }
+    //load accent
+    //load font size
   },[Setting])
 
   useEffect(() => {
@@ -334,6 +341,7 @@ export default function Chat() {
           senderID: user.ID,
           receiverID: user.receiver,
           room: Cookies.get("currentRoom"),
+          isFiltered: JSON.parse(Setting.ProfanityFilter)
         });
         const receiver = await axios("https://localhost:3000/api/user", {
           method: "POST",

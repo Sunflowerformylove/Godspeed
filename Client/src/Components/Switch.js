@@ -1,5 +1,5 @@
 import "../Style/Switch.css"
-import {useRef} from "react"
+import {useEffect, useRef} from "react"
 
 export function BooleanSwitch(props){
     const booleanRef = useRef(null);
@@ -9,6 +9,16 @@ export function BooleanSwitch(props){
         switchRef.current.classList.toggle("true");
         props.setTrue(!props.isTrue);
     }
+    useEffect(() => {
+        if(props.isTrue){
+            booleanRef.current.classList.add("true");
+            switchRef.current.classList.add("true");
+        }
+        else{
+            booleanRef.current.classList.remove("true");
+            switchRef.current.classList.remove("true");
+        }
+    })
     return(
         <div onClick = {toggleBoolean} className="switch" ref = {switchRef}>
             <div onClick={toggleBoolean} className="boolean" ref = {booleanRef}></div>

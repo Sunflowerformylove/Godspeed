@@ -24,7 +24,8 @@ const multerS3 = require("multer-s3");
 const secret = speakeasy.generateSecretASCII(2048, false);
 const saltRound = 15;
 const { v4: uuidv4 } = require('uuid');
-const { decode } = require("punycode");
+const BadWords = require("./Functions/badword.js");
+const Filter = new BadWords();
 
 const httpsOptions = {
   key: fs.readFileSync("../Certificate/key.pem"),
@@ -293,6 +294,9 @@ io.on("connection", (socket) => {
       (err, result) => {
         if (err) throw err;
         result = JSON.parse(JSON.stringify(result));
+        if(message.isFiltered){
+          message.content = Filter.Clean(message.content);
+        }
         io.to(message.room).emit("message", {
           content: message.content,
           sender: message.senderID,
@@ -322,7 +326,6 @@ io.on("connection", (socket) => {
       }',(SELECT user FROM user.data WHERE ID = '${message.senderID}'),
       '${checkURL(message.content) ? "url" : checkYoutubeURL(message.content) ? "youtube" : "text"}')`
     );
-    console.log(message);
     database.query(`REPLACE INTO room.${message.senderID} (roomID, roomName, recipient, lastChatTime) VALUES ('${message.room}', (SELECT user FROM user.data WHERE ID = '${message.receiverID}'), ${message.receiverID}, ${Date.now()})`);
     database.query(`REPLACE INTO room.${message.receiverID} (roomID, roomName, recipient, lastChatTime) VALUES ('${message.room}', (SELECT user FROM user.data WHERE ID = '${message.senderID}'), ${message.senderID}, ${Date.now()})`);
   });

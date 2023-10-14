@@ -19,8 +19,7 @@ export function ChatConfigProvider(props) {
                 "Sound": "Default",
                 "Popup": "Banner + Sound",
             },
-            "ProfanityFilter": "Off",// Off, Weak, Strong, Strongest, Custom
-            "AutoDelete": "Off", // Off, 1 Day, 1 Week, 1 Month, 1 Year, Custom
+            "ProfanityFilter": "false",// Off, Weak, Strong, Strongest, Custom
         }
     const [ChatConfig, setChatConfig] = useState(config);
     return (
