@@ -427,6 +427,10 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("vidChat", (stream) => {
+    socket.broadcast.emit("vidChat", stream);
+  })
+
   socket.on("getStatus", async (data) => {
     const sockets = await io.fetchSockets();
     let flag = false;
