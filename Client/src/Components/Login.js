@@ -85,7 +85,6 @@ export default function Login() {
           user.username = data.user;
           user.ID = data.ID;
           setUser(user);
-          console.log("hell0")
           getSetting();
           return `Welcome ${data.user}`;
         },

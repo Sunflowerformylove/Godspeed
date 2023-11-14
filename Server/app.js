@@ -20,7 +20,6 @@ const eventEmitter = new events();
 const { Server } = require("socket.io");
 const seedRandom = require("seedrandom");
 const path = require("path");
-const multerS3 = require("multer-s3");
 const secret = speakeasy.generateSecretASCII(2048, false);
 const saltRound = 15;
 const { v4: uuidv4 } = require('uuid');
