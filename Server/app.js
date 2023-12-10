@@ -1,3 +1,5 @@
+//Before learning React, my dumbass didn't even think of splitting this file into smaller functionality files
+//Which something I learned in C++.
 const express = require("express");
 const fs = require("fs");
 const mysql = require("mysql");
@@ -426,10 +428,6 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("vidChat", (stream) => {
-    socket.broadcast.emit("vidChat", stream);
-  })
-
   socket.on("getStatus", async (data) => {
     const sockets = await io.fetchSockets();
     let flag = false;
@@ -450,6 +448,21 @@ io.on("connection", (socket) => {
       })
     }
   })
+
+  socket.on("incomingCall", (data) => {
+    io.to(`${data.room}`).emit("incomingCall", {
+      caller: data.caller,
+      receiver: data.receiver,
+    });
+  });
+
+  socket.on("acceptCall", (data) => {
+    io.to(`${data.room}`).emit("callAccepted");
+  });
+
+  socket.on("rejectCall", (data) => {
+    io.to(`${data.room}`).emit("callRejected");
+  });
 
   socket.on("disconnect", () => {
     socket.broadcast.emit("setStatus", {

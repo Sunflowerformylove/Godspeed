@@ -10,18 +10,18 @@ export default function ChatHeader(props) {
     const [user, setUser] = useContext(userContext);
 
     useEffect(() => {
-        if(user.receiver){
+        if (user.receiver) {
             Socket.emit("getStatus", user.receiver);
         }
         Socket.on("setStatus", (data) => {
-            if(user.receiver !== undefined && data.ID === user.receiver){
+            if (user.receiver !== undefined && data.ID === user.receiver) {
                 setStatus(data.status);
             }
         })
     }, [user.receiver]);
 
     return (<>
-        <div className= {`chatHeader ${props.themeName}`}>
+        <div className={`chatHeader ${props.themeName}`}>
             <div className="leftSection">
                 <img src={props.src} alt="" className="recipientAvatar" />
                 <div className="recipientInfo">
@@ -43,9 +43,9 @@ export default function ChatHeader(props) {
                 </div>
             </div>
             <div className="rightSection">
-                <IonIcon icon = {Icon.cogOutline} className={`chatSetting chatIcon ${props.themeName}`}></IonIcon>
-                <IonIcon icon={Icon.videocam} className={`videoChat chatIcon ${props.themeName}`}></IonIcon>
-                <IonIcon icon={Icon.call} className={`callChat chatIcon ${props.themeName}`}></IonIcon>
+                <IonIcon icon={Icon.cogOutline} className={`chatSetting chatIcon ${props.themeName}`}></IonIcon>
+                <IonIcon onClick={props.toggleModal} icon={Icon.videocam} className={`headerVideoChat chatIcon ${props.themeName}`}></IonIcon>
+                <IonIcon icon={Icon.call} className={`headerCallChat chatIcon ${props.themeName}`}></IonIcon>
             </div>
         </div>
     </>)

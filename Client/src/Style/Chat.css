@@ -507,3 +507,19 @@
     margin-left: 1rem;
     margin-right: auto;
 }
+
+.globalModal{
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    background-color: red;
+    z-index: 99999;
+    display: none;
+}
+
+.globalModal.visible{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}

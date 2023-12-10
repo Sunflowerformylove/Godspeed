@@ -49,3 +49,7 @@ html{
 .Toaster{
   background-color: transparent;
 }
+
+.debug{
+  border: 2px dashed red;
+}

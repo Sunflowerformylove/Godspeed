@@ -8,7 +8,7 @@ import "../Style/Login.css";
 import userData from "./userData";
 import Socket from "./Socket.js";
 import { ChatConfigContext } from "./Setting";
-import { toastError, toastSuccess } from "./Toast";
+import { toastError, toastSuccess, toastPromise } from "./Toast";
 
 
 export default function Login() {
@@ -34,23 +34,9 @@ export default function Login() {
     Socket.connect();
   }, [connectingCall])
 
-  function getSetting() {
-    axios.post("https://localhost:3000/api/getSetting", { ID: user.ID }, { withCredentials: true }).then((response) => {
-      return response.data;
-    }).then((data) => {
-      if (data.status === 200) {
-        toastSuccess("Setting loaded successfully!");
-        setChatConfig(data.Setting);
-      }
-      else if (data.status === 500) {
-        toastError("Setting failed to load!");
-      }
-      else if (data.status === 401) {
-        toastError("You are not authorized to perform this action!");
-      }
-    }).catch((error) => {
-      toastError(error);
-    })
+
+  async function getSetting() {
+    await axios.post("https://localhost:3000/api/getSetting", { ID: user.ID }, { withCredentials: true });
   }
 
   function login() {
@@ -86,6 +72,7 @@ export default function Login() {
           user.ID = data.ID;
           setUser(user);
           getSetting();
+          toastPromise(getSetting(), "Loading setting...", "Setting loaded!", "Setting failed to load!");
           return `Welcome ${data.user}`;
         },
         onClose: () => {
