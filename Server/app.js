@@ -36,16 +36,15 @@ const httpsOptions = {
 const database = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "Haido29904@",
+  password: "",
   port: 3306,
 });
 
 const databaseOption = {
   host: "localhost",
   user: "root",
-  password: "Haido29904@",
   port: 3306,
-  database: "user",
+  password: '',
   createDatabaseTable: true,
   clearExpired: true,
   checkExpirationInterval: 60 * 60 * 1000, //check for expired session every hour,
