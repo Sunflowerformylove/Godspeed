@@ -39,7 +39,6 @@ export const ChatSetting = forwardRef((props, ref) => {
         , '/Sounds/duskwood_chat.mp3']
     const profanityIntensity = ["Low", "Medium", "High"]
 
-
     function selectTheme(index) {
         themeRef.forEach(element => {
             element.current.querySelector(".isChosen").classList.remove("chosen");
@@ -125,15 +124,9 @@ export const ChatSetting = forwardRef((props, ref) => {
         });
     }
 
-    function closeSetting(){
+    function closeSetting() {
         ref.current.classList.remove("show");
     }
-
-    // useEffect(() => {
-    //     setSetting({ ...Setting, Notification: { ...Setting.Notification, Sound: chosenRingtone } });
-    //     let audio = new Audio(Sounds[SoundOptions.indexOf(chosenRingtone)]);
-    //     audio.play();
-    // }, [chosenRingtone])
 
     useEffect(() => {
         if (profanity) {
@@ -143,6 +136,10 @@ export const ChatSetting = forwardRef((props, ref) => {
             setSetting({ ...Setting, ProfanityFilter: "false" })
         }
     }, [profanity])
+
+    useEffect(() => {
+        setSetting({ ...Setting, Notification: { ...Setting.Notification, Sound: chosenRingtone } })
+    }, [chosenRingtone])
 
     useEffect(() => {
         accentRef.forEach(element => {
@@ -175,13 +172,13 @@ export const ChatSetting = forwardRef((props, ref) => {
                 element.current.classList.add("chosen");
             }
         });
-        if(Setting.ProfanityFilter){
+        if (Setting.ProfanityFilter) {
             setProfanity(true);
         }
     }, []);
 
     return (<>
-        <div ref = {ref} className={`modal`}>
+        <div ref={ref} className={`modal`}>
             <div className="settingContainer">
                 <IonIcon onClick={closeSetting} icon={Icon.closeCircle} className="closeIcon"></IonIcon>
                 <div className="settingSectionSlider">

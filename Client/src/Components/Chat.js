@@ -15,7 +15,6 @@ import { IonIcon } from "@ionic/react";
 import * as Icon from "ionicons/icons";
 import { toastError, toastSuccess } from "./Toast";
 
-
 export default function Chat() {
   const inputRef = useRef(null);
   const previewFileRef = useRef(null);

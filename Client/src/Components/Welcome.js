@@ -18,7 +18,8 @@ export default function Welcome() {
   const [chatConfig, setChatConfig] = useContext(ChatConfigContext);
 
   async function getSetting() {
-    await axios.post("https://localhost:3000/api/getSetting", { ID: user.ID }, { withCredentials: true });
+    const config = await axios.post("https://localhost:3000/api/getSetting", { ID: user.ID }, { withCredentials: true });
+    setChatConfig(config.data.Setting);
   }
 
   useEffect(() => {

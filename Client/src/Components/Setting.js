@@ -6,7 +6,7 @@ const UserConfigContext = createContext({});
 export function ChatConfigProvider(props) {
     const config ={
             "Appearance": {
-                "Theme": "Light", // Light, Dark, System
+                "Theme": "Dark", // Light, Dark, System
                 "Accent": "black", // Black, Teal, Turquoise, Mint, Golden, Magenta, SlateBlue, Coral, Purple
                 "Font": "Source Serif Pro",
                 "FontSize": "Small",
