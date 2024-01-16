@@ -10,7 +10,8 @@ library.add(fas)
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
+  // <React.StrictMode>
+  <>
     <ToastContainer
       position="top-center"
       autoClose={5000}
@@ -25,5 +26,6 @@ root.render(
       style={{ fontSize: "1.4rem" }}
     />
     <App />
-  </React.StrictMode>
+    </>
+  // </React.StrictMode>
 );

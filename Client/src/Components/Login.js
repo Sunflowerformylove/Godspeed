@@ -55,7 +55,7 @@ export default function Login() {
         })
         .then((data) => {
           if (data.errorCode === 1) {
-            throw Error("Username or password exists!");
+            throw Error("Username or password does not exist!");
           } else if (data.errorCode === 2) {
             throw Error("Field(s) required!");
           } else {

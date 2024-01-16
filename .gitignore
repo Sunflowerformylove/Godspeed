@@ -11,7 +11,9 @@
 **/Upload
 **/Sounds
 **/Sounds/**/*
-**/Images
+**/Images/
+**/Images/**/*
+**/Videos/
 .vscode
 
 # testing

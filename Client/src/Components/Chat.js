@@ -14,9 +14,7 @@ import { ChatSetting } from "./ChatSetting";
 import { IonIcon } from "@ionic/react";
 import * as Icon from "ionicons/icons";
 import { toastError, toastSuccess } from "./Toast";
-import { Dialing } from "./Dialing";
-import { CallResponse } from "./CallResponse";
-import { Call } from "./Call";
+
 
 export default function Chat() {
   const inputRef = useRef(null);
@@ -414,9 +412,6 @@ export default function Chat() {
 
   return (
     <>
-      {/* <Dialing ref ={dialingRef} /> */}
-      {/* <CallResponse ref ={callResponseRef} /> */}
-      <Call ref={callRef} />
       <ChatSetting ref={generalSettingRef} />
       <RoomNav
         message={message}

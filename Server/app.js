@@ -27,6 +27,7 @@ const saltRound = 15;
 const { v4: uuidv4 } = require('uuid');
 const BadWords = require("./Functions/badword.js");
 const Filter = new BadWords();
+const { PeerServer } = require("peer");
 
 const httpsOptions = {
   key: fs.readFileSync("../Certificate/key.pem"),
@@ -49,6 +50,7 @@ const databaseOption = {
   clearExpired: true,
   checkExpirationInterval: 60 * 60 * 1000, //check for expired session every hour,
   expiration: 30 * 24 * 60 * 60 * 1000, //expire after 30 days, in milliseconds
+  database: "user",
   schema: {
     tableName: "session",
     columnNames: {
@@ -168,7 +170,38 @@ function decodeSessionID(sessionID) {
   sessionID = sessionID.split(":")[1];
   return sessionID;
 }
+const server = https.createServer(httpsOptions, app);
+const peerServer = PeerServer({
+  port: 9000,
+  path: "/",
+  ssl: {
+    key: fs.readFileSync("../Certificate/key.pem"),
+    cert: fs.readFileSync("../Certificate/cert.pem"),
+  },
+  corsOptions: {
+    origin: "*",
+    methods: ["GET", "POST", "OPTIONS", "PUT", "DELETE"],
+  },
+  secure: true,
+  allow_discovery: true,
+});
+server.listen(port, (err) => {
+  if (err) throw err;
+  console.log("Server is running on port 3000");
+});
+peerServer.listen(() => {
+  console.log("Peer server is running on port 9000");
+});
 
+peerServer.on("connection", (client) => {
+  console.log("New client connected: " + client.getId());
+});
+
+const io = new Server(server, {
+  cors: { origin: "*" },
+  pingInterval: 1000,
+  pingTimeout: 10000,
+});
 app.use(
   session({
     name: "userSession",
@@ -194,19 +227,8 @@ app.use(
 );
 app.use(cookieParser(speakeasy.generateSecretASCII()));
 app.use(morgan("combined"));
-const server = https.createServer(httpsOptions, app);
-server.listen(port, (err) => {
-  if (err) throw err;
-  console.log("Server is running on port 3000");
-});
-const io = new Server(server, {
-  cors: { origin: "*" },
-  pingInterval: 1000,
-  pingTimeout: 10000,
-});
 
 io.on("connection", (socket) => {
-  console.log("a user connected");
   socket.onAny((event, ...args) => {
     console.log(event, args); //logging and debugging
   });
@@ -294,7 +316,7 @@ io.on("connection", (socket) => {
       (err, result) => {
         if (err) throw err;
         result = JSON.parse(JSON.stringify(result));
-        if(message.isFiltered){
+        if (message.isFiltered) {
           message.content = Filter.Clean(message.content);
         }
         io.to(message.room).emit("message", {
@@ -448,19 +470,20 @@ io.on("connection", (socket) => {
     }
   })
 
-  socket.on("incomingCall", (data) => {
-    io.to(`${data.room}`).emit("incomingCall", {
-      caller: data.caller,
-      receiver: data.receiver,
-    });
+  socket.on("callUser", (data) => {
+    io.to(`${data.currentRoom}`).emit("callResponse", data);
+  })
+
+  socket.on("answerCall", (data) => {
+    io.to(`${data.room}`).emit("callAccepted", data.signal);
   });
 
-  socket.on("acceptCall", (data) => {
-    io.to(`${data.room}`).emit("callAccepted");
+  socket.on("exchangePeer", (data) => {
+    io.to(`${data.room}`).emit("exchangePeer", data.peer);
   });
 
-  socket.on("rejectCall", (data) => {
-    io.to(`${data.room}`).emit("callRejected");
+  socket.on("getCallID", (data) => {
+    io.to(`${data.room}`).emit("callID", data.ID);
   });
 
   socket.on("disconnect", () => {
