@@ -1,8 +1,11 @@
 import Socket from "./Socket";
 import Cookies from "js-cookie";
 import { toastSuccess } from "./Toast";
+import { useState, useContext } from "react";
+import userContext from "./userData";
 
 export function MessageImageRecipient(props) {
+    const [user, setUser] = useContext(userContext);
     function deleteImage() {
         console.log(props.ID)
         const updateMessage = props.messageArray.map((message) => {
@@ -33,6 +36,13 @@ export function MessageImageRecipient(props) {
         });
         toastSuccess("Image(s) hidden");
     }
+    function reply(){
+        props.setReplyTo(props.sender ? user.user : user.receiverName);
+        props.setReplyMessage(props.src);
+        props.setIsReply(true);
+        props.setReplyID(props.ID);
+        props.setReplyType("image");
+    }
     return (<>
         <div className="imageWrap recipient">
             <div className="imageContainer recipient" style={{ gridTemplateColumns: `repeat(${Math.min(props.src.length, 3)},auto)` }}>
@@ -46,7 +56,7 @@ export function MessageImageRecipient(props) {
                 <div className="dot"></div>
                 <div className="imageOptionSelection recipient" style={{ height: 0 }}>
                     <div className="imageOption deleteImage" onClick={deleteImage}>Delete image(s)</div>
-                    <div className="imageOption"></div>
+                    <div className="imageOption replyImage" onClick = {reply}></div>
                 </div>
             </div>
         </div>
@@ -54,6 +64,7 @@ export function MessageImageRecipient(props) {
 }
 
 export function MessageImageSender(props) {
+    const [user, setUser] = useContext(userContext);
     function deleteImage() {
         const updateMessage = props.messageArray.map((message) => {
             if (Array.isArray(message) && message[0].ID === props.ID) {
@@ -83,6 +94,14 @@ export function MessageImageSender(props) {
         });
         toastSuccess("Image(s) deleted");
     }
+
+    function reply(){
+        props.setReplyTo(props.sender ? user.user : user.receiverName);
+        props.setReplyMessage(props.src);
+        props.setIsReply(true);
+        props.setReplyID(props.ID);
+        props.setReplyType("image");
+    }
     return (<>
         <div className="imageWrap sender">
             <div className="imageOptions sender">
@@ -91,7 +110,7 @@ export function MessageImageSender(props) {
                 <div className="dot"></div>
                 <div className="imageOptionSelection sender" style={{ height: 0 }}>
                     <div className="imageOption deleteImage" onClick={deleteImage}>Delete image(s)</div>
-                    <div className="imageOption"></div>
+                    <div className="imageOption replyImage" onClick ={reply}>Reply</div>
                 </div>
             </div>
             <div className="imageContainer" style={{ gridTemplateColumns: `repeat(${Math.min(props.src.length, 3)},auto)` }}>

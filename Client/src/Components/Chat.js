@@ -14,6 +14,7 @@ import { ChatSetting } from "./ChatSetting";
 import { IonIcon } from "@ionic/react";
 import * as Icon from "ionicons/icons";
 import { toastError, toastSuccess } from "./Toast";
+import Call from "./Call";
 
 export default function Chat() {
   const inputRef = useRef(null);
@@ -30,11 +31,16 @@ export default function Chat() {
   const [latestMessage, setLatestMessage] = useState({});
   const [files, setFiles] = useState([]);
   const [customFiles, setCustomFiles] = useState([]);
+  const [replyMessage, setReplyMessage] = useState("");
+  const [replyTo, setReplyTo] = useState("");
+  const [replyType, setReplyType] = useState("");
+  const [replyID, setReplyID] = useState(-1);
+  const [isReply, setIsReply] = useState(false);
   const [user, setUser] = useContext(userContext);
   const [startTimer, setStartTimer] = useState(false);
   const [Setting, setSetting] = useContext(ChatConfigContext);
   const [themeName, setThemeName] = useState("");
-  const dialingRef = useRef(null);
+  const replyRef = useRef(null);
   const callResponseRef = useRef(null);
   const callRef = useRef(null);
   let recordingTime = 0;
@@ -400,17 +406,72 @@ export default function Chat() {
       });
       inputRef.current.style.width = "128%";
       previewFileRef.current.style.width = "128%";
+      replyRef.current.style.width = "124.5%";
     } else {
       Object.values(iconRef.current).forEach((icon) => {
         icon.style.transform = "scale(1)";
       });
       inputRef.current.style.width = "100%";
       previewFileRef.current.style.width = "100%";
+      replyRef.current.style.width = "96.5%";
     }
   }
 
+  useEffect(() => {
+    if (replyMessage !== "") {
+      const replyToElement = document.createElement("div");
+      replyToElement.classList.add("replyTo");
+      replyToElement.innerHTML = "Replying to <strong>" + replyTo + "</strong>:";
+      replyRef.current.style.display = "flex";
+      replyRef.current.innerHTML = "";
+      replyRef.current.appendChild(replyToElement);
+      if (replyType === "text") {
+        const replyMessageElement = document.createElement("div");
+        replyMessageElement.classList.add("replyMessage");
+        replyMessageElement.innerHTML = replyMessage;
+        replyRef.current.appendChild(replyMessageElement);
+      }
+      else if (replyType === "image") {
+        const replyImagesElement = document.createElement("div");
+        replyImagesElement.classList.add("replyImages");
+        replyImagesElement.style.gridTemplateColumns = `repeat(${Math.min(replyMessage.length, 3)},auto)`;
+        if (Array.isArray(replyMessage)) {
+          replyMessage.forEach(image => {
+            const replyImageElement = document.createElement("img");
+            replyImageElement.classList.add("replyImg");
+            replyImageElement.src = image.file;
+            replyImagesElement.appendChild(replyImageElement);
+          })
+        }
+        else {
+          const replyImageElement = document.createElement("img");
+          replyImageElement.classList.add("replyImg");
+          replyImageElement.src = replyMessage.file;
+          replyImagesElement.appendChild(replyImageElement);
+        }
+        replyRef.current.classList.add("media")
+        replyRef.current.appendChild(replyImagesElement);
+      }
+      else if(replyType === "video"){
+        const replyVideoElement = document.createElement("video");
+        replyVideoElement.classList.add("replyVideo");
+        replyVideoElement.src = replyMessage;
+        replyVideoElement.muted = true;
+        replyVideoElement.controls = true;
+        replyVideoElement.preload = "auto";
+        replyVideoElement.autoplay = true;
+        replyRef.current.classList.add("media")
+        replyRef.current.appendChild(replyVideoElement);
+      }
+    }
+    else {
+      replyRef.current.style.display = "none";
+    }
+  }, [replyMessage, replyTo, replyType])
+
   return (
     <>
+      {/* <Call caller = {2} callee = {1}></Call> */}
       <ChatSetting ref={generalSettingRef} />
       <RoomNav
         message={message}
@@ -471,6 +532,34 @@ export default function Chat() {
                     url={file.url} type={file.type} name={file.name} size={convertFileSize(file.size)} />
               })}
             </div>
+            <div ref={replyRef} className="replyBox media">
+              {/* <div className="replyTo">Replying to <strong>Seapeas</strong>:</div> */}
+              {/* <div className="replyMessage">Lorem ipsum dolor sit amet,
+                consectetur adipiscing elit. Aenean iaculis nibh
+                sed justo gravida tincidunt. Mauris fermentum,
+                nunc sit amet rutrum posuere, metus augue facilisis
+                ex, eget maximus massa arcu in velit. Praesent sagittis
+                nisi vitae est feugiat placerat a in metus. Integer
+                iaculis ligula ac porta sagittis. Ut nec volutpat odio.
+                Ut non auctor elit, vel facilisis tortor. Pellentesque
+                iaculis ex at velit sollicitudin sollicitudin. Vivamus
+                odio massa, aliquam vel magna ultricies, bibendum placerat
+                ligula. Nam pharetra malesuada leo. Aliquam pellentesque eros
+                mauris, quis maximus odio scelerisque id. Etiam venenatis arcu
+                sit amet aliquet tristique.</div> */}
+              {/* <div className="replyImages"> */}
+                {/* <img alt="" className="replyImg" src="https://placekitten.com/200/300"></img> */}
+                {/* <img alt = "" className="replyImg" src = "https://placekitten.com/200/300"></img>
+                  <img alt = "" className="replyImg" src = "https://placekitten.com/200/300"></img>
+                  <img alt = "" className="replyImg" src = "https://placekitten.com/200/300"></img>
+                  <img alt = "" className="replyImg" src = "https://placekitten.com/200/300"></img>
+                  <img alt = "" className="replyImg" src = "https://placekitten.com/200/300"></img> */}
+              {/* </div> */}
+              {/* <video src="/video (2160p).mp4" className="replyVideo" muted autoPlay controls
+                  preload="auto"
+                ></video> */}
+              {/* <audio controls src="/Sounds/teams.mp3"></audio> */}
+            </div>
             <textarea
               ref={inputRef}
               spellCheck="false"
@@ -503,6 +592,11 @@ export default function Chat() {
                   messageArray={message}
                   allowScroll={allowScroll}
                   setAllowScroll={setAllowScroll}
+                  setReplyMessage={setReplyMessage}
+                  setReplyTo={setReplyTo}
+                  setIsReply={setIsReply}
+                  setReplyID={setReplyID}
+                  setReplyType={setReplyType}
                 /> : imageExtension.some((ext) => !Array.isArray(mess) ? ext === mess.extension.toLowerCase() : ext === mess[0].extension.toLowerCase()) ?
                   <MessageImage key={Math.random() * (9999999999 - 0)}
                     ID={Array.isArray(mess) ? mess[0].ID : mess.ID}
@@ -513,8 +607,15 @@ export default function Chat() {
                     senderHide={Array.isArray(mess) ? mess[0].senderHide : mess.senderHide}
                     recipientHide={Array.isArray(mess) ? mess[0].recipientHide : mess.recipientHide}
                     isArray={Array.isArray(mess)}
+                    setAllowScroll={setAllowScroll}
+                    setReplyMessage={setReplyMessage}
+                    setReplyTo={setReplyTo}
+                    setIsReply={setIsReply}
+                    setReplyID={setReplyID}
+                    setReplyType={setReplyType}
                     uuid={Array.isArray(mess) ? mess[0].uuid : mess.uuid}
-                    src={mess} />
+                    src={mess}
+                  />
                   :
                   videoExtension.some((ext) => !Array.isArray(mess) ? ext === mess.extension.toLowerCase() : ext === mess[0].extension.toLowerCase()) || mess.type === "youtube" ?
                     <Video url={mess.file} ID={Array.isArray(mess) ? mess[0].ID : mess.ID}
@@ -523,6 +624,12 @@ export default function Chat() {
                       setMessage={setMessage}
                       timestamp={Array.isArray(mess) ? mess[0].timestamp : mess.timestamp}
                       type={mess.type}
+                      setAllowScroll={setAllowScroll}
+                      setReplyMessage={setReplyMessage}
+                      setReplyTo={setReplyTo}
+                      setIsReply={setIsReply}
+                      setReplyID={setReplyID}
+                      setReplyType={setReplyType}
                       sender={Array.isArray(mess) ? parseInt(mess[0].sender) === user.ID : parseInt(mess.sender) === user.ID}
                       senderHide={Array.isArray(mess) ? mess[0].senderHide : mess.senderHide}
                       recipientHide={Array.isArray(mess) ? mess[0].recipientHide : mess.recipientHide}
@@ -534,17 +641,28 @@ export default function Chat() {
                         ID={mess.ID}
                         messageArray={message}
                         setMessage={setMessage}
+                        setAllowScroll={setAllowScroll}
+                        setReplyMessage={setReplyMessage}
+                        setReplyTo={setReplyTo}
+                        setIsReply={setIsReply}
+                        setReplyID={setReplyID}
+                        setReplyType={setReplyType}
                         senderHide={mess.senderHide}
                         sender={parseInt(mess.sender) === user.ID}
                         key={Math.random() * (9999999999 - 0)}
                         src={mess.file}
-                        setAllowScroll={setAllowScroll}
                       ></Audio>
                       :
                       <MessageFile recipientHide={mess.recipientHide}
                         ID={mess.ID}
                         messageArray={message}
                         setMessage={setMessage}
+                        setAllowScroll={setAllowScroll}
+                        setReplyMessage={setReplyMessage}
+                        setReplyTo={setReplyTo}
+                        setIsReply={setIsReply}
+                        setReplyID={setReplyID}
+                        setReplyType={setReplyType}
                         senderHide={mess.senderHide} sender={parseInt(mess.sender) === user.ID} filename={mess.filename} key={Math.random() * (9999999999 - 0)} size={convertFileSize(mess.size)} mimetype={mess.mimetype} name={mess.originalname} type={mess.extension} />
             );
           })}

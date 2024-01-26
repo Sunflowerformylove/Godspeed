@@ -470,21 +470,9 @@ io.on("connection", (socket) => {
     }
   })
 
-  socket.on("callUser", (data) => {
-    io.to(`${data.currentRoom}`).emit("callResponse", data);
+  socket.on("handshake", (data) => {
+    io.to(`${data.room}`).emit("handshake", data);
   })
-
-  socket.on("answerCall", (data) => {
-    io.to(`${data.room}`).emit("callAccepted", data.signal);
-  });
-
-  socket.on("exchangePeer", (data) => {
-    io.to(`${data.room}`).emit("exchangePeer", data.peer);
-  });
-
-  socket.on("getCallID", (data) => {
-    io.to(`${data.room}`).emit("callID", data.ID);
-  });
 
   socket.on("disconnect", () => {
     socket.broadcast.emit("setStatus", {

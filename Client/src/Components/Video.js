@@ -2,12 +2,11 @@ import ReactPlayer from 'react-player';
 import Socket from './Socket'
 import Cookies from 'js-cookie'
 import "../Style/Video.css"
+import userContext from './userData';
+import { useContext } from 'react';
 
 export function VideoSender(props) {
-    function blurVideo() {
-
-    }
-
+    const [user, setUser] = useContext(userContext);
     function deleteVideo() {
         const updatedMessage = props.messageArray.filter((message) => message.id !== props.id);
         props.setMessage(updatedMessage);
@@ -23,6 +22,15 @@ export function VideoSender(props) {
 
 
     }
+
+    function reply(){
+        props.setReplyTo(props.sender ? user.user : user.receiverName);
+        props.setReplyMessage(props.url);
+        props.setIsReply(true);
+        props.setReplyID(props.ID);
+        props.setReplyType("video");
+    }
+
     return (<>
         <div className="videoContainer sender">
             <div className="options">
@@ -30,7 +38,7 @@ export function VideoSender(props) {
                 <div className="dot"></div>
                 <div className="dot"></div>
                 <div className="optionsSelection sender" style={{ height: 0 }}>
-                    <div className="option">Blur this video</div>
+                    <div className="option" onClick = {reply}>Reply</div>
                     <div onClick={deleteVideo} className="option">Delete this video</div>
                     <div className="option">Save video</div>
                 </div>
@@ -41,7 +49,9 @@ export function VideoSender(props) {
                         crossOrigin: "anonymous",
                     }
                 }
-            }} className="video sender" url={props.url} controls muted />
+            }}
+            playsinline={true}
+            className="video sender" url={props.url} controls muted />
         </div>
     </>
     )
