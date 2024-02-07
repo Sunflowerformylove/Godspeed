@@ -56,72 +56,6 @@
     background-image: linear-gradient(to right, #b92b27 60%, #1565c0);
     border-top: #cccccc 4px solid;
 }
-.replyBox{
-    width: 96.5%;
-    height: 7rem;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: space-evenly;
-    font-size: 1.4rem;
-    padding: 0 20px;
-    background-color: grey;
-    z-index: 2;
-    border-radius: 20px 20px 0px 0px;
-    transition: width 0.5s linear;
-}
-
-.replyBox.light{
-    background-color: #f3f3f5;
-    color: black;
-    border: 2px solid #cccfff;
-}
-
-.replyBox.audio{
-    height: 9rem;
-}
-
-.replyBox.media{
-    height: 30rem;
-    width: 96.5%;
-}
-
-.replyTo{
-    font-size: 1rem;
-}
-
-.replyMessage{
-    overflow: scroll;
-    max-height: 50%;
-    opacity: 0.8;
-}
-
-.replyImages{
-    height: 70%;
-    max-height: 70%;
-    width: 50%;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    overflow: scroll;
-    row-gap: 1.5rem;
-}
-
-.replyImg{
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 10px;
-    cursor: pointer;
-    display: block;
-}
-
-.replyVideo{
-    width: 60%;
-    height: 80%;
-    object-fit: cover;
-    object-position: center;
-    border-radius: 10px;
-}
 
 #textInput {
     height: 2.5rem;
@@ -202,30 +136,29 @@
 .bubble {
     width: -moz-fit-content;
     width: fit-content;
-    max-width: 40%;
+    max-width: 100%;
     padding: 1rem;
     font-size: 1.6rem;
     font-weight: 400;
     font-family: "Source Serif Pro", sans-serif;
     display: flex;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
+    border-radius: 10px;
+}
+
+.messageReply + .bubble{
+    border-radius: 0 0 20px 20px;
 }
 
 .bubble.recipient {
     align-self: flex-start;
     background-color: #3c91ee;
     color: white;
-    border-radius: 10px;
-    margin-left: 2%;
 }
 
 .bubble.sender {
     align-self: flex-end;
     background-color: #c9c9c9;
     color: black;
-    border-radius: 10px;
-    margin-right: 2%;
 }
 
 .bubble.deleted.sender {

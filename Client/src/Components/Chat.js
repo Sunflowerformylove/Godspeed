@@ -13,8 +13,9 @@ import { ChatConfigContext } from "./Setting";
 import { ChatSetting } from "./ChatSetting";
 import { IonIcon } from "@ionic/react";
 import * as Icon from "ionicons/icons";
-import { toastError, toastSuccess } from "./Toast";
-import Call from "./Call";
+import { toastSuccess } from "./Toast";
+import Reply from "./Reply";
+// import Call from "./Call";
 
 export default function Chat() {
   const inputRef = useRef(null);
@@ -64,6 +65,7 @@ export default function Chat() {
     ".avi",
     ".mov",
     ".flv",
+    ".mkv",
     ".wmv"];
   const audioExtension = [
     ".mp3",
@@ -346,7 +348,10 @@ export default function Chat() {
           senderID: user.ID,
           receiverID: user.receiver,
           room: Cookies.get("currentRoom"),
-          isFiltered: JSON.parse(Setting.ProfanityFilter)
+          isFiltered: JSON.parse(Setting.ProfanityFilter),
+          reply: isReply ? replyID : -1,
+          type: replyType,
+          replyMessage: replyMessage,
         });
         const receiver = await axios("https://localhost:3000/api/user", {
           method: "POST",
@@ -389,6 +394,7 @@ export default function Chat() {
       formData.append("sender", user.ID);
       formData.append("receiver", user.receiver);
       formData.append("room", Cookies.get("currentRoom"));
+      formData.append("reply", isReply ? replyID : -1);
       axios.post("https://localhost:3000/api/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -416,58 +422,6 @@ export default function Chat() {
       replyRef.current.style.width = "96.5%";
     }
   }
-
-  useEffect(() => {
-    if (replyMessage !== "") {
-      const replyToElement = document.createElement("div");
-      replyToElement.classList.add("replyTo");
-      replyToElement.innerHTML = "Replying to <strong>" + replyTo + "</strong>:";
-      replyRef.current.style.display = "flex";
-      replyRef.current.innerHTML = "";
-      replyRef.current.appendChild(replyToElement);
-      if (replyType === "text") {
-        const replyMessageElement = document.createElement("div");
-        replyMessageElement.classList.add("replyMessage");
-        replyMessageElement.innerHTML = replyMessage;
-        replyRef.current.appendChild(replyMessageElement);
-      }
-      else if (replyType === "image") {
-        const replyImagesElement = document.createElement("div");
-        replyImagesElement.classList.add("replyImages");
-        replyImagesElement.style.gridTemplateColumns = `repeat(${Math.min(replyMessage.length, 3)},auto)`;
-        if (Array.isArray(replyMessage)) {
-          replyMessage.forEach(image => {
-            const replyImageElement = document.createElement("img");
-            replyImageElement.classList.add("replyImg");
-            replyImageElement.src = image.file;
-            replyImagesElement.appendChild(replyImageElement);
-          })
-        }
-        else {
-          const replyImageElement = document.createElement("img");
-          replyImageElement.classList.add("replyImg");
-          replyImageElement.src = replyMessage.file;
-          replyImagesElement.appendChild(replyImageElement);
-        }
-        replyRef.current.classList.add("media")
-        replyRef.current.appendChild(replyImagesElement);
-      }
-      else if(replyType === "video"){
-        const replyVideoElement = document.createElement("video");
-        replyVideoElement.classList.add("replyVideo");
-        replyVideoElement.src = replyMessage;
-        replyVideoElement.muted = true;
-        replyVideoElement.controls = true;
-        replyVideoElement.preload = "auto";
-        replyVideoElement.autoplay = true;
-        replyRef.current.classList.add("media")
-        replyRef.current.appendChild(replyVideoElement);
-      }
-    }
-    else {
-      replyRef.current.style.display = "none";
-    }
-  }, [replyMessage, replyTo, replyType])
 
   return (
     <>
@@ -532,34 +486,19 @@ export default function Chat() {
                     url={file.url} type={file.type} name={file.name} size={convertFileSize(file.size)} />
               })}
             </div>
-            <div ref={replyRef} className="replyBox media">
-              {/* <div className="replyTo">Replying to <strong>Seapeas</strong>:</div> */}
-              {/* <div className="replyMessage">Lorem ipsum dolor sit amet,
-                consectetur adipiscing elit. Aenean iaculis nibh
-                sed justo gravida tincidunt. Mauris fermentum,
-                nunc sit amet rutrum posuere, metus augue facilisis
-                ex, eget maximus massa arcu in velit. Praesent sagittis
-                nisi vitae est feugiat placerat a in metus. Integer
-                iaculis ligula ac porta sagittis. Ut nec volutpat odio.
-                Ut non auctor elit, vel facilisis tortor. Pellentesque
-                iaculis ex at velit sollicitudin sollicitudin. Vivamus
-                odio massa, aliquam vel magna ultricies, bibendum placerat
-                ligula. Nam pharetra malesuada leo. Aliquam pellentesque eros
-                mauris, quis maximus odio scelerisque id. Etiam venenatis arcu
-                sit amet aliquet tristique.</div> */}
-              {/* <div className="replyImages"> */}
-                {/* <img alt="" className="replyImg" src="https://placekitten.com/200/300"></img> */}
-                {/* <img alt = "" className="replyImg" src = "https://placekitten.com/200/300"></img>
-                  <img alt = "" className="replyImg" src = "https://placekitten.com/200/300"></img>
-                  <img alt = "" className="replyImg" src = "https://placekitten.com/200/300"></img>
-                  <img alt = "" className="replyImg" src = "https://placekitten.com/200/300"></img>
-                  <img alt = "" className="replyImg" src = "https://placekitten.com/200/300"></img> */}
-              {/* </div> */}
-              {/* <video src="/video (2160p).mp4" className="replyVideo" muted autoPlay controls
-                  preload="auto"
-                ></video> */}
-              {/* <audio controls src="/Sounds/teams.mp3"></audio> */}
-            </div>
+            <Reply 
+            setIsReply={setIsReply}
+            setReplyID={setReplyID}
+            setReplyMessage={setReplyMessage}
+            setReplyTo={setReplyTo}
+            setReplyType={setReplyType}
+            isReply={isReply}
+            replyID={replyID}
+            replyMessage={replyMessage}
+            replyTo={replyTo}
+            replyType={replyType}
+            ref={replyRef}
+            ></Reply>
             <textarea
               ref={inputRef}
               spellCheck="false"

@@ -253,7 +253,7 @@ io.on("connection", (socket) => {
         6,
         options.receiver,
         options.sender
-      )} (ID INT NOT NULL AUTO_INCREMENT, sender VARCHAR(255) NOT NULL, content LONGTEXT NOT NULL, timestamp VARCHAR(255), recipientHide TINYINT DEFAULT 0, senderHide TINYINT DEFAULT 0, type VARCHAR(255), filename VARCHAR(255), originalname VARCHAR(255), extension VARCHAR(255), location VARCHAR(255), size INT, mimetype VARCHAR(255), uuid VARCHAR(255), PRIMARY KEY (ID))`
+      )} (ID INT NOT NULL AUTO_INCREMENT, sender VARCHAR(255) NOT NULL, content LONGTEXT NOT NULL, timestamp VARCHAR(255), recipientHide TINYINT DEFAULT 0, senderHide TINYINT DEFAULT 0, type VARCHAR(255), filename VARCHAR(255), originalname VARCHAR(255), extension VARCHAR(255), location VARCHAR(255), size INT, mimetype VARCHAR(255), uuid VARCHAR(255), reply INT, replyType VARCHAR(255), replyMessage LONGTEXT NOT NULL, PRIMARY KEY (ID))`
     );
     database.query(
       `REPLACE INTO convos.${options.sender
@@ -308,8 +308,8 @@ io.on("connection", (socket) => {
   socket.on("message", (message) => {
     database.query(
       `INSERT INTO message.${message.room
-      } (sender, content, timestamp, type) VALUES ('${message.senderID
-      }', ${database.escape(message.content)}, ${Date.now()}, '${checkURL(message.content) ? "url" : checkYoutubeURL(message.content) ? "youtube" : "text"}')`
+      } (sender, content, timestamp, type, reply) VALUES ('${message.senderID
+      }', ${database.escape(message.content)}, ${Date.now()}, '${checkURL(message.content) ? "url" : checkYoutubeURL(message.content) ? "youtube" : "text"}', '${message.reply}')`
     );
     database.query(
       `SELECT ID, recipientHide, senderHide FROM message.${message.room} WHERE sender = '${message.senderID}' ORDER BY timestamp DESC LIMIT 1`,
@@ -326,6 +326,7 @@ io.on("connection", (socket) => {
           hideRecipient: result[0].recipientHide,
           hideSender: result[0].senderHide,
           type: checkURL(message.content) ? "url" : checkYoutubeURL(message.content) ? "youtube" : "text",
+          reply: message.reply
         });
       }
     );
@@ -658,7 +659,7 @@ app.post("/api/upload", upload.array("file"), (request, response) => {
   const ID = uuidv4();
   console.log(file)
   file.forEach((file) => {
-    database.query(`INSERT INTO message.${data.room} (sender, content, timestamp,type,filename,originalname,extension,location,mimetype,size, uuid) VALUES(${database.escape(data.sender)},${database.escape(file.destination)},${database.escape(now)},"file",${database.escape(file.filename)},'${file.originalname}','${path.extname(file.originalname)}',${database.escape(file.path)},${database.escape(file.mimetype)},${database.escape(file.size)},${database.escape(ID)})`, (err) => {
+    database.query(`INSERT INTO message.${data.room} (sender, content, timestamp,type,filename,originalname,extension,location,mimetype,size, uuid, reply) VALUES(${database.escape(data.sender)},${database.escape(file.destination)},${database.escape(now)},"file",${database.escape(file.filename)},'${file.originalname}','${path.extname(file.originalname)}',${database.escape(file.path)},${database.escape(file.mimetype)},${database.escape(file.size)},${database.escape(ID)}, ${data.reply})`, (err) => {
       if (err) {
         response.json({ status: 500 });
       }

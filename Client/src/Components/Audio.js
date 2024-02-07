@@ -1,8 +1,11 @@
 import "../Style/Chat.css"
 import Socket from "./Socket";
 import Cookies from "js-cookie";
+import userContext from "./userData";
+import { useContext } from "react";
 
 export function MessageAudioSender(props) {
+    const [user, setUser] = useContext(userContext);
     function deleteFunction() {
         const updatedMessage = props.messageArray.map((message) => {
             if (message.uuid === props.uuid) {
@@ -24,6 +27,13 @@ export function MessageAudioSender(props) {
             location: props.location,
         });
     }
+    function reply(){
+        props.setReplyTo(props.sender ? user.user : user.receiverName);
+        props.setReplyMessage(props.src);
+        props.setIsReply(true);
+        props.setReplyID(props.ID);
+        props.setReplyType("audio");
+    }
     return (<>
         <div className="audioContainer sender">
             <div className="options sender">
@@ -35,6 +45,7 @@ export function MessageAudioSender(props) {
                         Retrieve this audio
                     </div>
                     <div className="option copyMessage">Report for violation</div>
+                    <div className="option replyMessage" onClick = {reply}>Reply</div>
                 </div>
             </div>
             <audio src={props.src} controls className="audio"></audio>
@@ -43,6 +54,7 @@ export function MessageAudioSender(props) {
 }
 
 export function MessageAudioRecipient(props) {
+    const [user, setUser] = useContext(userContext);
     function deleteFunction() {
         const updatedMessage = props.messageArray.map((message) => {
             if (message.uuid === props.uuid) {
@@ -63,6 +75,13 @@ export function MessageAudioRecipient(props) {
             location: props.location,
         });
     }
+    function reply(){
+        props.setReplyTo(props.sender ? user.user : user.receiverName);
+        props.setReplyMessage(props.src);
+        props.setIsReply(true);
+        props.setReplyID(props.ID);
+        props.setReplyType("audio");
+    }
     return (<>
         <div className="audioContainer recipient">
             <audio src={props.src} controls className="audio"></audio>
@@ -75,6 +94,7 @@ export function MessageAudioRecipient(props) {
                         Hide this audio
                     </div>
                     <div className="option copyMessage">Report for violation</div>
+                    <div className="option replyMessage" onClick = {reply}>Reply</div>
                 </div>
             </div>
         </div>

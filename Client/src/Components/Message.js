@@ -1,14 +1,14 @@
 import "../Style/Chat.css";
 import Socket from "./Socket";
 import Cookies from "js-cookie";
-import { useState, useEffect, useContext } from "react";
-import { toastError, toastSuccess } from "./Toast";
-import axios from "axios";
+import { useState, useContext } from "react";
+import { toastSuccess } from "./Toast";
 import { VideoSender, VideoRecipient } from "./Video";
 import { MessageImageRecipient, MessageImageSender } from "./Image";
 import { MessageFileRecipient, MessageFileSender } from "./File";
 import { MessageAudioRecipient, MessageAudioSender } from "./Audio";
 import userContext from "./userData";
+import MessageReply from "./MessageReply";
 // import { Swiper, SwiperSlide } from 'swiper/react';
 
 export function MessageRecipient(props) {
@@ -27,7 +27,7 @@ export function MessageRecipient(props) {
     navigator.clipboard.writeText(props.message);
     toastSuccess("Copied to clipboard");
   }
-  function reply(){
+  function reply() {
     props.setReplyTo(props.sender ? user.user : user.receiverName);
     props.setReplyMessage(props.message);
     props.setIsReply(true);
@@ -36,7 +36,10 @@ export function MessageRecipient(props) {
   return (
     <>
       <div className="message">
-        <div className="bubble recipient">{props.message}</div>
+        <div className="bubbleWrap">
+          <div className="messageReply">This is a placeholder</div>
+          <div className="bubble recipient">{props.message}</div>
+        </div>
         <div className="options">
           <div className="dot"></div>
           <div className="dot"></div>
@@ -46,7 +49,7 @@ export function MessageRecipient(props) {
               Erase this message
             </div>
             <div className="option copyMessage" onClick={copyFunction}>Copy this message</div>
-            <div className="option replyMessage" onClick = {reply}>Reply</div>
+            <div className="option replyMessage" onClick={reply}>Reply</div>
           </div>
         </div>
       </div>
@@ -82,7 +85,7 @@ export function MessageSender(props) {
     toastSuccess("Copied to clipboard");
   }
 
-  function reply(){
+  function reply() {
     props.setReplyTo(props.sender ? user.user : user.receiverName);
     props.setReplyMessage(props.message);
     props.setIsReply(true);
@@ -103,7 +106,7 @@ export function MessageSender(props) {
               Erase this message
             </div>
             <div className="option copyMessage" onClick={copyFunction}>Copy this message</div>
-            <div className="option replyMessage" onClick = {reply}>Reply</div>
+            <div className="option replyMessage" onClick={reply}>Reply</div>
           </div>
         </div>
       </div>
@@ -259,13 +262,13 @@ export function Video(props) {
         sender={props.sender}
         recipientHide={props.recipientHide}
         setAllowScroll={props.setAllowScroll}
-        url={props.url} 
+        url={props.url}
         setReplyID={props.setReplyID}
         setReplyMessage={props.setReplyMessage}
         setReplyTo={props.setReplyTo}
         setIsReply={props.setIsReply}
         setReplyType={props.setReplyType}
-        />
+      />
     );
   } else if (!props.sender && !props.recipientHide && !props.senderHide) {
     return (
@@ -283,7 +286,7 @@ export function Video(props) {
         setReplyTo={props.setReplyTo}
         setIsReply={props.setIsReply}
         setReplyType={props.setReplyType}
-        />
+      />
     );
   } else if (props.sender && props.senderHide) {
     return <MessageDeletedSender />;
@@ -304,7 +307,13 @@ export function Audio(props) {
         senderHide={props.senderHide}
         sender={props.sender}
         recipientHide={props.recipientHide}
-        setAllowScroll={props.setAllowScroll} />
+        setAllowScroll={props.setAllowScroll}
+        setReplyID={props.setReplyID}
+        setReplyMessage={props.setReplyMessage}
+        setReplyTo={props.setReplyTo}
+        setIsReply={props.setIsReply}
+        setReplyType={props.setReplyType}
+      />
     );
   } else if (!props.sender && !props.recipientHide && !props.senderHide) {
     return (
@@ -317,7 +326,13 @@ export function Audio(props) {
         senderHide={props.senderHide}
         sender={props.sender}
         recipientHide={props.recipientHide}
-        setAllowScroll={props.setAllowScroll} />
+        setAllowScroll={props.setAllowScroll}
+        setReplyID={props.setReplyID}
+        setReplyMessage={props.setReplyMessage}
+        setReplyTo={props.setReplyTo}
+        setIsReply={props.setIsReply}
+        setReplyType={props.setReplyType}
+      />
     );
   } else if (props.sender && props.senderHide) {
     return <MessageDeletedSender />;
