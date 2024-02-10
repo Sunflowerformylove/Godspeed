@@ -31,15 +31,13 @@ export function MessageRecipient(props) {
     props.setReplyTo(props.sender ? user.user : user.receiverName);
     props.setReplyMessage(props.message);
     props.setIsReply(true);
-    props.setReplyID(props.ID);
+    props.setReplyID(props.senderID)
   }
   return (
     <>
+      <MessageReply replyMessage={"hello"} replyMessageType="text" sender={user.user === "Seapeas"}></MessageReply>
       <div className="message">
-        <div className="bubbleWrap">
-          <div className="messageReply">This is a placeholder</div>
-          <div className="bubble recipient">{props.message}</div>
-        </div>
+        <div className="bubble recipient">{props.message}</div>
         <div className="options">
           <div className="dot"></div>
           <div className="dot"></div>
@@ -89,12 +87,13 @@ export function MessageSender(props) {
     props.setReplyTo(props.sender ? user.user : user.receiverName);
     props.setReplyMessage(props.message);
     props.setIsReply(true);
-    props.setReplyID(props.ID);
+    props.setReplyID(props.senderID)
     props.setReplyType("text");
   }
 
   return (
     <>
+      <MessageReply replyMessage={"hello"} replyMessageType="text" sender={user.user}></MessageReply>
       <div className="message sender">
         <div className="bubble sender">{props.message}</div>
         <div className="options sender">
@@ -141,6 +140,7 @@ export default function Message(props) {
         allowScroll={props.allowScroll}
         setAllowScroll={props.setAllowScroll}
         ID={props.ID}
+        senderID={props.senderID}
         sender={props.sender}
         message={props.message}
         setMessage={props.setMessage}
@@ -158,6 +158,7 @@ export default function Message(props) {
         allowScroll={props.allowScroll}
         setAllowScroll={props.setAllowScroll}
         ID={props.ID}
+        senderID={props.senderID}
         sender={props.sender}
         message={props.message}
         setMessage={props.setMessage}
@@ -181,6 +182,7 @@ export function MessageImage(props) {
     return (
       <MessageImageSender
         key={Math.random() * (9999999999 - 0)}
+        senderID={props.senderID}
         isArray={props.isArray}
         src={props.src}
         messageArray={props.messageArray}
@@ -199,6 +201,7 @@ export function MessageImage(props) {
     return (
       <MessageImageRecipient
         key={Math.random() * (9999999999 - 0)}
+        senderID={props.senderID}
         isArray={props.isArray}
         src={props.src}
         ID={props.ID}
@@ -224,6 +227,7 @@ export function MessageFile(props) {
   if (props.sender && !props.senderHide) {
     return (
       <MessageFileSender
+        senderID={props.senderID}
         key={Math.random() * (9999999999 - 0)}
         filename={props.filename}
         size={props.size}
@@ -235,6 +239,7 @@ export function MessageFile(props) {
   } else if (!props.sender && !props.recipientHide && !props.senderHide) {
     return (
       <MessageFileRecipient
+        senderID={props.senderID}
         key={Math.random() * (9999999999 - 0)}
         filename={props.filename}
         size={props.size}
@@ -254,6 +259,7 @@ export function Video(props) {
   if (props.sender && !props.senderHide) {
     return (
       <VideoSender
+        senderID={props.senderID}
         uuid={props.uuid}
         ID={props.ID}
         messageArray={props.messageArray}
@@ -274,6 +280,7 @@ export function Video(props) {
     return (
       <VideoRecipient uuid={props.uuid}
         ID={props.ID}
+        senderID = {props.senderID}
         messageArray={props.messageArray}
         setMessage={props.setMessage}
         senderHide={props.senderHide}
@@ -302,6 +309,7 @@ export function Audio(props) {
         uuid={props.uuid}
         src={props.src}
         ID={props.ID}
+        senderID = {props.senderID}
         messageArray={props.messageArray}
         setMessage={props.setMessage}
         senderHide={props.senderHide}

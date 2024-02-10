@@ -349,6 +349,7 @@ export default function Chat() {
           receiverID: user.receiver,
           room: Cookies.get("currentRoom"),
           isFiltered: JSON.parse(Setting.ProfanityFilter),
+          replier: isReply ? user.ID : -1,
           reply: isReply ? replyID : -1,
           type: replyType,
           replyMessage: replyMessage,
@@ -523,6 +524,7 @@ export default function Chat() {
                 <Message
                   key={mess.ID}
                   ID={mess.ID}
+                  senderID={mess.sender}
                   sender={parseInt(mess.sender) === user.ID}
                   message={mess.content}
                   recipientHide={mess.recipientHide}
@@ -539,6 +541,7 @@ export default function Chat() {
                 /> : imageExtension.some((ext) => !Array.isArray(mess) ? ext === mess.extension.toLowerCase() : ext === mess[0].extension.toLowerCase()) ?
                   <MessageImage key={Math.random() * (9999999999 - 0)}
                     ID={Array.isArray(mess) ? mess[0].ID : mess.ID}
+                    senderID={mess.sender}
                     messageArray={message}
                     setMessage={setMessage}
                     timestamp={Array.isArray(mess) ? mess[0].timestamp : mess.timestamp}
@@ -559,6 +562,7 @@ export default function Chat() {
                   videoExtension.some((ext) => !Array.isArray(mess) ? ext === mess.extension.toLowerCase() : ext === mess[0].extension.toLowerCase()) || mess.type === "youtube" ?
                     <Video url={mess.file} ID={Array.isArray(mess) ? mess[0].ID : mess.ID}
                       key={mess.ID}
+                      senderID={mess.sender}
                       messageArray={message}
                       setMessage={setMessage}
                       timestamp={Array.isArray(mess) ? mess[0].timestamp : mess.timestamp}
@@ -578,6 +582,7 @@ export default function Chat() {
                       <Audio recipientHide={mess.recipientHide}
                         uuid={mess.uuid}
                         ID={mess.ID}
+                        senderID={mess.sender}
                         messageArray={message}
                         setMessage={setMessage}
                         setAllowScroll={setAllowScroll}
@@ -594,6 +599,7 @@ export default function Chat() {
                       :
                       <MessageFile recipientHide={mess.recipientHide}
                         ID={mess.ID}
+                        senderID={mess.sender}
                         messageArray={message}
                         setMessage={setMessage}
                         setAllowScroll={setAllowScroll}

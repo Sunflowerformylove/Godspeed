@@ -1,13 +1,12 @@
 import Socket from "./Socket";
 import Cookies from "js-cookie";
 import { toastSuccess } from "./Toast";
-import { useState, useContext } from "react";
+import { useContext } from "react";
 import userContext from "./userData";
 
 export function MessageImageRecipient(props) {
     const [user, setUser] = useContext(userContext);
     function deleteImage() {
-        console.log(props.ID)
         const updateMessage = props.messageArray.map((message) => {
             if (Array.isArray(message) && message[0].ID === props.ID) {
                 console.log(message[0].ID);
@@ -36,7 +35,7 @@ export function MessageImageRecipient(props) {
         });
         toastSuccess("Image(s) hidden");
     }
-    function reply(){
+    function reply() {
         props.setReplyTo(props.sender ? user.user : user.receiverName);
         props.setReplyMessage(props.src);
         props.setIsReply(true);
@@ -56,7 +55,7 @@ export function MessageImageRecipient(props) {
                 <div className="dot"></div>
                 <div className="imageOptionSelection recipient" style={{ height: 0 }}>
                     <div className="imageOption deleteImage" onClick={deleteImage}>Delete image(s)</div>
-                    <div className="imageOption replyImage" onClick = {reply}></div>
+                    <div className="imageOption replyImage" onClick={reply}></div>
                 </div>
             </div>
         </div>
@@ -95,7 +94,7 @@ export function MessageImageSender(props) {
         toastSuccess("Image(s) deleted");
     }
 
-    function reply(){
+    function reply() {
         props.setReplyTo(props.sender ? user.user : user.receiverName);
         props.setReplyMessage(props.src);
         props.setIsReply(true);
@@ -110,7 +109,7 @@ export function MessageImageSender(props) {
                 <div className="dot"></div>
                 <div className="imageOptionSelection sender" style={{ height: 0 }}>
                     <div className="imageOption deleteImage" onClick={deleteImage}>Delete image(s)</div>
-                    <div className="imageOption replyImage" onClick ={reply}>Reply</div>
+                    <div className="imageOption replyImage" onClick={reply}>Reply</div>
                 </div>
             </div>
             <div className="imageContainer" style={{ gridTemplateColumns: `repeat(${Math.min(props.src.length, 3)},auto)` }}>

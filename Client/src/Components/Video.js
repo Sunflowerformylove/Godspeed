@@ -23,11 +23,11 @@ export function VideoSender(props) {
 
     }
 
-    function reply(){
+    function reply() {
         props.setReplyTo(props.sender ? user.user : user.receiverName);
         props.setReplyMessage(props.url);
         props.setIsReply(true);
-        props.setReplyID(props.ID);
+        props.setReplyID(props.senderID);
         props.setReplyType("video");
     }
 
@@ -38,7 +38,7 @@ export function VideoSender(props) {
                 <div className="dot"></div>
                 <div className="dot"></div>
                 <div className="optionsSelection sender" style={{ height: 0 }}>
-                    <div className="option" onClick = {reply}>Reply</div>
+                    <div className="option" onClick={reply}>Reply</div>
                     <div onClick={deleteVideo} className="option">Delete this video</div>
                     <div className="option">Save video</div>
                 </div>
@@ -50,14 +50,22 @@ export function VideoSender(props) {
                     }
                 }
             }}
-            playsinline={true}
-            className="video sender" url={props.url} controls muted />
+                playsinline={true}
+                className="video sender" url={props.url} controls muted />
         </div>
     </>
     )
 }
 
 export function VideoRecipient(props) {
+    const [user, setUser] = useContext(userContext);
+    function reply() {
+        props.setReplyTo(props.sender ? user.user : user.receiverName);
+        props.setReplyMessage(props.url);
+        props.setIsReply(true);
+        props.setReplyID(props.senderID);
+        props.setReplyType("video");
+    }
     return (
         <div className="videoContainer recipient">
             <div className="options">
@@ -65,7 +73,7 @@ export function VideoRecipient(props) {
                 <div className="dot"></div>
                 <div className="dot"></div>
                 <div className="optionsSelection recipient" style={{ height: 0 }}>
-                    <div className="option">Blur this video</div>
+                    <div className="option" onClick={reply}>Reply</div>
                     <div className="option">Delete this video</div>
                     <div className="option">Save video</div>
                 </div>

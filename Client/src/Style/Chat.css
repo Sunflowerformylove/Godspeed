@@ -153,6 +153,7 @@
     align-self: flex-start;
     background-color: #3c91ee;
     color: white;
+    margin-left: 1rem;
 }
 
 .bubble.sender {

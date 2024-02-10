@@ -31,7 +31,7 @@ export function MessageAudioSender(props) {
         props.setReplyTo(props.sender ? user.user : user.receiverName);
         props.setReplyMessage(props.src);
         props.setIsReply(true);
-        props.setReplyID(props.ID);
+        props.setReplyID(props.senderID);
         props.setReplyType("audio");
     }
     return (<>
@@ -79,7 +79,7 @@ export function MessageAudioRecipient(props) {
         props.setReplyTo(props.sender ? user.user : user.receiverName);
         props.setReplyMessage(props.src);
         props.setIsReply(true);
-        props.setReplyID(props.ID);
+        props.setReplyID(props.senderID);
         props.setReplyType("audio");
     }
     return (<>

@@ -1,0 +1,102 @@
+.repContainer {
+	min-width: 20%;
+	max-width: 50%;
+    width: fit-content;
+    width: moz-fit-content;
+	height: 5rem;
+	background-color: #aaa;
+	border-radius: 1rem;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+	align-items: center;
+	overflow: scroll;
+	user-select: none;
+}
+
+.repContainer.media {
+	height: 15rem;
+}
+
+.repContainer.sender {
+	margin-left: auto;
+}
+
+.repContainer.receiver {
+    margin-left: 1rem
+}
+
+.repAnnounce {
+	font-weight: 600;
+	padding: 0.5rem;
+	border-radius: 20px;
+	background-color: black;
+	width: 80%;
+	text-align: center;
+	font-family: "Monaspace Krypton", monospace;
+}
+
+.repText {
+	font-weight: 600;
+	font-family: "Monaspace Neon", monospace;
+    color: #111;
+    font-size: 1.4rem;
+}
+
+.repImage {
+	align-self: center;
+	width: 60%;
+	height: 60%;
+	object-fit: contain;
+	object-position: center;
+	border: 2px solid #111;
+	border-radius: 10px;
+}
+
+.repAudio {
+	width: 90%;
+	height: 4rem;
+}
+
+.repFile {
+	width: 90%;
+	height: 6rem;
+
+	background-color: #ccc;
+	border-radius: 10px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.6rem;
+	font-weight: 600;
+	color: #111;
+	font-family: "Monaspace Krypton", monospace;
+}
+
+.repYoutube {
+	width: 100%;
+	height: 6rem;
+
+	border-radius: 10px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.youtubeIcon {
+	font-size: 8rem;
+	color: red;
+}
+
+.youtubeUrl {
+	width: 90%;
+	height: 3rem;
+	margin-top: 0.5rem;
+	border-radius: 10px;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+	font-size: 1.6rem;
+	font-family: "Monaspace Krypton", monospace;
+}
