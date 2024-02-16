@@ -24,16 +24,11 @@ export default function MessageReply(props) {
 				setAnnounce(`${props.replyName} has reply to themselves`);
 			}
 		}
-		console.log(announce)
 	}
 
 	useEffect(() => {
 		typeOfAnnounce(props);
 	}, []);
-
-	useEffect(() => {
-		console.log(announce)
-	}, [announce]);
 
 	return (
 		<>

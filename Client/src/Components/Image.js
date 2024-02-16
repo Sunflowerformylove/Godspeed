@@ -49,6 +49,8 @@ export function MessageImageRecipient(props) {
 				replyMessageType={props.replyMessageType}
 				isReplier={props.replier === user.ID}
 				isReply={props.isReply}
+				replier={props.replier}
+				reply={props.reply}
 			></MessageReply>
 			<div className="imageWrap recipient">
 				<div
@@ -129,6 +131,8 @@ export function MessageImageSender(props) {
 				replyMessageType={props.replyMessageType}
 				isReplier={props.replier === user.ID}
 				isReply={props.isReply}
+				replier={props.replier}
+				reply={props.reply}
 			></MessageReply>
 			<div className="imageWrap sender">
 				<div className="imageOptions sender">

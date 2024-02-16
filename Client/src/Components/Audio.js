@@ -41,6 +41,9 @@ export function MessageAudioSender(props) {
 				replyMessage={props.replyMessage}
 				replyMessageType={props.replyMessageType}
 				isReplier={props.replier === user.ID}
+				isReply = {props.isReply}
+				replier={props.replier}
+				reply={props.reply}
 			></MessageReply>
 			<div className="audioContainer sender">
 				<div className="options sender">
@@ -98,6 +101,9 @@ export function MessageAudioRecipient(props) {
 				replyMessage={props.replyMessage}
 				replyMessageType={props.replyMessageType}
 				isReplier={props.replier === user.ID}
+				isReply = {props.isReply}
+				replier={props.replier}
+				reply={props.reply}
 			></MessageReply>
 			<div className="audioContainer recipient">
 				<audio src={props.src} controls className="audio"></audio>

@@ -40,6 +40,8 @@ export function MessageRecipient(props) {
 				replyType={props.replyType}
 				isReplier={props.replier === user.ID}
 				isReply={props.isReply}
+				replier={props.replier}
+				reply={props.reply}
 			></MessageReply>
 			<div className="message">
 				<div className="bubble recipient">{props.message}</div>
@@ -103,6 +105,8 @@ export function MessageSender(props) {
 	return (
 		<>
 			<MessageReply
+				replier={props.replier}
+				reply={props.reply}
 				replyMessage={props.replyMessage}
 				replyType={props.replyType}
 				isReplier={props.replier === user.ID}

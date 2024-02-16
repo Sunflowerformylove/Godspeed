@@ -209,6 +209,8 @@ export function MessageFileSender(props) {
 				replyMessageType={props.replyMessageType}
 				isReplier={props.replier === user.ID}
 				isReply={props.isReply}
+				replier={props.replier}
+				reply={props.reply}
 			></MessageReply>
 			<div className="fileContainer sender" onClick={downloadFile}>
 				{setFileIcon(props)}
@@ -251,6 +253,8 @@ export function MessageFileRecipient(props) {
 				replyMessageType={props.replyMessageType}
 				isReplier={props.replier === user.ID}
 				isReply={props.isReply}
+				replier={props.replier}
+				reply={props.reply}
 			></MessageReply>
 			<div className="fileContainer recipient" onClick={downloadFile}>
 				{setFileIcon(props)}

@@ -412,7 +412,10 @@ export default function Chat() {
 			formData.append("sender", user.ID);
 			formData.append("receiver", user.receiver);
 			formData.append("room", Cookies.get("currentRoom"));
-			formData.append("reply", isReply ? replyID : -1);
+			formData.append("replier", isReply ? user.ID : -1);
+			formData.append("reply", isReply ? user.receiverID : -1);
+			formData.append("replyType", replyType);
+			formData.append("replyMessage", replyMessage);
 			axios.post("https://localhost:3000/api/upload", formData, {
 				headers: {
 					"Content-Type": "multipart/form-data",

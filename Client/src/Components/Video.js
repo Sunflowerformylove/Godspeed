@@ -38,6 +38,8 @@ export function VideoSender(props) {
 				replyMessageType={props.replyMessageType}
 				isReplier={props.replier === user.ID}
 				isReply={props.isReply}
+				replier={props.replier}
+				reply={props.reply}
 			></MessageReply>
 			<div className="videoContainer sender">
 				<div className="options">
@@ -89,6 +91,8 @@ export function VideoRecipient(props) {
 				replyMessageType={props.replyMessageType}
 				isReplier={props.replier === user.ID}
 				isReply={props.isReply}
+				replier={props.replier}
+				reply={props.reply}
 			></MessageReply>
 			<div className="videoContainer recipient">
 				<div className="options">
