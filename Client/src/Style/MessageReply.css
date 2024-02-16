@@ -2,7 +2,7 @@
 	min-width: 20%;
 	max-width: 50%;
     width: fit-content;
-    width: moz-fit-content;
+    /* width: moz-fit-content; */
 	height: 5rem;
 	background-color: #aaa;
 	border-radius: 1rem;

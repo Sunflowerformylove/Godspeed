@@ -253,7 +253,7 @@ io.on("connection", (socket) => {
         6,
         options.receiver,
         options.sender
-      )} (ID INT NOT NULL AUTO_INCREMENT, sender VARCHAR(255) NOT NULL, content LONGTEXT NOT NULL, timestamp VARCHAR(255), recipientHide TINYINT DEFAULT 0, senderHide TINYINT DEFAULT 0, type VARCHAR(255), filename VARCHAR(255), originalname VARCHAR(255), extension VARCHAR(255), location VARCHAR(255), size INT, mimetype VARCHAR(255), uuid VARCHAR(255), replier INT, reply INT, replyType VARCHAR(255), replyMessage LONGTEXT NOT NULL, PRIMARY KEY (ID))`
+      )} (ID INT NOT NULL AUTO_INCREMENT, sender VARCHAR(255) NOT NULL, content LONGTEXT NOT NULL, timestamp VARCHAR(255), recipientHide TINYINT DEFAULT 0, senderHide TINYINT DEFAULT 0, type VARCHAR(255), filename VARCHAR(255), originalname VARCHAR(255), extension VARCHAR(255), location VARCHAR(255), size INT, mimetype VARCHAR(255), uuid VARCHAR(255), replier INT, reply INT, replyType VARCHAR(255), replyMessage LONGTEXT, PRIMARY KEY (ID))`
     );
     database.query(
       `REPLACE INTO convos.${options.sender
@@ -308,8 +308,8 @@ io.on("connection", (socket) => {
   socket.on("message", (message) => {
     database.query(
       `INSERT INTO message.${message.room
-      } (sender, content, timestamp, type, reply) VALUES ('${message.senderID
-      }', ${database.escape(message.content)}, ${Date.now()}, '${checkURL(message.content) ? "url" : checkYoutubeURL(message.content) ? "youtube" : "text"}', '${message.reply}')`
+      } (sender, content, timestamp, type, replier, reply, replyType, replyMessage) VALUES ('${message.senderID
+      }', ${database.escape(message.content)}, ${Date.now()}, '${checkURL(message.content) ? "url" : checkYoutubeURL(message.content) ? "youtube" : "text"}', '${message.replier}' ,'${message.reply}', '${message.replyType === '' ? 'NULL' : message.replyType}',"${message.replyMessage === '' ? 'NULL' : database.escape(message.replyMessage)}")`
     );
     database.query(
       `SELECT ID, recipientHide, senderHide FROM message.${message.room} WHERE sender = '${message.senderID}' ORDER BY timestamp DESC LIMIT 1`,
@@ -326,7 +326,10 @@ io.on("connection", (socket) => {
           hideRecipient: result[0].recipientHide,
           hideSender: result[0].senderHide,
           type: checkURL(message.content) ? "url" : checkYoutubeURL(message.content) ? "youtube" : "text",
-          reply: message.reply
+          replier: message.replier,
+          reply: message.reply,
+          replyType: message.replyType,
+          replyMessage: message.replyMessage,
         });
       }
     );
