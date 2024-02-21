@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect, useRef } from "react";
+import { useState, useContext, useEffect, useRef, useCallback } from "react";
 import "../Style/MessageReply.css";
 import { IonIcon } from "@ionic/react";
 import * as Icon from "ionicons/icons";
@@ -8,7 +8,7 @@ export default function MessageReply(props) {
 	const [user, setUser] = useContext(userContext);
 	const [announce, setAnnounce] = useState("");
 	const containerRef = useRef(null);
-	function typeOfAnnounce(props) {
+	const typeOfAnnounce = useCallback(() => {
 		if (props.replier === user.ID) {
 			// if the replier is the user
 			if (props.reply === user.receiver) {
@@ -24,10 +24,11 @@ export default function MessageReply(props) {
 				setAnnounce(`${props.replyName} has reply to themselves`);
 			}
 		}
-	}
+	}, [props, user]);
 
 	useEffect(() => {
-		typeOfAnnounce(props);
+		console.log(props);
+		typeOfAnnounce();
 	}, []);
 
 	return (

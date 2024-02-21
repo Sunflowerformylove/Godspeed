@@ -331,11 +331,11 @@ io.on("connection", (socket) => {
 					: "text"
 			}', '${message.replier}' ,'${message.reply}', '${
 				message.replyType === "" ? "NULL" : message.replyType
-			}',"${
+			}',${
 				message.replyMessage === ""
 					? "NULL"
 					: database.escape(message.replyMessage)
-			}")`
+			})`
 		);
 		database.query(
 			`SELECT ID, recipientHide, senderHide FROM message.${message.room} WHERE sender = '${message.senderID}' ORDER BY timestamp DESC LIMIT 1`,
@@ -357,7 +357,7 @@ io.on("connection", (socket) => {
 						? "youtube"
 						: "text",
 					replier: message.replier,
-					reply: message.reply,
+					reply: Number(message.reply),
 					replyType: message.replyType,
 					replyMessage: message.replyMessage,
 				});
@@ -769,8 +769,46 @@ app.post("/api/upload", upload.array("file"), (request, response) => {
 	let data = request.body;
 	let now = Date.now();
 	const ID = uuidv4();
-	console.log(data);
+	console.log(file);
+	// console.log(
+	// 	`INSERT INTO message.${
+	// 		data.room
+	// 	} (sender, content, timestamp,type,filename,originalname,extension,location,mimetype,size, uuid, replier, reply, replyType, replyMessage) VALUES(${database.escape(
+	// 		data.sender
+	// 	)},${database.escape(file.destination)},${database.escape(
+	// 		now
+	// 	)},"file",${database.escape(file.filename)},'${
+	// 		file.originalname
+	// 	}','${path.extname(file.originalname)}',${database.escape(
+	// 		file.path
+	// 	)},${database.escape(file.mimetype)},${database.escape(
+	// 		file.size
+	// 	)},${database.escape(ID)}, ${data.replier}, ${data.reply}, ${
+	// 		data.replyType === "" ? "NULL" : database.escape(data.replyType)
+	// 	}, ${
+	// 		data.replyMessage === "" ? "NULL" : database.escape(data.replyMessage)
+	// 	})`
+	// );
 	file.forEach((file) => {
+		console.log(
+			`INSERT INTO message.${
+				data.room
+			} (sender, content, timestamp,type,filename,originalname,extension,location,mimetype,size, uuid, replier, reply, replyType, replyMessage) VALUES(${database.escape(
+				data.sender
+			)},${database.escape(file.destination)},${database.escape(
+				now
+			)},"file",${database.escape(file.filename)},'${
+				file.originalname
+			}','${path.extname(file.originalname)}',${database.escape(
+				file.path
+			)},${database.escape(file.mimetype)},${database.escape(
+				file.size
+			)},${database.escape(ID)}, ${data.replier}, ${data.reply}, ${
+				data.replyType === "" ? "NULL" : database.escape(data.replyType)
+			}, ${
+				data.replyMessage === "" ? "NULL" : database.escape(data.replyMessage)
+			})`
+		);
 		database.query(
 			`INSERT INTO message.${
 				data.room

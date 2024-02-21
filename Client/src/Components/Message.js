@@ -231,7 +231,7 @@ export function MessageImage(props) {
 				replyType={props.replyType}
 				replier={props.replier}
 				reply={props.reply}
-				isReply={props.replyMessage === "NULL" ? false : true}
+				isReply={props.replyMessage === undefined ? false : true}
 			/>
 		);
 	} else if (!props.sender && !props.recipientHide && !props.senderHide) {
