@@ -10,7 +10,6 @@ export function MessageImageRecipient(props) {
 	function deleteImage() {
 		const updateMessage = props.messageArray.map((message) => {
 			if (Array.isArray(message) && message[0].ID === props.ID) {
-				console.log(message[0].ID);
 				return message.map((mess) => {
 					return {
 						...mess,
@@ -18,7 +17,6 @@ export function MessageImageRecipient(props) {
 					};
 				});
 			} else if (!Array.isArray(message) && message.ID === props.ID) {
-				console.log(message.ID);
 				return {
 					...message,
 					recipientHide: true,
@@ -119,7 +117,13 @@ export function MessageImageSender(props) {
 
 	function reply() {
 		props.setReplyTo(props.sender ? user.user : user.receiverName);
-		props.setReplyMessage(props.src);
+		props.setReplyMessage(() => {
+			const images = [];
+			for(let i = 0; i < props.src.length; i++){
+				images.push(props.src[i].file);	
+			}
+			return images;
+		});
 		props.setIsReply(true);
 		props.setReplyID(props.ID);
 		props.setReplyType("image");

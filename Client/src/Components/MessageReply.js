@@ -27,7 +27,6 @@ export default function MessageReply(props) {
 	}, [props, user]);
 
 	useEffect(() => {
-		console.log(props);
 		typeOfAnnounce();
 	}, []);
 
@@ -41,7 +40,7 @@ export default function MessageReply(props) {
 					{props.replyType === "text" ? (
 						<div className="repText">{props.replyMessage}</div>
 					) : props.replyType === "image" ? (
-						<img src="/logo192.png" alt="" className="repImage" />
+						<img src={props.replyMessage} alt="" className="repImage" />
 					) : props.replyType === "audio" ? (
 						<audio controls src="/teams.mp3" className="repAudio"></audio>
 					) : props.replyType === "file" ? (

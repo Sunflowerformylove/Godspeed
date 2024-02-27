@@ -35,7 +35,7 @@ const Reply = forwardRef((props, replyRef) => {
             {props.replyType === "text" ? <div className="replyMessage">{props.replyMessage}</div> :
                 props.replyType === "image" ? <div alt="" className="replyImages" style={{ gridTemplateColumns: `repeat(${Math.min(props.replyMessage.length, 3)},auto)` }}>
                     {props.replyMessage.map((image, index) => {
-                        return <img alt="" className="replyImg" src={image.file} key={index}></img>
+                        return <img alt="" className="replyImg" src={image} key={index}></img>
                     })}
                 </div> : props.replyType === "video" ?
                     <video src={props.replyMessage} className="replyVideo" muted autoPlay controls></video> :

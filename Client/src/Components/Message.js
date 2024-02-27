@@ -176,7 +176,7 @@ export default function Message(props) {
 				replyType={props.replyType}
 				replier={props.replier}
 				reply={props.reply}
-				isReply={props.replyMessage === "NULL" ? false : true}
+				isReply={props.replyMessage === null || props.replyMessage === undefined || props.replyMessage === "" ? false : true}
 			/>
 		);
 	} else if (!props.sender && !props.recipientHide && !props.senderHide) {
@@ -199,7 +199,7 @@ export default function Message(props) {
 				replyType={props.replyType}
 				replier={props.replier}
 				reply={props.reply}
-				isReply={props.replyMessage === "NULL" ? false : true}
+				isReply={props.replyMessage === null || props.replyMessage === undefined || props.replyMessage === "" ? false : true}
 			/>
 		);
 	} else if (props.sender && props.senderHide) {
@@ -231,7 +231,7 @@ export function MessageImage(props) {
 				replyType={props.replyType}
 				replier={props.replier}
 				reply={props.reply}
-				isReply={props.replyMessage === undefined ? false : true}
+				isReply={props.replyMessage === null || props.replyMessage === undefined || props.replyMessage === "" ? false : true}
 			/>
 		);
 	} else if (!props.sender && !props.recipientHide && !props.senderHide) {
@@ -255,7 +255,7 @@ export function MessageImage(props) {
 				replyType={props.replyType}
 				replier={props.replier}
 				reply={props.reply}
-				isReply={props.replyMessage === "NULL" ? false : true}
+				isReply={props.replyMessage === null || props.replyMessage === undefined || props.replyMessage === "" ? false : true}
 			/>
 		);
 	} else if (props.sender && props.senderHide) {
@@ -276,7 +276,7 @@ export function MessageFile(props) {
 				mimetype={props.mimetype}
 				name={props.name}
 				type={props.type}
-				isReply={props.replyMessage === "NULL" ? false : true}
+				isReply={props.replyMessage === null || props.replyMessage === undefined || props.replyMessage === "" ? false : true}
 			/>
 		);
 	} else if (!props.sender && !props.recipientHide && !props.senderHide) {
@@ -289,7 +289,7 @@ export function MessageFile(props) {
 				mimetype={props.mimetype}
 				name={props.name}
 				type={props.type}
-				isReply={props.replyMessage === "NULL" ? false : true}
+				isReply={props.replyMessage === null || props.replyMessage === undefined || props.replyMessage === "" ? false : true}
 			/>
 		);
 	} else if (props.sender && props.senderHide) {
@@ -318,7 +318,7 @@ export function Video(props) {
 				setReplyTo={props.setReplyTo}
 				setIsReply={props.setIsReply}
 				setReplyType={props.setReplyType}
-				isReply={props.replyMessage === "NULL" ? false : true}
+				isReply={props.replyMessage === null || props.replyMessage === undefined || props.replyMessage === "" ? false : true}
 			/>
 		);
 	} else if (!props.sender && !props.recipientHide && !props.senderHide) {
@@ -339,7 +339,7 @@ export function Video(props) {
 				setReplyTo={props.setReplyTo}
 				setIsReply={props.setIsReply}
 				setReplyType={props.setReplyType}
-				isReply={props.replyMessage === "NULL" ? false : true}
+				isReply={props.replyMessage === null || props.replyMessage === undefined || props.replyMessage === "" ? false : true}
 			/>
 		);
 	} else if (props.sender && props.senderHide) {
@@ -368,7 +368,7 @@ export function Audio(props) {
 				setReplyTo={props.setReplyTo}
 				setIsReply={props.setIsReply}
 				setReplyType={props.setReplyType}
-				isReply={props.replyMessage === "NULL" ? false : true}
+				isReply={props.replyMessage === null || props.replyMessage === undefined || props.replyMessage === "" ? false : true}
 			/>
 		);
 	} else if (!props.sender && !props.recipientHide && !props.senderHide) {
@@ -388,7 +388,7 @@ export function Audio(props) {
 				setReplyTo={props.setReplyTo}
 				setIsReply={props.setIsReply}
 				setReplyType={props.setReplyType}
-				isReply={props.replyMessage === "NULL" ? false : true}
+				isReply={props.replyMessage === null || props.replyMessage === undefined || props.replyMessage === "" ? false : true}
 			/>
 		);
 	} else if (props.sender && props.senderHide) {

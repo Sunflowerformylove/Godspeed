@@ -48,7 +48,7 @@ const AudioRecorder = forwardRef((props, ref) => {
         <div ref={ref} className="recorderContainer">
             <div className="maxDuration"><div ref={progressRef} className="currentDuration"></div></div>
             <div className="recordingTime">{time}</div>
-            <IonIcon icon={playIcon} className="pauseIcon"></IonIcon>
+            <IonIcon icon={playIcon} className="pauseIcon" ></IonIcon>
             <IonIcon icon={Icon.refresh} className="restartIcon"></IonIcon>
         </div>
     )

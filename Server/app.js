@@ -329,9 +329,9 @@ io.on("connection", (socket) => {
 					: checkYoutubeURL(message.content)
 					? "youtube"
 					: "text"
-			}', '${message.replier}' ,'${message.reply}', '${
-				message.replyType === "" ? "NULL" : message.replyType
-			}',${
+			}', '${message.replier}' ,'${message.reply}',${
+				message.replyType === "" ? "NULL" : `'${message.replyType}'`
+			},${
 				message.replyMessage === ""
 					? "NULL"
 					: database.escape(message.replyMessage)
@@ -769,26 +769,6 @@ app.post("/api/upload", upload.array("file"), (request, response) => {
 	let data = request.body;
 	let now = Date.now();
 	const ID = uuidv4();
-	console.log(file);
-	// console.log(
-	// 	`INSERT INTO message.${
-	// 		data.room
-	// 	} (sender, content, timestamp,type,filename,originalname,extension,location,mimetype,size, uuid, replier, reply, replyType, replyMessage) VALUES(${database.escape(
-	// 		data.sender
-	// 	)},${database.escape(file.destination)},${database.escape(
-	// 		now
-	// 	)},"file",${database.escape(file.filename)},'${
-	// 		file.originalname
-	// 	}','${path.extname(file.originalname)}',${database.escape(
-	// 		file.path
-	// 	)},${database.escape(file.mimetype)},${database.escape(
-	// 		file.size
-	// 	)},${database.escape(ID)}, ${data.replier}, ${data.reply}, ${
-	// 		data.replyType === "" ? "NULL" : database.escape(data.replyType)
-	// 	}, ${
-	// 		data.replyMessage === "" ? "NULL" : database.escape(data.replyMessage)
-	// 	})`
-	// );
 	file.forEach((file) => {
 		console.log(
 			`INSERT INTO message.${

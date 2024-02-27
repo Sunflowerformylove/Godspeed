@@ -222,9 +222,7 @@ export default function Chat() {
 		audioStream: null,
 		audioRecorder: null,
 		start: async function () {
-			if (!this.isRecording) {
-				this.isRecording = true;
-			}
+			this.isRecording = true;
 			if (!this.audioStream) {
 				this.audioStream = await navigator.mediaDevices.getUserMedia({
 					audio: true,
@@ -245,18 +243,27 @@ export default function Chat() {
 				formData.append("room", Cookies.get("currentRoom"));
 				formData.append("sender", user.ID);
 				formData.append("receiver", user.receiver);
-				await axios.post("https://localhost:3000/api/upload", formData, {
-					headers: {
-						"Content-Type": "multipart/form-data",
-					},
-				});
+				formData.append("replier", isReply ? user.ID : -1);
+				formData.append("reply", isReply ? user.receiver : -1);
+				formData.append("replyType", replyType);
+				formData.append("replyMessage", replyMessage);
+				await axios
+					.post("https://localhost:3000/api/upload", formData, {
+						headers: {
+							"Content-Type": "multipart/form-data",
+						},
+					})
+					.then(() => {
+						setReplyID(-1);
+						setReplyMessage("");
+						setReplyTo("");
+						setReplyType("");
+					});
 			};
 		},
 		stop: function () {
-			if (this.isRecording) {
-				this.isRecording = false;
-				setStartTimer(false);
-			}
+			this.isRecording = false;
+			setStartTimer(false);
 			if (
 				this.audioRecorder &&
 				this.audioRecorder.state === "recording" &&
