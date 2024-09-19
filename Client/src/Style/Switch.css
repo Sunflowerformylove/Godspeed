@@ -19,7 +19,7 @@
     height: 2.5rem;
     border-radius: 30px;
     transition: transform 0.2s linear, background-image 0.5s ease;
-    background-image: url('../../public/Images/638.jpg');
+    /* background-image: url('../../public/Images/638.jpg'); */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -28,7 +28,7 @@
 }
 
 .boolean.true{
-    background-image: url('../../public/Images/5210759.jpg');
+    /* background-image: url('../../public/Images/5210759.jpg'); */
     transform: translateX(3.9rem);
     border-radius: 30px;
 }

@@ -10,8 +10,6 @@
 	"author": "Hai Do",
 	"license": "ISC",
 	"dependencies": {
-		"bad-words": "^3.0.4",
-		"badwords": "^1.0.0",
 		"bcrypt": "^5.1.0",
 		"body-parser": "^1.20.2",
 		"cookie-parser": "^1.4.6",
@@ -36,7 +34,6 @@
 		"seedrandom": "^3.0.5",
 		"socket.io": "^4.6.1",
 		"speakeasy": "^2.0.0",
-		"uuid": "^9.0.0",
-		"vn-badwords": "^1.1.9"
+		"uuid": "^9.0.0"
 	}
 }

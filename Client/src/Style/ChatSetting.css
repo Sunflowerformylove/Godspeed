@@ -39,7 +39,7 @@
 .settingSectionSlider {
     width: 20%;
     height: 100%;
-    background-image: url("../../public/Images/3204572.jpg");
+    /* background-image: url("../../public/Images/3204572.jpg"); */
     background-size: cover;
     background-position: center;
     position: absolute;
